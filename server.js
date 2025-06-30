@@ -11,6 +11,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const sqlite3 = require('sqlite3').verbose();
+const bcrypt = require('bcrypt');
 
 // Импорт моделей и ИИ
 const User = require('./models/User');
@@ -19,6 +21,36 @@ const UserDataManager = require('./models/UserData');
 
 const app = express();
 const server = http.createServer(app);
+
+// ===== НАСТРОЙКА БАЗЫ ДАННЫХ SQLITE =====
+const db = new sqlite3.Database('./data/database.sqlite', (err) => {
+    if (err) {
+        console.error('❌ Ошибка подключения к SQLite:', err.message);
+    } else {
+        console.log('✅ SQLite база данных подключена.');
+    }
+});
+
+// Создаем таблицу пользователей, если она не существует
+db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    avatar TEXT,
+    level INTEGER DEFAULT 1,
+    experience INTEGER DEFAULT 0,
+    rating INTEGER DEFAULT 1000,
+    gamesPlayed INTEGER DEFAULT 0,
+    gamesWon INTEGER DEFAULT 0,
+    gamesLost INTEGER DEFAULT 0,
+    draws INTEGER DEFAULT 0,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)`, (err) => {
+    if (err) {
+        console.error("❌ Ошибка создания таблицы users:", err.message);
+    }
+});
 
 // Настройка Socket.IO для работы в локальной сети
 const io = socketIo(server, {
@@ -595,8 +627,156 @@ app.post('/api/admin/delete-user', async (req, res) => {
     }
 });
 
-// ===== НОВЫЕ API МАРШРУТЫ АВТОРИЗАЦИИ =====
+// ===== НОВЫЕ API МАРШРУТЫ АВТОРИЗАЦИИ (SQLite) =====
 
+// Регистрация нового пользователя
+app.post('/api/register', (req, res) => {
+    const { email, username, password } = req.body;
+
+    if (!email || !username || !password) {
+        return res.status(400).json({ success: false, message: 'Все поля обязательны' });
+    }
+
+    // Проверка на существование email или username
+    const query = `SELECT * FROM users WHERE email = ? OR username = ?`;
+    db.get(query, [email, username], (err, row) => {
+        if (err) {
+            console.error('Ошибка регистрации:', err);
+            return res.status(500).json({ success: false, message: 'Ошибка сервера' });
+        }
+        if (row) {
+            return res.status(400).json({ success: false, message: 'Email или имя пользователя уже заняты' });
+        }
+
+        // Хешируем пароль
+        bcrypt.hash(password, 10, (err, hash) => {
+            if (err) {
+                return res.status(500).json({ success: false, message: 'Ошибка хеширования пароля' });
+            }
+            const insert = 'INSERT INTO users (email, username, password, avatar) VALUES (?,?,?,?)';
+            const avatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`;
+            db.run(insert, [email, username, hash, avatar], function(err) {
+                if (err) {
+                    return res.status(500).json({ success: false, message: 'Ошибка создания пользователя' });
+                }
+                res.json({ success: true, message: 'Регистрация прошла успешно' });
+            });
+        });
+    });
+});
+
+// Вход пользователя
+app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ success: false, message: 'Введите email и пароль' });
+    }
+
+    const query = `SELECT * FROM users WHERE email = ?`;
+    db.get(query, [email], (err, user) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: 'Ошибка сервера' });
+        }
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'Неверный email или пароль' });
+        }
+
+        // Сравниваем пароли
+        bcrypt.compare(password, user.password, (err, result) => {
+            if (result) {
+                // Пароли совпадают
+                const userData = {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    avatar: user.avatar,
+                    level: user.level,
+                    rating: user.rating,
+                };
+                // Можно создать JWT токен здесь, если нужно
+                res.json({ success: true, message: 'Вход выполнен успешно', user: userData });
+            } else {
+                res.status(400).json({ success: false, message: 'Неверный email или пароль' });
+            }
+        });
+    });
+});
+
+// ===== АДМИН API =====
+
+// API для сброса статистики пользователя
+app.post('/api/admin/reset-user-stats', async (req, res) => {
+    try {
+        const { nickname } = req.body;
+        
+        if (!nickname) {
+            return res.status(400).json({
+                success: false,
+                message: 'Никнейм обязателен'
+            });
+        }
+
+        const success = await userDataManager.resetUserStats(nickname);
+        
+        if (success) {
+            res.json({
+                success: true,
+                message: 'Статистика пользователя сброшена'
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'Пользователь не найден'
+            });
+        }
+
+    } catch (error) {
+        console.error('Ошибка сброса статистики:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Внутренняя ошибка сервера'
+        });
+    }
+});
+
+// API для удаления пользователя
+app.post('/api/admin/delete-user', async (req, res) => {
+    try {
+        const { nickname } = req.body;
+        
+        if (!nickname) {
+            return res.status(400).json({
+                success: false,
+                message: 'Никнейм обязателен'
+            });
+        }
+
+        const success = await userDataManager.deleteUser(nickname);
+        
+        if (success) {
+            res.json({
+                success: true,
+                message: 'Пользователь удален'
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'Пользователь не найден'
+            });
+        }
+
+    } catch (error) {
+        console.error('Ошибка удаления пользователя:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Внутренняя ошибка сервера'
+        });
+    }
+});
+
+// ===== СТАРЫЕ API МАРШРУТЫ АВТОРИЗАЦИИ (MongoDB) - ЗАКОММЕНТИРОВАНЫ =====
+
+/*
 // Регистрация нового пользователя
 app.post('/api/auth/register', async (req, res) => {
     try {
@@ -841,6 +1021,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         });
     }
 });
+*/
 
 // 🚀 НОВАЯ СИСТЕМА КОМНАТ И ОНЛАЙН ИГРЫ
 const gameRooms = new Map(); // roomId -> { players: [], game: Game, spectators: [] }

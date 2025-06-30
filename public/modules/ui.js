@@ -861,40 +861,39 @@ export class UIManager {
     }
 
     handleLogin() {
-        const username = document.getElementById('login-username')?.value.trim();
+        const email = document.getElementById('login-email')?.value.trim();
         const password = document.getElementById('login-password')?.value;
-        const rememberMe = document.getElementById('remember-me')?.checked;
 
-        if (!username || !password) {
-            this.showNotification('❌ Введите логин и пароль', 'error');
+        if (!email || !password) {
+            this.showNotification('❌ Введите email и пароль', 'error');
             return;
         }
 
-        if (username.length < 3) {
-            this.showNotification('❌ Логин должен содержать минимум 3 символа', 'error');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            this.showNotification('❌ Введите корректный email', 'error');
             return;
         }
 
-        if (password.length < 4) {
-            this.showNotification('❌ Пароль должен содержать минимум 4 символа', 'error');
+        if (password.length < 6) {
+            this.showNotification('❌ Пароль должен содержать минимум 6 символов', 'error');
             return;
         }
 
         // Отправляем данные на сервер
-        this.sendLoginRequest(username, password, rememberMe);
+        this.sendLoginRequest(email, password);
     }
 
-    async sendLoginRequest(username, password, rememberMe) {
+    async sendLoginRequest(email, password) {
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch('/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    username: username,
-                    password: password,
-                    rememberMe: rememberMe
+                    email: email,
+                    password: password
                 }),
             });
 
@@ -908,13 +907,14 @@ export class UIManager {
                     isGuest: false
                 };
 
-                if (rememberMe) {
-                    localStorage.setItem('authToken', data.token);
-                }
-
                 this.updatePlayerProfile();
-                this.showScreen('main-menu');
+                this.closeModal('auth-modal');
                 this.showNotification(`🎉 Добро пожаловать, ${data.user.username}!`, 'success');
+
+                // Показываем элементы управления для залогиненного пользователя
+                document.getElementById('user-profile').style.display = 'flex';
+                document.getElementById('login-button').style.display = 'none';
+
             } else {
                 this.showNotification(`❌ ${data.message || 'Ошибка входа'}`, 'error');
             }
@@ -925,14 +925,12 @@ export class UIManager {
     }
 
     showRegisterForm() {
-        document.querySelectorAll('.auth-content').forEach(content => {
-            content.style.display = 'none';
-        });
-        document.getElementById('register-form').style.display = 'block';
+        document.getElementById('login-auth').style.display = 'none';
+        document.getElementById('register-form-container').style.display = 'block';
     }
 
     showLoginForm() {
-        document.getElementById('register-form').style.display = 'none';
+        document.getElementById('register-form-container').style.display = 'none';
         document.getElementById('login-auth').style.display = 'block';
     }
 
@@ -981,7 +979,7 @@ export class UIManager {
 
     async sendRegisterRequest(username, email, password) {
         try {
-            const response = await fetch('/api/auth/register', {
+            const response = await fetch('/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -996,13 +994,13 @@ export class UIManager {
             const data = await response.json();
 
             if (data.success) {
-                this.showNotification('🎉 Аккаунт успешно создан! Войдите в систему', 'success');
+                this.showNotification('🎉 Аккаунт успешно создан! Теперь вы можете войти', 'success');
                 this.showLoginForm();
 
-                // Автозаполнение логина
-                const loginInput = document.getElementById('login-username');
+                // Автозаполнение email для входа
+                const loginInput = document.getElementById('login-email');
                 if (loginInput) {
-                    loginInput.value = username;
+                    loginInput.value = email;
                 }
             } else {
                 this.showNotification(`❌ ${data.message || 'Ошибка регистрации'}`, 'error');

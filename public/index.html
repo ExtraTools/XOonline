@@ -179,55 +179,58 @@
     </div>
 
     <!-- Окно авторизации -->
-    <div id="auth-section" class="auth-section">
+    <div id="auth-modal" class="auth-section">
         <div class="auth-container">
-            <h2 id="auth-title" style="color: white; text-align: center; margin-bottom: 2rem;">Вход в аккаунт</h2>
+            <button class="close-btn" id="close-auth-modal" title="Закрыть">&times;</button>
             
-            <!-- Форма входа -->
-            <form id="login-form" class="auth-form">
-                <div class="form-group">
-                    <label class="form-label">Email:</label>
-                    <input type="email" class="form-input" id="login-email" placeholder="your@email.com" required>
+            <div id="login-auth" class="auth-content active">
+                <h2 class="auth-title">Вход в аккаунт</h2>
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="login-email" class="form-label">Email:</label>
+                        <input type="email" id="login-email" class="form-input" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password" class="form-label">Пароль:</label>
+                        <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="button" id="login-btn" class="play-btn">Войти</button>
+                </form>
+                <div class="auth-switch">
+                    Нет аккаунта? <button id="show-register-form-btn" class="btn-link">Зарегистрируйтесь</button>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Пароль:</label>
-                    <input type="password" class="form-input" id="login-password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="play-btn" style="width: 100%;">
-                    <i class="fas fa-sign-in-alt"></i> Войти
-                </button>
-            </form>
-
-            <!-- Форма регистрации -->
-            <form id="register-form" class="auth-form" style="display: none;">
-                <div class="form-group">
-                    <label class="form-label">Имя пользователя:</label>
-                    <input type="text" class="form-input" id="register-username" placeholder="Ваше имя" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email:</label>
-                    <input type="email" class="form-input" id="register-email" placeholder="your@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Пароль:</label>
-                    <input type="password" class="form-input" id="register-password" placeholder="••••••••" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Подтвердите пароль:</label>
-                    <input type="password" class="form-input" id="register-password-confirm" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="play-btn" style="width: 100%;">
-                    <i class="fas fa-user-plus"></i> Зарегистрироваться
-                </button>
-            </form>
-            <div class="auth-actions">
-                <button id="auth-switch" class="btn-link" onclick="switchAuthMode()">
-                    Нет аккаунта? Зарегистрируйтесь
-                </button>
-                <button class="btn-icon" onclick="hideAuth()" title="Закрыть">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
+
+            <div id="register-form-container" class="auth-content" style="display: none;">
+                <h2 class="auth-title">Создание аккаунта</h2>
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="register-username" class="form-label">Имя пользователя:</label>
+                        <input type="text" id="register-username" class="form-input" placeholder="Player123" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email" class="form-label">Email:</label>
+                        <input type="email" id="register-email" class="form-input" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password" class="form-label">Пароль:</label>
+                        <input type="password" id="register-password" class="form-input" placeholder="Минимум 6 символов" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm-password" class="form-label">Повторите пароль:</label>
+                        <input type="password" id="register-confirm-password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group terms">
+                        <input type="checkbox" id="agree-terms" required>
+                        <label for="agree-terms">Я согласен с <a href="/terms" target="_blank">условиями использования</a></label>
+                    </div>
+                    <button type="button" id="create-account-btn" class="play-btn">Создать аккаунт</button>
+                </form>
+                <div class="auth-switch">
+                    Уже есть аккаунт? <button id="show-login-form-btn" class="btn-link">Войти</button>
+                </div>
+            </div>
+            
         </div>
     </div>
 
@@ -279,5 +282,17 @@
     <!-- JavaScript модули -->
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="script.js"></script>
+    <script>
+        // Добавим обработчики для переключения форм
+        document.getElementById('show-register-form-btn').addEventListener('click', () => {
+            document.getElementById('login-auth').style.display = 'none';
+            document.getElementById('register-form-container').style.display = 'block';
+        });
+
+        document.getElementById('show-login-form-btn').addEventListener('click', () => {
+            document.getElementById('register-form-container').style.display = 'none';
+            document.getElementById('login-auth').style.display = 'block';
+        });
+    </script>
 </body>
 </html> 
