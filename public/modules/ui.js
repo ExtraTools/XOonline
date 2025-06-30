@@ -22,14 +22,11 @@ export class UIManager {
         this.setupAuthTabs();
         document.getElementById('guest-login-btn')?.addEventListener('click', () => this.handleGuestLogin());
         document.getElementById('login-btn')?.addEventListener('click', () => this.handleLogin());
-        document.getElementById('register-btn')?.addEventListener('click', () => this.showRegisterForm());
-        document.getElementById('code-login-btn')?.addEventListener('click', () => this.handleCodeLogin());
         document.getElementById('create-account-btn')?.addEventListener('click', () => this.handleRegister());
-        document.getElementById('back-to-login-btn')?.addEventListener('click', () => this.showLoginForm());
-        document.getElementById('forgot-password')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.handleForgotPassword();
-        });
+
+        // Переключатели форм
+        document.getElementById('show-register-form-btn')?.addEventListener('click', () => this.showRegisterForm());
+        document.getElementById('show-login-form-btn')?.addEventListener('click', () => this.showLoginForm());
         
         // Навигация
         document.getElementById('settings-btn')?.addEventListener('click', () => this.openModal('settings-modal'));

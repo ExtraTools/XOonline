@@ -279,20 +279,9 @@
         -->
     </div>
 
-    <!-- JavaScript модули -->
+    <!-- Подключение скриптов -->
+    <div id="effects-container"></div>
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="script.js"></script>
-    <script>
-        // Добавим обработчики для переключения форм
-        document.getElementById('show-register-form-btn').addEventListener('click', () => {
-            document.getElementById('login-auth').style.display = 'none';
-            document.getElementById('register-form-container').style.display = 'block';
-        });
-
-        document.getElementById('show-login-form-btn').addEventListener('click', () => {
-            document.getElementById('register-form-container').style.display = 'none';
-            document.getElementById('login-auth').style.display = 'block';
-        });
-    </script>
 </body>
 </html> 
