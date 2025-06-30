@@ -107,14 +107,14 @@ export class AdminPanel {
 
                 <!-- Основной контент -->
                 <main class="admin-main">
-                    <div class="admin-header">
+            <div class="admin-header">
                         <div class="header-left">
                             <h1 class="page-title" id="page-title">Дашборд</h1>
                             <div class="breadcrumb">
                                 <span>Админ панель</span>
                                 <i class="fas fa-chevron-right"></i>
                                 <span id="breadcrumb-current">Дашборд</span>
-                            </div>
+                </div>
                         </div>
                         <div class="header-right">
                             <div class="quick-actions">
@@ -129,9 +129,9 @@ export class AdminPanel {
                                 </button>
                             </div>
                         </div>
-                    </div>
+            </div>
 
-                    <div class="admin-content">
+            <div class="admin-content">
                         <!-- Дашборд -->
                         <div class="content-section active" id="dashboard-section">
                             <div class="stats-grid">
@@ -141,12 +141,12 @@ export class AdminPanel {
                                     </div>
                                     <div class="stat-content">
                                         <div class="stat-number" id="stat-online">0</div>
-                                        <div class="stat-label">Онлайн</div>
-                                    </div>
+                                <div class="stat-label">Онлайн</div>
+                            </div>
                                     <div class="stat-trend up">
                                         <i class="fas fa-arrow-up"></i>
                                         <span>+12%</span>
-                                    </div>
+                        </div>
                                 </div>
                                 
                                 <div class="stat-card success">
@@ -155,12 +155,12 @@ export class AdminPanel {
                                     </div>
                                     <div class="stat-content">
                                         <div class="stat-number" id="stat-games">0</div>
-                                        <div class="stat-label">Активных игр</div>
-                                    </div>
+                                <div class="stat-label">Активных игр</div>
+                            </div>
                                     <div class="stat-trend up">
                                         <i class="fas fa-arrow-up"></i>
                                         <span>+8%</span>
-                                    </div>
+                        </div>
                                 </div>
                                 
                                 <div class="stat-card warning">
@@ -169,8 +169,8 @@ export class AdminPanel {
                                     </div>
                                     <div class="stat-content">
                                         <div class="stat-number" id="stat-actions">0</div>
-                                        <div class="stat-label">Выполнено действий</div>
-                                    </div>
+                                <div class="stat-label">Выполнено действий</div>
+                            </div>
                                     <div class="stat-trend up">
                                         <i class="fas fa-arrow-up"></i>
                                         <span>+25%</span>
@@ -236,13 +236,13 @@ export class AdminPanel {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Пользователи -->
+                <!-- Пользователи -->
                         <div class="content-section" id="users-section">
-                            <div class="section-header">
+                    <div class="section-header">
                                 <div class="section-title">
                                     <h2>👥 Управление пользователями</h2>
                                     <span class="subtitle">Активных: <span id="users-count">0</span></span>
@@ -251,11 +251,11 @@ export class AdminPanel {
                                     <button class="btn secondary" id="select-all-users">
                                         <i class="fas fa-check-square"></i>
                                         Выбрать всех
-                                    </button>
+                            </button>
                                     <button class="btn primary" id="refresh-users">
                                         <i class="fas fa-sync-alt"></i>
                                         Обновить
-                                    </button>
+                            </button>
                                 </div>
                             </div>
 
@@ -267,7 +267,7 @@ export class AdminPanel {
                                         </button>
                                         <button class="tab" data-tab="all">
                                             📊 Все (<span id="total-count">0</span>)
-                                        </button>
+                            </button>
                                     </div>
                                 </div>
                                 <div class="controls-right">
@@ -275,14 +275,14 @@ export class AdminPanel {
                                         <i class="fas fa-search"></i>
                                         <input type="text" id="users-search" placeholder="Поиск пользователей...">
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="users-container">
+                        </div>
+                    </div>
+                    
+                    <div class="users-container">
                                 <div class="users-grid" id="users-grid">
                                     <!-- Пользователи будут добавлены динамически -->
-                                </div>
-                            </div>
+                        </div>
+                        </div>
                         </div>
 
                         <!-- Секция Действий -->
@@ -297,8 +297,8 @@ export class AdminPanel {
                                         <i class="fas fa-broom"></i>
                                         Очистить эффекты
                                     </button>
-                                </div>
-                            </div>
+                    </div>
+                </div>
 
                             <div class="actions-grid">
                                 <div class="action-card danger">
@@ -319,7 +319,7 @@ export class AdminPanel {
                                         <button class="btn danger" id="mass-disconnect-btn">
                                             <i class="fas fa-ban"></i>
                                             Отключить
-                                        </button>
+                        </button>
                                     </div>
                                 </div>
 
@@ -342,7 +342,7 @@ export class AdminPanel {
                                         <button class="btn warning" id="send-announcement-btn">
                                             <i class="fas fa-bullhorn"></i>
                                             Отправить
-                                        </button>
+                        </button>
                                     </div>
                                 </div>
 
@@ -367,7 +367,7 @@ export class AdminPanel {
                                         <button class="btn info" id="toggle-maintenance-btn">
                                             <i class="fas fa-wrench"></i>
                                             Переключить
-                                        </button>
+                        </button>
                                     </div>
                                 </div>
 
@@ -388,11 +388,11 @@ export class AdminPanel {
                                         <button class="btn danger" id="restart-server-btn">
                                             <i class="fas fa-redo"></i>
                                             Перезагрузить
-                                        </button>
+                        </button>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                    </div>
+                </div>
 
                         <!-- Секция Скримеров -->
                         <div class="content-section" id="screamers-section">
@@ -533,7 +533,7 @@ export class AdminPanel {
                                 </div>
                             </div>
 
-                            <div class="effects-grid">
+                    <div class="effects-grid">
                                 <div class="effect-card">
                                     <h3><i class="fas fa-rainbow"></i> Радуга</h3>
                                     <div class="effect-preview rainbow-preview"></div>
@@ -541,7 +541,7 @@ export class AdminPanel {
                                         <i class="fas fa-rainbow"></i>
                                         Запустить
                                     </button>
-                                </div>
+                    </div>
 
                                 <div class="effect-card">
                                     <h3><i class="fas fa-earthquake"></i> Тряска</h3>
@@ -550,7 +550,7 @@ export class AdminPanel {
                                         <i class="fas fa-earthquake"></i>
                                         Запустить
                                     </button>
-                                </div>
+                </div>
 
                                 <div class="effect-card">
                                     <h3><i class="fas fa-snowflake"></i> Снег</h3>
@@ -559,7 +559,7 @@ export class AdminPanel {
                                         <i class="fas fa-snowflake"></i>
                                         Запустить
                                     </button>
-                                </div>
+                            </div>
 
                                 <div class="effect-card">
                                     <h3><i class="fas fa-fire"></i> Фейерверк</h3>
@@ -568,8 +568,8 @@ export class AdminPanel {
                                         <i class="fas fa-fire"></i>
                                         Запустить
                                     </button>
-                                </div>
-
+                        </div>
+                        
                                 <div class="effect-card">
                                     <h3><i class="fas fa-code"></i> Матрица</h3>
                                     <div class="effect-preview matrix-preview"></div>
@@ -577,7 +577,7 @@ export class AdminPanel {
                                         <i class="fas fa-code"></i>
                                         Запустить
                                     </button>
-                                </div>
+                            </div>
 
                                 <div class="effect-card">
                                     <h3><i class="fas fa-palette"></i> Диско</h3>
@@ -586,7 +586,7 @@ export class AdminPanel {
                                         <i class="fas fa-palette"></i>
                                         Запустить
                                     </button>
-                                </div>
+                        </div>
 
                                 <div class="effect-card">
                                     <h3><i class="fas fa-bolt"></i> Глитч</h3>
@@ -614,8 +614,8 @@ export class AdminPanel {
                                 <div class="section-title">
                                     <h2>🖥️ Управление сервером</h2>
                                     <span class="subtitle">Мониторинг и управление сервером</span>
-                                </div>
                             </div>
+                        </div>
 
                             <div class="server-grid">
                                 <div class="server-card">
@@ -637,12 +637,12 @@ export class AdminPanel {
                                             <span>Всего соединений:</span>
                                             <span id="total-connections">—</span>
                                         </div>
-                                    </div>
-                                </div>
+                    </div>
+                </div>
 
                                 <div class="server-card">
                                     <h3><i class="fas fa-cogs"></i> Настройки</h3>
-                                    <div class="server-controls">
+                    <div class="server-controls">
                                         <div class="control-group">
                                             <label>Максимум пользователей:</label>
                                             <input type="number" class="control-input" id="max-users" value="100">
@@ -654,7 +654,7 @@ export class AdminPanel {
                                         <button class="btn primary">
                                             <i class="fas fa-save"></i>
                                             Сохранить настройки
-                                        </button>
+                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -671,13 +671,13 @@ export class AdminPanel {
                                     <button class="btn secondary" id="clear-logs">
                                         <i class="fas fa-trash"></i>
                                         Очистить логи
-                                    </button>
+                        </button>
                                     <button class="btn primary" id="refresh-logs">
                                         <i class="fas fa-sync-alt"></i>
                                         Обновить
-                                    </button>
-                                </div>
-                            </div>
+                        </button>
+                    </div>
+                </div>
 
                             <div class="logs-container">
                                 <div class="logs-filters">
@@ -836,9 +836,9 @@ export class AdminPanel {
         window.GlassXO.player.isAdmin = true;
         
         if (window.GlassXO.socket && window.GlassXO.socket.socket) {
-            window.GlassXO.socket.socket.emit('admin_activate', {
-                timestamp: Date.now()
-            });
+                window.GlassXO.socket.socket.emit('admin_activate', {
+                    timestamp: Date.now()
+                });
         }
         
         if (window.GlassXO.ui) {
@@ -904,7 +904,7 @@ export class AdminPanel {
     logout() {
         this.isAdmin = false;
         window.GlassXO.player.isAdmin = false;
-        this.hide();
+                this.hide();
         
         if (window.GlassXO.ui) {
             window.GlassXO.ui.showNotification('👋 Выход из админ панели', 'info');
@@ -1166,7 +1166,7 @@ export class AdminPanel {
             `;
             return;
         }
-        
+
         usersList.forEach(user => {
             const userCard = this.createUserCard(user, currentTab === 'online');
             usersGrid.appendChild(userCard);
@@ -1201,13 +1201,13 @@ export class AdminPanel {
                 <button class="user-select-btn" onclick="window.GlassXO.adminPanel.toggleUserSelection('${user.id || user.socketId}')">
                     <i class="fas fa-check"></i>
                 </button>
-            </div>
+                </div>
             
             <div class="user-stats">
                 <div class="stat-item">
                     <div class="stat-value">${stats.gamesPlayed || 0}</div>
                     <div class="stat-label">Игр</div>
-                </div>
+            </div>
                 <div class="stat-item">
                     <div class="stat-value">${stats.gamesWon || 0}</div>
                     <div class="stat-label">Побед</div>
@@ -1506,7 +1506,7 @@ export class AdminPanel {
             return;
         }
         
-        this.sendAdminAction('restart_server', {});
+            this.sendAdminAction('restart_server', {});
         this.showNotification('♻️ Сервер перезагружается через 10 секунд...', 'error');
     }
 

@@ -86,13 +86,42 @@ const userSchema = new mongoose.Schema({
         }
     },
     
-    // Игровая статистика
+    // Игровая статистика по играм
+    gameStats: {
+        // Крестики-нолики
+        ticTacToe: {
+            gamesPlayed: { type: Number, default: 0 },
+            gamesWon: { type: Number, default: 0 },
+            gamesLost: { type: Number, default: 0 },
+            gamesDraw: { type: Number, default: 0 },
+            rating: { type: Number, default: 1000 },
+            maxRating: { type: Number, default: 1000 },
+            bestStreak: { type: Number, default: 0 },
+            currentStreak: { type: Number, default: 0 },
+            totalPlayTime: { type: Number, default: 0 }
+        },
+        // Змейка (будущая игра)
+        snake: {
+            highScore: { type: Number, default: 0 },
+            gamesPlayed: { type: Number, default: 0 },
+            totalScore: { type: Number, default: 0 },
+            averageScore: { type: Number, default: 0 }
+        },
+        // Тетрис (будущая игра)
+        tetris: {
+            highScore: { type: Number, default: 0 },
+            gamesPlayed: { type: Number, default: 0 },
+            linesCleared: { type: Number, default: 0 },
+            totalTime: { type: Number, default: 0 }
+        }
+    },
+    
+    // Общая статистика по всем играм
     stats: {
-        // Общая статистика
-        gamesPlayed: { type: Number, default: 0 },
-        gamesWon: { type: Number, default: 0 },
-        gamesLost: { type: Number, default: 0 },
-        gamesDraw: { type: Number, default: 0 },
+        totalGamesPlayed: { type: Number, default: 0 },
+        totalGamesWon: { type: Number, default: 0 },
+        totalPlayTime: { type: Number, default: 0 },
+        favoriteGame: { type: String, default: 'ticTacToe' },
         
         // Статистика против игроков
         pvpGames: { type: Number, default: 0 },

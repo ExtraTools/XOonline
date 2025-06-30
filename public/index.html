@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KRESTIKI | Крестики-Нолики Нового Поколения</title>
+    <title>DinosGames - Игровая площадка</title>
     
-    <!-- Preload fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Мета-теги -->
+    <meta name="description" content="DinosGames - современная игровая площадка с крестиками-ноликами, змейкой, тетрисом и другими играми">
+    <meta name="keywords" content="игры, онлайн игры, крестики-нолики, змейка, тетрис, DinosGames">
+    <meta name="author" content="DinosGames Team">
     
     <!-- CSS -->
     <link rel="stylesheet" href="style.css">
@@ -16,1149 +17,543 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- PWA Manifest -->
+    <!-- Манифест -->
     <link rel="manifest" href="manifest.json">
     
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Современные крестики-нолики с минималистичным дизайном, умным ИИ и онлайн мультиплеером. Играйте в браузере бесплатно!">
-    <meta name="keywords" content="крестики-нолики, tic tac toe, онлайн игра, ИИ, мультиплеер">
-    <meta name="author" content="KRESTIKI Team">
+    <!-- Фавиконы -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="KRESTIKI - Крестики-Нолики Нового Поколения">
-    <meta property="og:description" content="Современные крестики-нолики с красивым дизайном и умным ИИ">
+    <meta property="og:title" content="DinosGames - Игровая площадка">
+    <meta property="og:description" content="Современная игровая площадка с множеством игр">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://glass-xo.com">
+    <meta property="og:url" content="https://dinosgames.com">
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <!-- Стили для игровой площадки -->
+    <style>
+        :root {
+            --dinos-primary: #FF6B35;
+            --dinos-secondary: #4ECDC4;
+            --dinos-success: #45B7D1;
+            --dinos-warning: #F9CA24;
+            --dinos-danger: #F0932B;
+            --dinos-dark: #2C3E50;
+            --dinos-light: #ECF0F1;
+            --dinos-purple: #9B59B6;
+            --dinos-green: #27AE60;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .game-card:hover::before {
+            left: 100%;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--dinos-primary);
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--dinos-primary);
+            display: block;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .game-description {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-weight: 700;
+            color: var(--dinos-secondary);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, var(--dinos-primary), var(--dinos-secondary));
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .play-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .coming-soon {
+            background: rgba(155, 89, 182, 0.3);
+            color: #9B59B6;
+            border: 1px solid rgba(155, 89, 182, 0.5);
+        }
+
+        .auth-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .auth-section.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 1rem;
+            padding: 3rem;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            color: white;
+            font-weight: 600;
+        }
+
+        .form-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--dinos-primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 4rem 0;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--dinos-primary), var(--dinos-secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .user-profile {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--dinos-primary);
+        }
+
+        .user-info {
+            color: white;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .user-level {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        .logout-btn {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .user-profile {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 1rem auto;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Главная страница DinosGames -->
+    <div id="main-app" class="app">
+        <!-- Профиль пользователя (показывается если вошел) -->
+        <div id="user-profile" class="user-profile" style="display: none;">
+            <img id="user-avatar" class="user-avatar" src="" alt="Avatar">
+            <div class="user-info">
+                <p class="user-name" id="user-name">Загрузка...</p>
+                <p class="user-level" id="user-level">Уровень 1</p>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
 
-    <!-- Скример -->
-    <div class="screamer" id="screamer">
-        <video id="screamer-video" autoplay muted style="width: 100%; height: 100%; object-fit: cover;">
-            <source src="assets/scrim/screamer.mp4" type="video/mp4">
-        </video>
-        <audio class="screamer-sound" id="screamer-sound" preload="auto">
-            <source src="https://www.soundjay.com/misc/sounds/scream-6.wav" type="audio/wav">
-        </audio>
+        <!-- Кнопка входа (показывается если не вошел) -->
+        <div id="login-button" class="user-profile">
+            <button class="play-btn" onclick="showAuth('login')">
+                <i class="fas fa-user"></i> Войти
+            </button>
+        </div>
+
+        <!-- Главный контент -->
+        <div class="container">
+            <!-- Секция приветствия -->
+            <section class="hero-section">
+                <h1 class="hero-title">🦕 DinosGames</h1>
+                <p class="hero-subtitle">Современная игровая площадка с множеством захватывающих игр</p>
+            </section>
+
+            <!-- Сетка игр -->
+            <section class="games-section">
+                <div class="games-grid" id="games-grid">
+                    <!-- Крестики-нолики -->
+                    <div class="game-card" data-game="ticTacToe">
+                        <i class="game-icon fas fa-times"></i>
+                        <h3 class="game-title">Крестики-нолики</h3>
+                        <p class="game-description">
+                            Классическая игра 3x3. Играйте против ИИ или других игроков онлайн.
+                        </p>
+                        <div class="game-stats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="ttt-games">0</span>
+                                <span class="stat-label">Игр</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="ttt-wins">0</span>
+                                <span class="stat-label">Побед</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="ttt-rating">1000</span>
+                                <span class="stat-label">Рейтинг</span>
+                            </div>
+                        </div>
+                        <button class="play-btn" onclick="playGame('ticTacToe')">
+                            <i class="fas fa-play"></i> Играть
+                        </button>
+                    </div>
+
+                    <!-- Змейка (скоро) -->
+                    <div class="game-card" data-game="snake">
+                        <i class="game-icon fas fa-snake"></i>
+                        <h3 class="game-title">Змейка</h3>
+                        <p class="game-description">
+                            Классическая змейка с современным дизайном и улучшенной механикой.
+                        </p>
+                        <div class="game-stats">
+                            <div class="stat-item">
+                                <span class="stat-value">0</span>
+                                <span class="stat-label">Рекорд</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">0</span>
+                                <span class="stat-label">Игр</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">—</span>
+                                <span class="stat-label">Время</span>
+                            </div>
+                        </div>
+                        <button class="play-btn coming-soon" disabled>
+                            <i class="fas fa-clock"></i> Скоро
+                        </button>
+                    </div>
+
+                    <!-- Тетрис (скоро) -->
+                    <div class="game-card" data-game="tetris">
+                        <i class="game-icon fas fa-th-large"></i>
+                        <h3 class="game-title">Тетрис</h3>
+                        <p class="game-description">
+                            Легендарная головоломка с падающими блоками и множеством уровней.
+                        </p>
+                        <div class="game-stats">
+                            <div class="stat-item">
+                                <span class="stat-value">0</span>
+                                <span class="stat-label">Рекорд</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">0</span>
+                                <span class="stat-label">Линий</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">—</span>
+                                <span class="stat-label">Уровень</span>
+                            </div>
+                        </div>
+                        <button class="play-btn coming-soon" disabled>
+                            <i class="fas fa-clock"></i> Скоро
+                        </button>
+                    </div>
+
+                    <!-- Будущая игра -->
+                    <div class="game-card" data-game="future">
+                        <i class="game-icon fas fa-plus"></i>
+                        <h3 class="game-title">Новая игра</h3>
+                        <p class="game-description">
+                            Следите за обновлениями! Скоро добавим ещё больше захватывающих игр.
+                        </p>
+                        <div class="game-stats">
+                            <div class="stat-item">
+                                <span class="stat-value">∞</span>
+                                <span class="stat-label">Идей</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">100%</span>
+                                <span class="stat-label">Веселье</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">🔥</span>
+                                <span class="stat-label">Качество</span>
+                            </div>
+                        </div>
+                        <button class="play-btn coming-soon" disabled>
+                            <i class="fas fa-rocket"></i> В разработке
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
 
-    <!-- Главная навигация -->
-    <nav class="main-nav">
-        <div class="nav-container">
-            <div class="logo">
-                <h1>KRESTIKI</h1>
-            </div>
-            
-            <div class="nav-controls">
-                <button class="nav-btn" id="changelog-btn" title="История обновлений">
-                    <i class="fas fa-clipboard-list"></i>
-                </button>
-                <button class="nav-btn" id="settings-btn" title="Настройки">
-                    <i class="fas fa-cog"></i>
-                </button>
-                <button class="nav-btn" id="leaderboard-btn" title="Рейтинг">
-                    <i class="fas fa-trophy"></i>
-                </button>
-                <button class="nav-btn admin-btn-nav" id="admin-btn" style="display: none;" title="Админ панель">
-                    <i class="fas fa-user-shield"></i>
-                </button>
-                <button class="nav-btn" id="profile-btn" style="display: none;" title="Профиль">
-                    <i class="fas fa-user"></i>
-                </button>
-                <button class="nav-btn" id="logout-btn" style="display: none;" title="Выход">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Загрузочный экран -->
-    <div id="loading-screen" class="screen active">
-        <div class="loading-container">
-            <div class="glass-card loading-card">
-                <div class="loading-icon">
-                    <i class="fas fa-gamepad"></i>
-                </div>
-                <h2>KRESTIKI</h2>
-                <p>Инициализация игры...</p>
-                <div class="loading-bar">
-                    <div class="loading-progress"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Экран входа/регистрации -->
-    <div id="auth-screen" class="screen">
+    <!-- Окно авторизации -->
+    <div id="auth-section" class="auth-section">
         <div class="auth-container">
-            <div class="glass-card auth-card">
-                <div class="card-header">
-                    <h2>Добро пожаловать в KRESTIKI</h2>
-                    <p>Выберите способ входа в игру</p>
+            <h2 id="auth-title" style="color: white; text-align: center; margin-bottom: 2rem;">Вход в аккаунт</h2>
+            
+            <!-- Форма входа -->
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Email:</label>
+                    <input type="email" class="form-input" id="login-email" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Пароль:</label>
+                    <input type="password" class="form-input" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="play-btn" style="width: 100%;">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+            </form>
+
+            <!-- Форма регистрации -->
+            <form id="register-form" class="auth-form" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Имя пользователя:</label>
+                    <input type="text" class="form-input" id="register-username" placeholder="Ваше имя" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email:</label>
+                    <input type="email" class="form-input" id="register-email" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Пароль:</label>
+                    <input type="password" class="form-input" id="register-password" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Подтвердите пароль:</label>
+                    <input type="password" class="form-input" id="register-password-confirm" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="play-btn" style="width: 100%;">
+                    <i class="fas fa-user-plus"></i> Зарегистрироваться
+                </button>
+            </form>
+
+            <!-- Переключение между формами -->
+            <div style="text-align: center; margin-top: 1rem;">
+                <button id="auth-switch" class="logout-btn" onclick="switchAuthMode()">
+                    Нет аккаунта? Зарегистрируйтесь
+                </button>
+                <button class="logout-btn" onclick="hideAuth()" style="margin-left: 1rem;">
+                    <i class="fas fa-times"></i> Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Игра "Крестики-нолики" (встроенная) -->
+    <div id="tic-tac-toe-game" style="display: none;">
+        <!-- Здесь будет код игры крестики-нолики -->
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-primary); z-index: 5000;">
+            <div class="container" style="padding: 2rem;">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h2 style="color: white;">🎮 Крестики-нолики</h2>
+                    <button class="logout-btn" onclick="backToGames()">
+                        <i class="fas fa-arrow-left"></i> Назад к играм
+                    </button>
                 </div>
                 
-                <!-- Вкладки входа -->
-                <div class="auth-tabs">
-                    <button class="auth-tab active" data-tab="guest">
-                        <i class="fas fa-rocket"></i>
-                        Быстрый старт
-                    </button>
-                    <button class="auth-tab" data-tab="login">
-                        <i class="fas fa-user"></i>
-                        Логин/Пароль
-                    </button>
-                    <button class="auth-tab" data-tab="code">
-                        <i class="fas fa-key"></i>
-                        По коду
-                    </button>
+                <!-- Здесь будет интерфейс игры -->
+                <div id="tic-tac-toe-interface">
+                    <p style="color: white; text-align: center;">Игра загружается...</p>
                 </div>
-
-                <!-- Гостевой вход -->
-                <div id="guest-auth" class="auth-content active">
-                    <h3>Гостевой вход</h3>
-                    <p class="auth-description">Быстрый старт без регистрации</p>
-                    <div class="input-group">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="guest-nickname" placeholder="Введите ваш ник" maxlength="15">
-                    </div>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="save-nickname" checked>
-                        <span class="checkbox-custom"></span>
-                        Запомнить ник
-                    </label>
-                    <button class="btn btn-primary" id="guest-login-btn">
-                        <i class="fas fa-rocket"></i>
-                        Начать игру
-                    </button>
-                </div>
-
-                <!-- Вход по логину/паролю -->
-                <div id="login-auth" class="auth-content">
-                    <h3>Вход в аккаунт</h3>
-                    <p class="auth-description">Войдите в существующий аккаунт или создайте новый</p>
-                    
-                    <div class="login-form">
-                        <div class="input-group">
-                            <i class="fas fa-envelope"></i>
-                            <input type="text" id="login-username" placeholder="Логин или email" maxlength="30">
-                        </div>
-                        <div class="input-group">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" id="login-password" placeholder="Пароль" maxlength="50">
-                        </div>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="remember-me">
-                            <span class="checkbox-custom"></span>
-                            Запомнить меня
-                        </label>
-                    </div>
-                    
-                    <div class="auth-buttons">
-                        <button class="btn btn-primary" id="login-btn">
-                            <i class="fas fa-sign-in-alt"></i>
-                            Войти
-                        </button>
-                        <button class="btn btn-secondary" id="register-btn">
-                            <i class="fas fa-user-plus"></i>
-                            Регистрация
-                        </button>
-                    </div>
-                    
-                    <div class="auth-links">
-                        <a href="#" id="forgot-password">Забыли пароль?</a>
-                    </div>
-                </div>
-
-                <!-- Вход по коду -->
-                <div id="code-auth" class="auth-content">
-                    <h3>Вход по коду</h3>
-                    <p class="auth-description">Введите специальный код доступа</p>
-                    
-                    <div class="code-form">
-                        <div class="input-group code-input-group">
-                            <i class="fas fa-key"></i>
-                            <input type="text" id="access-code" placeholder="Введите код доступа" maxlength="20">
-                        </div>
-                        
-                        <div class="code-hints">
-                            <div class="code-hint">
-                                <span class="hint-label">Админ код:</span>
-                                <span class="hint-value">admin-start</span>
-                            </div>
-                            <div class="code-hint">
-                                <span class="hint-label">VIP код:</span>
-                                <span class="hint-value">vip-access</span>
-                            </div>
-                            <div class="code-hint">
-                                <span class="hint-label">Demo код:</span>
-                                <span class="hint-value">demo-play</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-primary" id="code-login-btn">
-                        <i class="fas fa-unlock"></i>
-                        Войти по коду
-                    </button>
-                </div>
-
-                <!-- Регистрация -->
-                <div id="register-form" class="auth-content" style="display: none;">
-                    <h3>Создание аккаунта</h3>
-                    <p class="auth-description">Создайте новый аккаунт для сохранения прогресса</p>
-                    
-                    <div class="register-form">
-                        <div class="input-group">
-                            <i class="fas fa-user"></i>
-                            <input type="text" id="register-username" placeholder="Имя пользователя" maxlength="20">
-                        </div>
-                        <div class="input-group">
-                            <i class="fas fa-envelope"></i>
-                            <input type="email" id="register-email" placeholder="Email" maxlength="50">
-                        </div>
-                        <div class="input-group">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" id="register-password" placeholder="Пароль" maxlength="50">
-                        </div>
-                        <div class="input-group">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" id="register-confirm-password" placeholder="Подтвердите пароль" maxlength="50">
-                        </div>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="agree-terms" required>
-                            <span class="checkbox-custom"></span>
-                            Согласен с условиями использования
-                        </label>
-                    </div>
-                    
-                    <div class="auth-buttons">
-                        <button class="btn btn-primary" id="create-account-btn">
-                            <i class="fas fa-user-plus"></i>
-                            Создать аккаунт
-                        </button>
-                        <button class="btn btn-secondary" id="back-to-login-btn">
-                            <i class="fas fa-arrow-left"></i>
-                            Назад
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Главное меню -->
-    <div id="main-menu" class="screen">
-        <div class="menu-container">
-            <!-- Профиль игрока -->
-            <div class="player-profile" id="player-profile">
-                <div class="glass-card profile-card">
-                    <div class="profile-header">
-                        <img id="player-avatar" src="icons/gameIcons/PNG/Black/1x/button1.png" alt="Аватар">
-                        <div class="profile-info">
-                            <h3 id="player-name">Игрок</h3>
-                            <div class="level-badge">
-                                <i class="fas fa-star"></i>
-                                Уровень <span id="player-level">1</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <span class="stat-value" id="win-rate">0%</span>
-                            <span class="stat-label">Побед</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value" id="games-played">0</span>
-                            <span class="stat-label">Игр</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value" id="win-streak">0</span>
-                            <span class="stat-label">Серия</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Режимы игры -->
-            <div class="game-modes">
-                <h2>Выберите режим игры</h2>
-                
-                <div class="modes-grid">
-                    <!-- Игра с ботом -->
-                    <div class="glass-card mode-card" id="ai-mode-btn">
-                        <div class="mode-icon">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <h3>Против ИИ</h3>
-                        <p>Играйте против умного бота</p>
-                        <div class="mode-features">
-                            <span class="feature-tag">4 уровня сложности</span>
-                        </div>
-                    </div>
-
-                    <!-- Онлайн игра -->
-                    <div class="glass-card mode-card" id="online-mode-btn">
-                        <div class="mode-icon">
-                            <i class="fas fa-globe"></i>
-                        </div>
-                        <h3>Онлайн игра</h3>
-                        <p>Играйте с другими игроками</p>
-                        <div class="mode-features">
-                            <span class="feature-tag">Быстрый поиск</span>
-                        </div>
-                    </div>
-
-                    <!-- Локальная игра -->
-                    <div class="glass-card mode-card" id="local-mode-btn">
-                        <div class="mode-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <h3>Локальная игра</h3>
-                        <p>Играйте вдвоем на одном устройстве</p>
-                        <div class="mode-features">
-                            <span class="feature-tag">2 игрока</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Выбор сложности ИИ -->
-    <div id="ai-difficulty-screen" class="screen">
-        <div class="difficulty-container">
-            <div class="glass-card difficulty-card">
-                <div class="card-header">
-                    <h2>Выберите уровень сложности</h2>
-                    <p>Каждый уровень имеет свою стратегию и силу игры</p>
-                </div>
-
-                <div class="difficulty-grid">
-                    <div class="difficulty-option" data-difficulty="easy">
-                        <div class="difficulty-icon">😊</div>
-                        <h3>Лёгкий</h3>
-                        <p>Бот делает ошибки, подходит для новичков</p>
-                        <div class="win-rate">Шанс победы: ~70%</div>
-                    </div>
-
-                    <div class="difficulty-option" data-difficulty="medium">
-                        <div class="difficulty-icon">🤔</div>
-                        <h3>Средний</h3>
-                        <p>Сбалансированный противник</p>
-                        <div class="win-rate">Шанс победы: ~40%</div>
-                    </div>
-
-                    <div class="difficulty-option" data-difficulty="hard">
-                        <div class="difficulty-icon">😤</div>
-                        <h3>Сложный</h3>
-                        <p>Очень умный бот, почти не ошибается</p>
-                        <div class="win-rate">Шанс победы: ~15%</div>
-                    </div>
-
-                    <div class="difficulty-option" data-difficulty="impossible">
-                        <div class="difficulty-icon">🤖</div>
-                        <h3>Невозможный</h3>
-                        <p>Идеальная игра, максимум можно сыграть вничью</p>
-                        <div class="win-rate">Шанс победы: ~5%</div>
-                    </div>
-                </div>
-
-                <div class="difficulty-actions">
-                    <button class="btn btn-secondary" id="back-to-menu-btn">
-                        <i class="fas fa-arrow-left"></i>
-                        Назад
-                    </button>
-                    <button class="btn btn-primary" id="start-ai-game-btn" disabled>
-                        <i class="fas fa-play"></i>
-                        Начать игру
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Онлайн лобби -->
-    <div id="online-lobby-screen" class="screen">
-        <!-- Анимированный фон -->
-        <div class="lobby-bg-animation">
-            <div class="floating-orb orb-1"></div>
-            <div class="floating-orb orb-2"></div>
-            <div class="floating-orb orb-3"></div>
-            <div class="floating-grid"></div>
-        </div>
-        
-        <div class="lobby-container">
-            <!-- Заголовок лобби -->
-            <div class="lobby-header">
-                <div class="lobby-title">
-                    <div class="title-icon">
-                        <i class="fas fa-globe-americas"></i>
-                    </div>
-                    <h1>Онлайн Арена</h1>
-                    <p>Сражайтесь с игроками со всего мира в режиме реального времени</p>
-                </div>
-            </div>
-
-            <!-- Статистика сервера -->
-            <div class="server-stats-card">
-                <div class="glass-card stats-card">
-                    <div class="stats-header">
-                        <h3>
-                            <i class="fas fa-chart-line"></i>
-                            Статистика сервера
-                        </h3>
-                        <div class="server-status online">
-                            <div class="status-dot"></div>
-                            <span>Онлайн</span>
-                        </div>
-                    </div>
-                    
-                    <div class="server-stats-grid">
-                        <div class="stat-card players-stat">
-                            <div class="stat-icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number" id="players-online">0</div>
-                                <div class="stat-label">Игроков онлайн</div>
-                                <div class="stat-progress">
-                                    <div class="progress-bar" id="players-progress"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card games-stat">
-                            <div class="stat-icon">
-                                <i class="fas fa-gamepad"></i>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number" id="active-games">0</div>
-                                <div class="stat-label">Активных игр</div>
-                                <div class="stat-progress">
-                                    <div class="progress-bar" id="games-progress"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card waiting-stat">
-                            <div class="stat-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number" id="queue-size">0</div>
-                                <div class="stat-label">В очереди</div>
-                                <div class="stat-progress">
-                                    <div class="progress-bar" id="queue-progress"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Основные опции лобби -->
-            <div class="lobby-main-grid">
-                <!-- Быстрая игра -->
-                <div class="glass-card lobby-card quick-match-card">
-                    <div class="card-gradient"></div>
-                    <div class="card-content">
-                        <div class="card-icon quick-match-icon">
-                            <i class="fas fa-bolt"></i>
-                        </div>
-                        <h3>Быстрая игра</h3>
-                        <p>Автоматический поиск соперника по рейтингу</p>
-                        
-                        <div class="match-info">
-                            <div class="match-stat">
-                                <span class="match-label">Время поиска:</span>
-                                <span class="match-value">~30 сек</span>
-                            </div>
-                            <div class="match-stat">
-                                <span class="match-label">Уровень:</span>
-                                <span class="match-value">Сбалансированный</span>
-                            </div>
-                        </div>
-                        
-                        <button class="lobby-btn lobby-btn-primary" id="quick-match-btn">
-                            <div class="btn-content">
-                                <i class="fas fa-search"></i>
-                                <span>Найти соперника</span>
-                            </div>
-                            <div class="btn-glow"></div>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Создание комнаты -->
-                <div class="glass-card lobby-card create-room-card">
-                    <div class="card-gradient"></div>
-                    <div class="card-content">
-                        <div class="card-icon create-room-icon">
-                            <i class="fas fa-plus-circle"></i>
-                        </div>
-                        <h3>Создать комнату</h3>
-                        <p>Пригласите друзей в приватную игру</p>
-                        
-                        <div class="room-form">
-                            <div class="form-group">
-                                <div class="input-wrapper">
-                                    <i class="fas fa-door-open"></i>
-                                    <input type="text" id="room-name" placeholder="Название комнаты" maxlength="20" class="room-input">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <div class="input-wrapper">
-                                    <i class="fas fa-lock"></i>
-                                    <input type="password" id="room-password" placeholder="Пароль (опционально)" maxlength="10" class="room-input">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <button class="lobby-btn lobby-btn-success" id="create-room-btn">
-                            <div class="btn-content">
-                                <i class="fas fa-plus"></i>
-                                <span>Создать комнату</span>
-                            </div>
-                            <div class="btn-glow"></div>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Присоединиться к комнате -->
-                <div class="glass-card lobby-card join-room-card">
-                    <div class="card-gradient"></div>
-                    <div class="card-content">
-                        <div class="card-icon join-room-icon">
-                            <i class="fas fa-sign-in-alt"></i>
-                        </div>
-                        <h3>Войти в комнату</h3>
-                        <p>Присоединитесь к существующей комнате по коду</p>
-                        
-                        <div class="room-form">
-                            <div class="form-group">
-                                <div class="input-wrapper">
-                                    <i class="fas fa-key"></i>
-                                    <input type="text" id="room-code" placeholder="Введите код комнаты" maxlength="8" class="room-input">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="quick-join-codes">
-                            <div class="quick-code" data-code="DEMO01">DEMO01</div>
-                            <div class="quick-code" data-code="TEST22">TEST22</div>
-                            <div class="quick-code" data-code="PLAY99">PLAY99</div>
-                        </div>
-                        
-                        <button class="lobby-btn lobby-btn-info" id="join-room-btn">
-                            <div class="btn-content">
-                                <i class="fas fa-door-open"></i>
-                                <span>Войти в комнату</span>
-                            </div>
-                            <div class="btn-glow"></div>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Список активных комнат -->
-            <div class="active-rooms-section">
-                <div class="glass-card rooms-card">
-                    <div class="rooms-header">
-                        <h3>
-                            <i class="fas fa-list"></i>
-                            Публичные комнаты
-                        </h3>
-                        <button class="refresh-btn" id="refresh-rooms-btn">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="rooms-list" id="rooms-list">
-                        <div class="room-item demo-room">
-                            <div class="room-info">
-                                <div class="room-name">Демо комната</div>
-                                <div class="room-details">
-                                    <span class="room-players">1/2</span>
-                                    <span class="room-level">Новичок</span>
-                                </div>
-                            </div>
-                            <button class="join-room-quick-btn" data-code="DEMO01">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="room-item">
-                            <div class="room-info">
-                                <div class="room-name">Профи арена</div>
-                                <div class="room-details">
-                                    <span class="room-players">0/2</span>
-                                    <span class="room-level">Эксперт</span>
-                                </div>
-                            </div>
-                            <button class="join-room-quick-btn" data-code="PRO123">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="empty-rooms" id="empty-rooms" style="display: none;">
-                            <div class="empty-icon">
-                                <i class="fas fa-bed"></i>
-                            </div>
-                            <p>Пока нет активных комнат</p>
-                            <span>Создайте первую комнату!</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Навигация -->
-            <div class="lobby-navigation">
-                <button class="lobby-btn lobby-btn-secondary" id="back-to-menu-lobby-btn">
-                    <div class="btn-content">
-                        <i class="fas fa-arrow-left"></i>
-                        <span>Главное меню</span>
-                    </div>
-                </button>
-                
-                <div class="lobby-extras">
-                    <button class="extra-btn" id="lobby-settings-btn" title="Настройки лобби">
-                        <i class="fas fa-cog"></i>
-                    </button>
-                    <button class="extra-btn" id="lobby-help-btn" title="Помощь">
-                        <i class="fas fa-question-circle"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Игровой экран -->
-    <div id="game-screen" class="screen">
-        <div class="game-container">
-            <!-- Информация об игре -->
-            <div class="game-info">
-                <div class="glass-card info-card">
-                    <div class="players-info">
-                        <div class="player player-x" id="player-x-info">
-                            <img id="player-x-avatar" src="icons/gameIcons/PNG/Black/1x/buttonX.png" alt="X">
-                            <div>
-                                <div id="player-x-name">Игрок X</div>
-                                <div class="player-symbol">X</div>
-                            </div>
-                        </div>
-                        
-                        <div class="vs-indicator">
-                            <span>VS</span>
-                            <div class="game-mode-indicator" id="game-mode-display">Локальная игра</div>
-                        </div>
-                        
-                        <div class="player player-o" id="player-o-info">
-                            <img id="player-o-avatar" src="icons/gameIcons/PNG/Black/1x/buttonO.png" alt="O">
-                            <div>
-                                <div id="player-o-name">Игрок O</div>
-                                <div class="player-symbol">O</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Игровое поле -->
-                <div class="glass-card board-card">
-                    <div class="game-status">
-                        <div class="turn-indicator" id="turn-indicator">
-                            Ход игрока X
-                        </div>
-                    <div class="game-timer" id="game-timer">
-                            <i class="fas fa-clock"></i>
-                        <span id="timer-display">00:00</span>
-                    </div>
-                    </div>
-
-                    <div class="game-board" id="game-board">
-                        <div class="cell" data-index="0"></div>
-                        <div class="cell" data-index="1"></div>
-                        <div class="cell" data-index="2"></div>
-                        <div class="cell" data-index="3"></div>
-                        <div class="cell" data-index="4"></div>
-                        <div class="cell" data-index="5"></div>
-                        <div class="cell" data-index="6"></div>
-                        <div class="cell" data-index="7"></div>
-                        <div class="cell" data-index="8"></div>
-                    </div>
-
-                    <div class="game-actions">
-                    <button class="btn btn-secondary" id="restart-game-btn">
-                        <i class="fas fa-redo"></i>
-                        Новая игра
-                    </button>
-                    <button class="btn btn-secondary" id="surrender-btn" style="display: none;">
-                            <i class="fas fa-flag"></i>
-                            Сдаться
-                        </button>
-                        <button class="btn btn-secondary" id="back-to-menu-game-btn">
-                            <i class="fas fa-home"></i>
-                        Главное меню
-                        </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Экран обновлений -->
-    <div id="changelog-screen" class="screen">
-        <div class="changelog-container">
-            <div class="glass-card changelog-card">
-                <div class="changelog-header">
-                    <div class="header-icon">
-                        <i class="fas fa-clipboard-list"></i>
-                    </div>
-                    <h1>История обновлений</h1>
-                    <p>Все изменения и улучшения KRESTIKI</p>
-                </div>
-
-                <div class="changelog-content">
-                    <!-- Версия 0.4 -->
-                    <div class="changelog-version">
-                        <div class="version-header">
-                            <div class="version-badge current">v0.4</div>
-                            <div class="version-info">
-                                <h3>Расширенные возможности</h3>
-                                <span class="version-date">Декабрь 2024</span>
-                            </div>
-                            <div class="version-status new">Текущая</div>
-                        </div>
-                        <div class="changelog-items">
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Система входа по логину/паролю</strong>
-                                    <p>Полная регистрация с email, сохранение прогресса и статистики</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Реальные публичные комнаты</strong>
-                                    <p>Динамическое отображение созданных комнат с защитой паролем</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item improved">
-                                <i class="fas fa-arrow-up"></i>
-                                <div class="item-content">
-                                    <strong>Улучшенная админ панель</strong>
-                                    <p>Новые эффекты, управление пользователями и МЕГА скример</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item fixed">
-                                <i class="fas fa-bug"></i>
-                                <div class="item-content">
-                                    <strong>Исправлена проблема с исчезающими символами</strong>
-                                    <p>Символы X и O теперь корректно отображаются после хода</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Версия 0.3 -->
-                    <div class="changelog-version">
-                        <div class="version-header">
-                            <div class="version-badge">v0.3</div>
-                            <div class="version-info">
-                                <h3>Онлайн функциональность</h3>
-                                <span class="version-date">Ноябрь 2024</span>
-                            </div>
-                            <div class="version-status">Стабильная</div>
-                        </div>
-                        <div class="changelog-items">
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Мультиплеер через интернет</strong>
-                                    <p>Возможность играть с друзьями онлайн через приватные комнаты</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Быстрый поиск соперника</strong>
-                                    <p>Автоматический подбор игроков по рейтингу</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Статистика сервера</strong>
-                                    <p>Отображение онлайн игроков и активных игр в реальном времени</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item improved">
-                                <i class="fas fa-arrow-up"></i>
-                                <div class="item-content">
-                                    <strong>Улучшенный интерфейс лобби</strong>
-                                    <p>Красивые анимации, статистика и удобная навигация</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Версия 0.2 -->
-                    <div class="changelog-version">
-                        <div class="version-header">
-                            <div class="version-badge">v0.2</div>
-                            <div class="version-info">
-                                <h3>ИИ и интерфейс</h3>
-                                <span class="version-date">Октябрь 2024</span>
-                            </div>
-                            <div class="version-status">Архивная</div>
-                        </div>
-                        <div class="changelog-items">
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Умный ИИ противник</strong>
-                                    <p>4 уровня сложности от новичка до невозможного</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Система профилей</strong>
-                                    <p>Сохранение статистики игр, уровень и достижения</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Настройки игры</strong>
-                                    <p>Звуки, анимации, темы оформления</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item improved">
-                                <i class="fas fa-arrow-up"></i>
-                                <div class="item-content">
-                                    <strong>Модернизированная графика</strong>
-                                    <p>Стеклянный дизайн, плавные переходы, современный UI</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Версия 0.1 -->
-                    <div class="changelog-version">
-                        <div class="version-header">
-                            <div class="version-badge initial">v0.1</div>
-                            <div class="version-info">
-                                <h3>Первый релиз</h3>
-                                <span class="version-date">Сентябрь 2024</span>
-                            </div>
-                            <div class="version-status">Первая версия</div>
-                        </div>
-                        <div class="changelog-items">
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Основная игра крестики-нолики</strong>
-                                    <p>Классическая игра 3x3 с базовой логикой</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Локальный мультиплеер</strong>
-                                    <p>Игра вдвоем на одном устройстве</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Простой интерфейс</strong>
-                                    <p>Минималистичный дизайн с основными функциями</p>
-                                </div>
-                            </div>
-                            <div class="changelog-item added">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <strong>Система уведомлений</strong>
-                                    <p>Информирование о ходах и результатах игры</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="changelog-footer">
-                    <div class="footer-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-code"></i>
-                            <span>4 версии</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-plus"></i>
-                            <span>16+ новых функций</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-bug"></i>
-                            <span>10+ исправлений</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-secondary" id="close-changelog-btn">
-                        <i class="fas fa-arrow-left"></i>
-                        Назад
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальные окна -->
-    
-    <!-- Модальное окно ожидания -->
-    <div id="waiting-modal" class="modal">
-        <div class="modal-content waiting-modal-content">
-            <div class="modal-header">
-                <h2 id="waiting-title">🔍 Поиск игры</h2>
-            </div>
-            <div class="waiting-content">
-                <div class="waiting-spinner">
-                    <div class="spinner"></div>
-                </div>
-                <p id="waiting-message">Поиск соперника...</p>
-                <div class="waiting-stats">
-                    <div class="waiting-stat">
-                        <span class="waiting-label">Позиция в очереди:</span>
-                        <span class="waiting-value" id="queue-position">-</span>
-                    </div>
-                    <div class="waiting-stat">
-                        <span class="waiting-label">Примерное время:</span>
-                        <span class="waiting-value" id="estimated-time">-</span>
-                    </div>
-                    <div class="waiting-stat">
-                        <span class="waiting-label">Игроков онлайн:</span>
-                        <span class="waiting-value" id="online-count">0</span>
-                    </div>
-                </div>
-                <button class="btn btn-secondary" id="cancel-search-btn">
-                    <i class="fas fa-times"></i>
-                    Отменить поиск
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Результат игры -->
-    <div id="game-result-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="result-title">Игра окончена!</h2>
-                <button class="close-btn" onclick="closeModal('game-result-modal')">&times;</button>
-            </div>
-            <div id="result-content">
-            <p id="result-message">Результат игры</p>
-                <div class="result-stats" id="result-stats" style="display: none;">
-                <div class="stat-item">
-                        <span class="stat-label">Время игры:</span>
-                        <span class="stat-value" id="game-duration">0:00</span>
-                </div>
-                <div class="stat-item">
-                        <span class="stat-label">Ходов сделано:</span>
-                        <span class="stat-value" id="moves-made">0</span>
-                    </div>
-                </div>
-            <div class="modal-actions">
-                <button class="btn btn-primary" id="play-again-btn">
-                    <i class="fas fa-redo"></i>
-                        Играть снова
-                </button>
-                    <button class="btn btn-secondary" onclick="showScreen('main-menu')">
-                    <i class="fas fa-home"></i>
-                        Главное меню
-                </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Настройки -->
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>⚙️ Настройки</h2>
-                <button class="close-btn" onclick="closeModal('settings-modal')">&times;</button>
-            </div>
-            <div class="settings-content">
-                <div class="setting-group">
-                    <h3>🎵 Звук</h3>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="sound-enabled" checked>
-                        <span class="checkbox-custom"></span>
-                        Включить звуки
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="music-enabled">
-                        <span class="checkbox-custom"></span>
-                        Фоновая музыка
-                    </label>
-                </div>
-
-                <div class="setting-group">
-                    <h3>🎨 Внешний вид</h3>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="dark-theme">
-                        <span class="checkbox-custom"></span>
-                        Тёмная тема
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="animations-enabled" checked>
-                        <span class="checkbox-custom"></span>
-                        Анимации
-                    </label>
-                </div>
-
-                <div class="setting-group">
-                    <h3>🎮 Игра</h3>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="auto-save" checked>
-                        <span class="checkbox-custom"></span>
-                        Автосохранение
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="show-hints">
-                        <span class="checkbox-custom"></span>
-                        Показывать подсказки
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Рейтинг -->
-    <div id="leaderboard-modal" class="modal">
-        <div class="modal-content leaderboard-modal-content">
-            <div class="modal-header">
-                <h2>🏆 Рейтинг игроков KRESTIKI</h2>
-                <button class="close-btn" onclick="window.GlassXO.ui.closeModal('leaderboard-modal')">&times;</button>
-            </div>
-            <div class="leaderboard-content">
-                <div class="leaderboard-stats">
-                    <div class="stat-card">
-                        <div class="stat-icon">🎮</div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="total-players">0</span>
-                            <span class="stat-label">Игроков</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">⚡</div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="games-today">0</span>
-                            <span class="stat-label">Игр сегодня</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">👑</div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="top-rating">0</span>
-                            <span class="stat-label">Топ рейтинг</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="leaderboard-tabs">
-                    <button class="tab-btn active" data-tab="today">Сегодня</button>
-                    <button class="tab-btn" data-tab="week">Неделя</button>
-                    <button class="tab-btn" data-tab="month">Месяц</button>
-                    <button class="tab-btn" data-tab="all-time">Всё время</button>
-                </div>
-
-                <div class="leaderboard-filters">
-                    <div class="filter-group">
-                        <label for="rating-filter">Рейтинг:</label>
-                        <select id="rating-filter">
-                            <option value="all">Все игроки</option>
-                            <option value="beginner">Новички (0-500)</option>
-                            <option value="amateur">Любители (500-1000)</option>
-                            <option value="expert">Эксперты (1000-1500)</option>
-                            <option value="master">Мастера (1500-2000)</option>
-                            <option value="legend">Легенды (2000+)</option>
-                        </select>
-                    </div>
-                    <button class="refresh-btn" id="refresh-leaderboard">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                </div>
-
-                <div class="leaderboard-container">
-                    <div class="leaderboard-header">
-                        <span class="header-rank">#</span>
-                        <span class="header-player">Игрок</span>
-                        <span class="header-rating">Рейтинг</span>
-                        <span class="header-games">Игры</span>
-                        <span class="header-winrate">% побед</span>
-                    </div>
-                    
-                    <div class="leaderboard-list" id="leaderboard-list">
-                        <div class="loading-leaderboard">
-                            <div class="loading-spinner"></div>
-                            <p>Загрузка рейтинга...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="leaderboard-footer">
-                    <div class="my-position" id="my-position" style="display: none;">
-                        <div class="position-icon">📍</div>
-                        <div class="position-info">
-                            <span class="position-text">Ваша позиция: <strong id="my-rank">-</strong></span>
-                            <span class="position-rating">Рейтинг: <strong id="my-rating">0</strong></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Ожидание соперника -->
-    <div id="waiting-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>🔍 Поиск соперника...</h2>
-                <button class="close-btn" onclick="cancelMatchmaking()">&times;</button>
-            </div>
-            <div class="waiting-content">
-                <div class="loading-icon">
-                    <i class="fas fa-search"></i>
-                </div>
-                <p id="waiting-message">Ищем достойного соперника...</p>
-                <div class="waiting-stats">
-                    <div class="stat">
-                        <span class="label">Время поиска:</span>
-                        <span class="value" id="search-time">0:00</span>
-                    </div>
-                    <div class="stat">
-                        <span class="label">Игроков онлайн:</span>
-                        <span class="value" id="online-count">0</span>
-                    </div>
-                </div>
-                <button class="btn btn-secondary" onclick="cancelMatchmaking()">
-                    <i class="fas fa-times"></i>
-                    Отменить поиск
-                </button>
             </div>
         </div>
     </div>
 
     <!-- Уведомления -->
-    <div id="notifications" class="notifications-container"></div>
+    <div id="notifications" class="notifications"></div>
 
-    <!-- Скрипты -->
-    <script src="/socket.io/socket.io.js"></script>
-    
-    <!-- Основной модульный скрипт -->
+    <!-- Звуки -->
+    <audio id="move-sound" preload="auto">
+        <source src="assets/sounds/move.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="win-sound" preload="auto">
+        <source src="assets/sounds/win.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Скример (для админки) -->
+    <div id="screamer" class="screamer">
+        <video id="screamer-video" muted loop>
+            <source src="assets/scrim/screamer.mp4" type="video/mp4">
+        </video>
+        <audio id="screamer-sound" preload="auto">
+            <source src="assets/sounds/screamer.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- JavaScript модули -->
     <script type="module" src="script.js"></script>
 </body>
 </html> 

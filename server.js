@@ -79,6 +79,19 @@ app.use('/icons', express.static(path.join(__dirname, 'icons')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Маршруты для игр
+app.get('/games/krestiki/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/games/krestiki/index.html'));
+});
+
+app.get('/games/snake/', (req, res) => {
+    res.status(404).send('<h1>Игра "Змейка" в разработке</h1><a href="/">← Назад в лобби</a>');
+});
+
+app.get('/games/tetris/', (req, res) => {
+    res.status(404).send('<h1>Игра "Тетрис" в разработке</h1><a href="/">← Назад в лобби</a>');
+});
+
 // Настройка сессий
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-session-secret',
