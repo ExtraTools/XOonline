@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DinosGames - Игровая площадка</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦕</text></svg>">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css?v=13">
+    <link rel="stylesheet" href="css/admin.css?v=1">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Манифест -->
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+        <!-- Particle Canvas Background -->
+    <canvas id="particleCanvas"></canvas>
+    
+    <!-- Grok-style interface -->
+    <div class="grok-container">
+        <div class="main-content">
+            <h1 class="main-title">
+                <span class="dino-icon" onclick="startDinoGame()">🦕</span>
+                DinoGames
+            </h1>
+            <p class="subtitle">Coming Soon</p>
+        </div>
+    </div>
+
+    <!-- Мини-игра Динозаврик -->
+    <div id="dino-game" class="dino-game" style="display: none;">
+        <div class="game-container">
+            <div class="game-header">
+                <h3>🦕 Dino Game</h3>
+                <div class="game-score">Счёт: <span id="score">0</span></div>
+                <button class="close-game" onclick="closeDinoGame()">✕</button>
+            </div>
+            <canvas id="gameCanvas" width="800" height="200"></canvas>
+            <div class="game-instructions">
+                <p>Нажмите SPACE или кликните для прыжка</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомления -->
+    <div id="notifications" class="notifications"></div>
+
+    <!-- JavaScript -->
+    <script src="modules/particleSystem.js?v=1"></script>
+    <script src="script.js?v=7"></script>
+</body>
+</html> 
