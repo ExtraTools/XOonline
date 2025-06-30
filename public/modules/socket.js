@@ -598,9 +598,14 @@ export class SocketManager {
     handleAdminAction(data) {
         console.log('🔥 Получено админ действие:', data);
         
-        // Передаём обработку в AdminPanel
+        // Передаём обработку в AdminPanel (если это админ)
         if (window.GlassXO.adminPanel) {
             window.GlassXO.adminPanel.handleIncomingAction(data);
+        }
+        
+        // Передаём обработку в EffectsManager (для всех пользователей)
+        if (window.GlassXO.effects) {
+            window.GlassXO.effects.handleAdminAction(data);
         }
     }
 

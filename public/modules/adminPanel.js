@@ -285,7 +285,422 @@ export class AdminPanel {
                             </div>
                         </div>
 
-                        <!-- Другие секции будут добавлены в следующей части -->
+                        <!-- Секция Действий -->
+                        <div class="content-section" id="actions-section">
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <h2>⚡ Массовые действия</h2>
+                                    <span class="subtitle">Управление всеми пользователями</span>
+                                </div>
+                                <div class="section-actions">
+                                    <button class="btn secondary" id="clear-all-effects">
+                                        <i class="fas fa-broom"></i>
+                                        Очистить эффекты
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="actions-grid">
+                                <div class="action-card danger">
+                                    <div class="action-header">
+                                        <div class="action-icon">
+                                            <i class="fas fa-ban"></i>
+                                        </div>
+                                        <div class="action-info">
+                                            <h3>Массовое отключение</h3>
+                                            <p>Отключить выбранных пользователей с сервера</p>
+                                        </div>
+                                    </div>
+                                    <div class="action-controls">
+                                        <select class="control-input" id="disconnect-targets">
+                                            <option value="all">Всех пользователей</option>
+                                            <option value="selected">Выбранных пользователей</option>
+                                        </select>
+                                        <button class="btn danger" id="mass-disconnect-btn">
+                                            <i class="fas fa-ban"></i>
+                                            Отключить
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="action-card warning">
+                                    <div class="action-header">
+                                        <div class="action-icon">
+                                            <i class="fas fa-bullhorn"></i>
+                                        </div>
+                                        <div class="action-info">
+                                            <h3>Массовое объявление</h3>
+                                            <p>Отправить сообщение пользователям</p>
+                                        </div>
+                                    </div>
+                                    <div class="action-controls">
+                                        <textarea class="control-input" id="announcement-text" placeholder="Введите текст объявления..." rows="3"></textarea>
+                                        <select class="control-input" id="announcement-targets">
+                                            <option value="all">Всем пользователям</option>
+                                            <option value="selected">Выбранным пользователям</option>
+                                        </select>
+                                        <button class="btn warning" id="send-announcement-btn">
+                                            <i class="fas fa-bullhorn"></i>
+                                            Отправить
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="action-card info">
+                                    <div class="action-header">
+                                        <div class="action-icon">
+                                            <i class="fas fa-wrench"></i>
+                                        </div>
+                                        <div class="action-info">
+                                            <h3>Режим обслуживания</h3>
+                                            <p>Включить/выключить техническое обслуживание</p>
+                                        </div>
+                                    </div>
+                                    <div class="action-controls">
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="maintenance-toggle">
+                                            <label for="maintenance-toggle" class="toggle-label">
+                                                <span>Выключен</span>
+                                                <span>Включен</span>
+                                            </label>
+                                        </div>
+                                        <button class="btn info" id="toggle-maintenance-btn">
+                                            <i class="fas fa-wrench"></i>
+                                            Переключить
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="action-card success">
+                                    <div class="action-header">
+                                        <div class="action-icon">
+                                            <i class="fas fa-redo"></i>
+                                        </div>
+                                        <div class="action-info">
+                                            <h3>Перезагрузка сервера</h3>
+                                            <p>Полная перезагрузка системы</p>
+                                        </div>
+                                    </div>
+                                    <div class="action-controls">
+                                        <div class="warning-text">
+                                            ⚠️ Все пользователи будут отключены!
+                                        </div>
+                                        <button class="btn danger" id="restart-server-btn">
+                                            <i class="fas fa-redo"></i>
+                                            Перезагрузить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Секция Скримеров -->
+                        <div class="content-section" id="screamers-section">
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <h2>💀 Скримеры и троллинг</h2>
+                                    <span class="subtitle">Управление скримерами и эффектами запугивания</span>
+                                </div>
+                                <div class="section-actions">
+                                    <button class="btn danger" id="emergency-stop">
+                                        <i class="fas fa-stop"></i>
+                                        Экстренная остановка
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="screamers-grid">
+                                <!-- Обычный скример -->
+                                <div class="screamer-card">
+                                    <h3><i class="fas fa-skull"></i> Обычный скример</h3>
+                                    <div class="screamer-controls">
+                                        <div class="control-group">
+                                            <label class="control-label">Длительность (сек):</label>
+                                            <input type="number" class="control-input" id="normal-screamer-duration" value="5" min="1" max="30">
+                                        </div>
+                                        
+                                        <div class="target-selector">
+                                            <label class="control-label">Цель:</label>
+                                            <div class="target-options">
+                                                <button class="target-option active" data-target="selected" data-type="normal">Выбранные</button>
+                                                <button class="target-option" data-target="all" data-type="normal">Все</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="selected-users" id="normal-screamer-users">
+                                            <div class="empty-selection">Выберите пользователей в разделе "Пользователи"</div>
+                                        </div>
+
+                                        <button class="action-btn danger" id="activate-normal-screamer">
+                                            <i class="fas fa-skull"></i>
+                                            Активировать скример
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- МЕГА скример -->
+                                <div class="screamer-card mega">
+                                    <h3><i class="fas fa-skull-crossbones"></i> МЕГА СКРИМЕР ☠️</h3>
+                                    <div class="screamer-controls">
+                                        <div class="control-group">
+                                            <label class="control-label">Длительность (сек):</label>
+                                            <input type="number" class="control-input" id="mega-screamer-duration" value="10" min="5" max="60">
+                                        </div>
+
+                                        <div class="control-group">
+                                            <label class="control-label">Видео файл:</label>
+                                            <select class="control-input" id="mega-screamer-video">
+                                                <option value="assets/scrim/MEGAScreamer.mp4">МЕГА скример</option>
+                                                <option value="assets/scrim/screamer.mp4">Обычный скример</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="target-selector">
+                                            <label class="control-label">Цель:</label>
+                                            <div class="target-options">
+                                                <button class="target-option active" data-target="selected" data-type="mega">Выбранные</button>
+                                                <button class="target-option" data-target="all" data-type="mega">ВСЕ</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="selected-users" id="mega-screamer-users">
+                                            <div class="empty-selection">Выберите пользователей в разделе "Пользователи"</div>
+                                        </div>
+
+                                        <div class="mega-warning">
+                                            ⚠️ ВНИМАНИЕ: Очень интенсивный эффект!
+                                        </div>
+
+                                        <button class="action-btn danger mega-btn" id="activate-mega-screamer">
+                                            <i class="fas fa-skull-crossbones"></i>
+                                            ☠️ ЗАПУСТИТЬ МЕГА СКРИМЕР ☠️
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Лаги -->
+                                <div class="screamer-card">
+                                    <h3><i class="fas fa-stopwatch"></i> Искусственные лаги</h3>
+                                    <div class="screamer-controls">
+                                        <div class="control-group">
+                                            <label class="control-label">Интенсивность:</label>
+                                            <select class="control-input" id="lag-intensity">
+                                                <option value="1">Легкие лаги</option>
+                                                <option value="2">Средние лаги</option>
+                                                <option value="3" selected>Сильные лаги</option>
+                                                <option value="4">Экстремальные лаги</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="control-group">
+                                            <label class="control-label">Длительность (сек):</label>
+                                            <input type="number" class="control-input" id="lag-duration" value="10" min="5" max="60">
+                                        </div>
+                                        
+                                        <div class="target-selector">
+                                            <label class="control-label">Цель:</label>
+                                            <div class="target-options">
+                                                <button class="target-option active" data-target="selected" data-type="lag">Выбранные</button>
+                                                <button class="target-option" data-target="all" data-type="lag">Все</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="selected-users" id="lag-users">
+                                            <div class="empty-selection">Выберите пользователей в разделе "Пользователи"</div>
+                                        </div>
+
+                                        <button class="action-btn warning" id="activate-lag">
+                                            <i class="fas fa-stopwatch"></i>
+                                            Запустить лаги
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Секция Эффектов -->
+                        <div class="content-section" id="effects-section">
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <h2>✨ Визуальные эффекты</h2>
+                                    <span class="subtitle">Спецэффекты для пользователей</span>
+                                </div>
+                                <div class="section-actions">
+                                    <button class="btn secondary" id="clear-all-effects-btn">
+                                        <i class="fas fa-broom"></i>
+                                        Очистить все эффекты
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="effects-grid">
+                                <div class="effect-card">
+                                    <h3><i class="fas fa-rainbow"></i> Радуга</h3>
+                                    <div class="effect-preview rainbow-preview"></div>
+                                    <button class="action-btn info" data-effect="rainbow">
+                                        <i class="fas fa-rainbow"></i>
+                                        Запустить
+                                    </button>
+                                </div>
+
+                                <div class="effect-card">
+                                    <h3><i class="fas fa-earthquake"></i> Тряска</h3>
+                                    <div class="effect-preview shake-preview"></div>
+                                    <button class="action-btn warning" data-effect="shake">
+                                        <i class="fas fa-earthquake"></i>
+                                        Запустить
+                                    </button>
+                                </div>
+
+                                <div class="effect-card">
+                                    <h3><i class="fas fa-snowflake"></i> Снег</h3>
+                                    <div class="effect-preview snow-preview"></div>
+                                    <button class="action-btn info" data-effect="snow">
+                                        <i class="fas fa-snowflake"></i>
+                                        Запустить
+                                    </button>
+                                </div>
+
+                                <div class="effect-card">
+                                    <h3><i class="fas fa-fire"></i> Фейерверк</h3>
+                                    <div class="effect-preview fireworks-preview"></div>
+                                    <button class="action-btn success" data-effect="fireworks">
+                                        <i class="fas fa-fire"></i>
+                                        Запустить
+                                    </button>
+                                </div>
+
+                                <div class="effect-card">
+                                    <h3><i class="fas fa-code"></i> Матрица</h3>
+                                    <div class="effect-preview matrix-preview"></div>
+                                    <button class="action-btn success" data-effect="matrix">
+                                        <i class="fas fa-code"></i>
+                                        Запустить
+                                    </button>
+                                </div>
+
+                                <div class="effect-card">
+                                    <h3><i class="fas fa-palette"></i> Диско</h3>
+                                    <div class="effect-preview disco-preview"></div>
+                                    <button class="action-btn warning" data-effect="disco">
+                                        <i class="fas fa-palette"></i>
+                                        Запустить
+                                    </button>
+                                </div>
+
+                                <div class="effect-card">
+                                    <h3><i class="fas fa-bolt"></i> Глитч</h3>
+                                    <div class="effect-preview glitch-preview"></div>
+                                    <button class="action-btn danger" data-effect="glitch">
+                                        <i class="fas fa-bolt"></i>
+                                        Запустить
+                                    </button>
+                                </div>
+
+                                <div class="effect-card">
+                                    <h3><i class="fas fa-undo"></i> Переворот</h3>
+                                    <div class="effect-preview upside-preview"></div>
+                                    <button class="action-btn warning" data-effect="upside_down">
+                                        <i class="fas fa-undo"></i>
+                                        Запустить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Секция Сервера -->
+                        <div class="content-section" id="server-section">
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <h2>🖥️ Управление сервером</h2>
+                                    <span class="subtitle">Мониторинг и управление сервером</span>
+                                </div>
+                            </div>
+
+                            <div class="server-grid">
+                                <div class="server-card">
+                                    <h3><i class="fas fa-chart-line"></i> Статистика сервера</h3>
+                                    <div class="server-stats" id="server-stats">
+                                        <div class="stat-row">
+                                            <span>Время работы:</span>
+                                            <span id="uptime">—</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span>Использование CPU:</span>
+                                            <span id="cpu-usage">—</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span>Использование RAM:</span>
+                                            <span id="ram-usage">—</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span>Всего соединений:</span>
+                                            <span id="total-connections">—</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="server-card">
+                                    <h3><i class="fas fa-cogs"></i> Настройки</h3>
+                                    <div class="server-controls">
+                                        <div class="control-group">
+                                            <label>Максимум пользователей:</label>
+                                            <input type="number" class="control-input" id="max-users" value="100">
+                                        </div>
+                                        <div class="control-group">
+                                            <label>Таймаут соединения (сек):</label>
+                                            <input type="number" class="control-input" id="connection-timeout" value="30">
+                                        </div>
+                                        <button class="btn primary">
+                                            <i class="fas fa-save"></i>
+                                            Сохранить настройки
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Секция Логов -->
+                        <div class="content-section" id="logs-section">
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <h2>📋 Логи системы</h2>
+                                    <span class="subtitle">Мониторинг активности и ошибок</span>
+                                </div>
+                                <div class="section-actions">
+                                    <button class="btn secondary" id="clear-logs">
+                                        <i class="fas fa-trash"></i>
+                                        Очистить логи
+                                    </button>
+                                    <button class="btn primary" id="refresh-logs">
+                                        <i class="fas fa-sync-alt"></i>
+                                        Обновить
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="logs-container">
+                                <div class="logs-filters">
+                                    <button class="log-filter active" data-level="all">Все</button>
+                                    <button class="log-filter" data-level="info">Инфо</button>
+                                    <button class="log-filter" data-level="warning">Предупреждения</button>
+                                    <button class="log-filter" data-level="error">Ошибки</button>
+                                    <button class="log-filter" data-level="admin">Админ действия</button>
+                                </div>
+                                <div class="logs-list" id="logs-list">
+                                    <div class="log-entry info">
+                                        <span class="log-time">21:36:42</span>
+                                        <span class="log-level">INFO</span>
+                                        <span class="log-message">Сервер запущен на порту 3000</span>
+                                    </div>
+                                    <div class="log-entry success">
+                                        <span class="log-time">21:36:43</span>
+                                        <span class="log-level">SUCCESS</span>
+                                        <span class="log-message">Админ панель активирована</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </main>
             </div>
@@ -321,6 +736,27 @@ export class AdminPanel {
             if (e.target.id === 'mass-disconnect') this.quickMassDisconnect();
             if (e.target.id === 'mass-announcement') this.quickAnnouncement();
             if (e.target.id === 'server-restart') this.quickServerRestart();
+            
+            // Новые действия из секций
+            if (e.target.id === 'activate-normal-screamer') this.activateNormalScreener();
+            if (e.target.id === 'activate-mega-screamer') this.activateMegaScreener();
+            if (e.target.id === 'activate-lag') this.activateLag();
+            if (e.target.id === 'mass-disconnect-btn') this.massDisconnect();
+            if (e.target.id === 'send-announcement-btn') this.sendAnnouncement();
+            if (e.target.id === 'toggle-maintenance-btn') this.toggleMaintenance();
+            if (e.target.id === 'restart-server-btn') this.restartServer();
+            if (e.target.id === 'emergency-stop') this.emergencyStop();
+            if (e.target.id === 'clear-all-effects-btn' || e.target.id === 'clear-all-effects') this.clearAllEffects();
+            
+            // Переключение целей скримеров
+            if (e.target.classList.contains('target-option')) {
+                this.switchTarget(e.target);
+            }
+            
+            // Эффекты
+            if (e.target.hasAttribute('data-effect')) {
+                this.activateEffect(e.target.getAttribute('data-effect'));
+            }
             
             // Логаут
             if (e.target.id === 'admin-logout') this.logout();
@@ -820,6 +1256,14 @@ export class AdminPanel {
         }
         
         this.updateSelectionCounter();
+        
+        // Обновляем отображение выбранных пользователей во всех секциях скримеров
+        ['normal', 'mega', 'lag'].forEach(type => {
+            const targetOption = document.querySelector(`.target-option.active[data-type="${type}"]`);
+            if (targetOption && targetOption.getAttribute('data-target') === 'selected') {
+                this.updateSelectedUsersDisplay(type);
+            }
+        });
     }
 
     selectAllUsers() {
@@ -921,6 +1365,235 @@ export class AdminPanel {
                 this.showNotification(`🚫 Отключено ${userIds.length} пользователей`, 'danger');
                 break;
         }
+    }
+
+    // ===== НОВЫЕ МЕТОДЫ СЕКЦИЙ =====
+    
+    // Активация обычного скримера
+    activateNormalScreener() {
+        const duration = parseInt(document.getElementById('normal-screamer-duration').value) * 1000;
+        const targetType = document.querySelector('.target-option.active[data-type="normal"]').getAttribute('data-target');
+        
+        let targets;
+        if (targetType === 'all') {
+            targets = 'all';
+        } else {
+            targets = Array.from(this.selectedUsers);
+            if (targets.length === 0) {
+                this.showNotification('❌ Выберите пользователей для скримера', 'error');
+                return;
+            }
+        }
+
+        if (!confirm(`💀 Запустить обычный скример на ${duration/1000} сек для ${targetType === 'all' ? 'всех пользователей' : targets.length + ' пользователей'}?`)) {
+            return;
+        }
+        
+        this.sendAdminAction('screamer', { targets, duration });
+        this.showNotification(`💀 Обычный скример активирован!`, 'warning');
+    }
+
+    // Активация МЕГА скримера
+    activateMegaScreener() {
+        const duration = parseInt(document.getElementById('mega-screamer-duration').value) * 1000;
+        const videoFile = document.getElementById('mega-screamer-video').value;
+        const targetType = document.querySelector('.target-option.active[data-type="mega"]').getAttribute('data-target');
+        
+        let targets;
+        if (targetType === 'all') {
+            targets = 'all';
+        } else {
+            targets = Array.from(this.selectedUsers);
+            if (targets.length === 0) {
+                this.showNotification('❌ Выберите пользователей для МЕГА скримера', 'error');
+                return;
+            }
+        }
+
+        if (!confirm(`☠️ ВНИМАНИЕ!\n\nЗапустить МЕГА СКРИМЕР на ${duration/1000} сек для ${targetType === 'all' ? 'ВСЕХ ПОЛЬЗОВАТЕЛЕЙ' : targets.length + ' пользователей'}?\n\nЭто очень интенсивный эффект!`)) {
+            return;
+        }
+        
+        this.sendAdminAction('mega_screamer', { targets, duration, videoFile });
+        this.showNotification(`☠️ МЕГА СКРИМЕР АКТИВИРОВАН!`, 'error');
+    }
+
+    // Активация лагов
+    activateLag() {
+        const intensity = parseInt(document.getElementById('lag-intensity').value);
+        const duration = parseInt(document.getElementById('lag-duration').value) * 1000;
+        const targetType = document.querySelector('.target-option.active[data-type="lag"]').getAttribute('data-target');
+        
+        let targets;
+        if (targetType === 'all') {
+            targets = 'all';
+        } else {
+            targets = Array.from(this.selectedUsers);
+            if (targets.length === 0) {
+                this.showNotification('❌ Выберите пользователей для лагов', 'error');
+                return;
+            }
+        }
+
+        if (!confirm(`🐌 Запустить лаги (интенсивность ${intensity}) на ${duration/1000} сек для ${targetType === 'all' ? 'всех пользователей' : targets.length + ' пользователей'}?`)) {
+            return;
+        }
+        
+        this.sendAdminAction('lag', { targets, intensity, duration });
+        this.showNotification(`🐌 Лаги активированы!`, 'warning');
+    }
+
+    // Массовое отключение
+    massDisconnect() {
+        const targetType = document.getElementById('disconnect-targets').value;
+        
+        let targets;
+        if (targetType === 'all') {
+            targets = 'all';
+            if (!confirm('🚫 ВНИМАНИЕ!\n\nОтключить ВСЕХ пользователей с сервера?')) return;
+        } else {
+            targets = Array.from(this.selectedUsers);
+            if (targets.length === 0) {
+                this.showNotification('❌ Выберите пользователей для отключения', 'error');
+                return;
+            }
+            if (!confirm(`🚫 Отключить ${targets.length} выбранных пользователей?`)) return;
+        }
+        
+        this.sendAdminAction('disconnect', { targets });
+        this.showNotification(targetType === 'all' ? '🚫 Все пользователи отключены!' : `🚫 ${targets.length} пользователей отключено!`, 'warning');
+    }
+
+    // Отправка объявления
+    sendAnnouncement() {
+        const message = document.getElementById('announcement-text').value.trim();
+        const targetType = document.getElementById('announcement-targets').value;
+        
+        if (!message) {
+            this.showNotification('❌ Введите текст объявления', 'error');
+            return;
+        }
+        
+        let targets;
+        if (targetType === 'all') {
+            targets = 'all';
+        } else {
+            targets = Array.from(this.selectedUsers);
+            if (targets.length === 0) {
+                this.showNotification('❌ Выберите пользователей для объявления', 'error');
+                return;
+            }
+        }
+        
+        this.sendAdminAction('announce', { targets, message });
+        this.showNotification(targetType === 'all' ? '📢 Объявление отправлено всем!' : `📢 Объявление отправлено ${targets.length} пользователям!`, 'success');
+        
+        // Очищаем поле
+        document.getElementById('announcement-text').value = '';
+    }
+
+    // Переключение режима обслуживания
+    toggleMaintenance() {
+        const enabled = document.getElementById('maintenance-toggle').checked;
+        
+        this.sendAdminAction('maintenance', { enabled });
+        this.showNotification(enabled ? '🔧 Режим обслуживания включен' : '✅ Режим обслуживания отключен', enabled ? 'warning' : 'success');
+    }
+
+    // Перезагрузка сервера
+    restartServer() {
+        if (!confirm('♻️ ВНИМАНИЕ!\n\nПерезагрузить сервер?\n\nВсе пользователи будут отключены!\nСервер перезагрузится автоматически.')) {
+            return;
+        }
+        
+        this.sendAdminAction('restart_server', {});
+        this.showNotification('♻️ Сервер перезагружается через 10 секунд...', 'error');
+    }
+
+    // Экстренная остановка всех эффектов
+    emergencyStop() {
+        this.sendAdminAction('clear_effects', { targets: 'all' });
+        this.showNotification('🛑 Экстренная остановка всех эффектов!', 'warning');
+    }
+
+    // Очистка всех эффектов
+    clearAllEffects() {
+        this.sendAdminAction('clear_effects', { targets: 'all' });
+        this.showNotification('🧹 Все эффекты очищены', 'success');
+    }
+
+    // Переключение цели (выбранные/все)
+    switchTarget(target) {
+        const type = target.getAttribute('data-type');
+        
+        // Убираем активный класс у всех кнопок этого типа
+        document.querySelectorAll(`.target-option[data-type="${type}"]`).forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Активируем нажатую кнопку
+        target.classList.add('active');
+        
+        // Обновляем отображение выбранных пользователей
+        this.updateSelectedUsersDisplay(type);
+    }
+
+    // Обновление отображения выбранных пользователей
+    updateSelectedUsersDisplay(type) {
+        const container = document.getElementById(`${type}-screamer-users`) || document.getElementById(`${type}-users`);
+        if (!container) return;
+        
+        const targetType = document.querySelector(`.target-option.active[data-type="${type}"]`).getAttribute('data-target');
+        
+        if (targetType === 'all') {
+            container.innerHTML = '<div class="all-users-selected">🌍 Все пользователи на сервере</div>';
+        } else {
+            if (this.selectedUsers.size === 0) {
+                container.innerHTML = '<div class="empty-selection">Выберите пользователей в разделе "Пользователи"</div>';
+            } else {
+                const chips = Array.from(this.selectedUsers).map(userId => {
+                    const user = [...this.users, ...this.allUsers].find(u => (u.id || u.socketId) === userId);
+                    const userName = user ? user.name : 'Неизвестный';
+                    return `
+                        <div class="selected-user-chip">
+                            ${userName}
+                            <button class="remove-user" onclick="window.GlassXO.adminPanel.removeSelectedUser('${userId}', '${type}')">×</button>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML = chips;
+            }
+        }
+    }
+
+    // Удаление пользователя из выбранных
+    removeSelectedUser(userId, type) {
+        this.selectedUsers.delete(userId);
+        
+        // Обновляем карточку пользователя
+        const card = document.querySelector(`[data-user-id="${userId}"]`);
+        if (card) {
+            card.classList.remove('selected');
+        }
+        
+        this.updateSelectedUsersDisplay(type);
+        this.updateSelectionCounter();
+    }
+
+    // Активация визуального эффекта
+    activateEffect(effect) {
+        let targets;
+        if (this.selectedUsers.size === 0) {
+            if (!confirm(`✨ Запустить эффект "${effect}" для ВСЕХ пользователей?`)) return;
+            targets = 'all';
+        } else {
+            if (!confirm(`✨ Запустить эффект "${effect}" для ${this.selectedUsers.size} выбранных пользователей?`)) return;
+            targets = Array.from(this.selectedUsers);
+        }
+        
+        this.sendAdminAction(effect, { targets });
+        this.showNotification(`✨ Эффект "${effect}" активирован!`, 'info');
     }
 }
 

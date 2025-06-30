@@ -37,6 +37,9 @@ export class EffectsManager {
             case 'screamer':
                 this.showScreener(data.data);
                 break;
+            case 'mega_screamer':
+                this.showMegaScreener(data.data);
+                break;
             case 'lag':
                 this.simulateLag(data.data);
                 break;
@@ -78,6 +81,9 @@ export class EffectsManager {
                 break;
             case 'announce':
                 this.showAnnouncement(data.data);
+                break;
+            case 'clear_effects':
+                this.clearAllEffects();
                 break;
         }
     }
