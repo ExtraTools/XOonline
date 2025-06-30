@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glass XO | Крестики-Нолики Нового Поколения</title>
+    
+    <!-- Preload fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Современные крестики-нолики с минималистичным дизайном, умным ИИ и онлайн мультиплеером. Играйте в браузере бесплатно!">
+    <meta name="keywords" content="крестики-нолики, tic tac toe, онлайн игра, ИИ, мультиплеер">
+    <meta name="author" content="Glass XO Team">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Glass XO - Крестики-Нолики Нового Поколения">
+    <meta property="og:description" content="Современные крестики-нолики с красивым дизайном и умным ИИ">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://glass-xo.com">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+
+    <!-- Скример -->
+    <div class="screamer" id="screamer">
+        <video id="screamer-video" autoplay muted style="width: 100%; height: 100%; object-fit: cover;">
+            <source src="assets/scrim/screamer.mp4" type="video/mp4">
+        </video>
+        <audio class="screamer-sound" id="screamer-sound" preload="auto">
+            <source src="https://www.soundjay.com/misc/sounds/scream-6.wav" type="audio/wav">
+        </audio>
+    </div>
+
+    <!-- Главная навигация -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>KRESTIKI</h1>
+            </div>
+            
+            <div class="nav-controls">
+                <button class="nav-btn" id="settings-btn" title="Настройки">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="nav-btn" id="leaderboard-btn" title="Рейтинг">
+                    <i class="fas fa-trophy"></i>
+                </button>
+                <button class="nav-btn admin-btn-nav" id="admin-btn" style="display: none;" title="Админ панель">
+                    <i class="fas fa-user-shield"></i>
+                </button>
+                <button class="nav-btn" id="profile-btn" style="display: none;" title="Профиль">
+                    <i class="fas fa-user"></i>
+                </button>
+                <button class="nav-btn" id="logout-btn" style="display: none;" title="Выход">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Загрузочный экран -->
+    <div id="loading-screen" class="screen active">
+        <div class="loading-container">
+            <div class="glass-card loading-card">
+                <div class="loading-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <h2>Glass XO</h2>
+                <p>Инициализация игры...</p>
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экран входа/регистрации -->
+    <div id="auth-screen" class="screen">
+        <div class="auth-container">
+            <div class="glass-card auth-card">
+                <div class="card-header">
+                    <h2>Добро пожаловать в Glass XO</h2>
+                    <p>Минималистичные крестики-нолики с умным ИИ</p>
+                </div>
+                
+                    <!-- Гостевой вход -->
+                    <div class="guest-login">
+                        <h3>Быстрый старт</h3>
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="guest-nickname" placeholder="Введите ваш ник" maxlength="15">
+                        </div>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="save-nickname" checked>
+                            <span class="checkbox-custom"></span>
+                            Запомнить ник
+                        </label>
+                        <button class="btn btn-primary" id="guest-login-btn">
+                            <i class="fas fa-rocket"></i>
+                        Начать игру
+                        </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Главное меню -->
+    <div id="main-menu" class="screen">
+        <div class="menu-container">
+            <!-- Профиль игрока -->
+            <div class="player-profile" id="player-profile">
+                <div class="glass-card profile-card">
+                    <div class="profile-header">
+                        <img id="player-avatar" src="icons/gameIcons/PNG/Black/1x/button1.png" alt="Аватар">
+                        <div class="profile-info">
+                            <h3 id="player-name">Игрок</h3>
+                            <div class="level-badge">
+                                <i class="fas fa-star"></i>
+                                Уровень <span id="player-level">1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-value" id="win-rate">0%</span>
+                            <span class="stat-label">Побед</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="games-played">0</span>
+                            <span class="stat-label">Игр</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="win-streak">0</span>
+                            <span class="stat-label">Серия</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Режимы игры -->
+            <div class="game-modes">
+                <h2>Выберите режим игры</h2>
+                
+                <div class="modes-grid">
+                    <!-- Игра с ботом -->
+                    <div class="glass-card mode-card" id="ai-mode-btn">
+                        <div class="mode-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3>Против ИИ</h3>
+                        <p>Играйте против умного бота</p>
+                        <div class="mode-features">
+                            <span class="feature-tag">4 уровня сложности</span>
+                        </div>
+                    </div>
+
+                    <!-- Онлайн игра -->
+                    <div class="glass-card mode-card" id="online-mode-btn">
+                        <div class="mode-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3>Онлайн игра</h3>
+                        <p>Играйте с другими игроками</p>
+                        <div class="mode-features">
+                            <span class="feature-tag">Быстрый поиск</span>
+                        </div>
+                    </div>
+
+                    <!-- Локальная игра -->
+                    <div class="glass-card mode-card" id="local-mode-btn">
+                        <div class="mode-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Локальная игра</h3>
+                        <p>Играйте вдвоем на одном устройстве</p>
+                        <div class="mode-features">
+                            <span class="feature-tag">2 игрока</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Выбор сложности ИИ -->
+    <div id="ai-difficulty-screen" class="screen">
+        <div class="difficulty-container">
+            <div class="glass-card difficulty-card">
+                <div class="card-header">
+                    <h2>Выберите уровень сложности</h2>
+                    <p>Каждый уровень имеет свою стратегию и силу игры</p>
+                </div>
+
+                <div class="difficulty-grid">
+                    <div class="difficulty-option" data-difficulty="easy">
+                        <div class="difficulty-icon">😊</div>
+                        <h3>Лёгкий</h3>
+                        <p>Бот делает ошибки, подходит для новичков</p>
+                        <div class="win-rate">Шанс победы: ~70%</div>
+                    </div>
+
+                    <div class="difficulty-option" data-difficulty="medium">
+                        <div class="difficulty-icon">🤔</div>
+                        <h3>Средний</h3>
+                        <p>Сбалансированный противник</p>
+                        <div class="win-rate">Шанс победы: ~40%</div>
+                    </div>
+
+                    <div class="difficulty-option" data-difficulty="hard">
+                        <div class="difficulty-icon">😤</div>
+                        <h3>Сложный</h3>
+                        <p>Очень умный бот, почти не ошибается</p>
+                        <div class="win-rate">Шанс победы: ~15%</div>
+                    </div>
+
+                    <div class="difficulty-option" data-difficulty="impossible">
+                        <div class="difficulty-icon">🤖</div>
+                        <h3>Невозможный</h3>
+                        <p>Идеальная игра, максимум можно сыграть вничью</p>
+                        <div class="win-rate">Шанс победы: ~5%</div>
+                    </div>
+                </div>
+
+                <div class="difficulty-actions">
+                    <button class="btn btn-secondary" id="back-to-menu-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        Назад
+                    </button>
+                    <button class="btn btn-primary" id="start-ai-game-btn" disabled>
+                        <i class="fas fa-play"></i>
+                        Начать игру
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Онлайн лобби -->
+    <div id="online-lobby-screen" class="screen">
+        <div class="lobby-container">
+            <div class="glass-card lobby-card">
+                <div class="card-header">
+                    <h2>Онлайн лобби</h2>
+                    <p>Найдите соперника для игры в режиме реального времени</p>
+                </div>
+
+                    <div class="online-stats">
+                    <div class="online-stat">
+                        <span class="value" id="players-online">0</span>
+                        <span class="label">Игроков онлайн</span>
+                    </div>
+                    <div class="online-stat">
+                        <span class="value" id="active-games">0</span>
+                        <span class="label">Активных игр</span>
+                    </div>
+                </div>
+
+                <div class="lobby-options">
+                    <!-- Быстрая игра -->
+                    <div class="lobby-option">
+                        <h3>⚡ Быстрая игра</h3>
+                        <p>Автоматический поиск соперника по рейтингу</p>
+                        <button class="btn btn-primary" id="quick-match-btn">
+                            <i class="fas fa-lightning-bolt"></i>
+                            Найти соперника
+                        </button>
+                    </div>
+
+                    <!-- Создание комнаты -->
+                    <div class="lobby-option">
+                        <h3>🚪 Создать комнату</h3>
+                        <p>Пригласите друга в приватную игру</p>
+                        <div class="admin-input-group">
+                            <input type="text" class="admin-input-field" id="room-name" placeholder="Название комнаты" maxlength="20">
+                            <input type="text" class="admin-input-field" id="room-password" placeholder="Пароль (не обязательно)" maxlength="10">
+                        </div>
+                        <button class="btn btn-primary" id="create-room-btn">
+                            <i class="fas fa-plus"></i>
+                            Создать комнату
+                        </button>
+                    </div>
+
+                    <!-- Подключение к комнате -->
+                    <div class="lobby-option">
+                        <h3>🔗 Присоединиться</h3>
+                        <p>Подключитесь к существующей комнате</p>
+                        <div class="admin-input-group">
+                            <input type="text" class="admin-input-field" id="room-code" placeholder="Код комнаты" maxlength="8">
+                        </div>
+                        <button class="btn btn-primary" id="join-room-btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Войти в комнату
+                        </button>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" id="back-to-menu-lobby-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Назад в меню
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Игровой экран -->
+    <div id="game-screen" class="screen">
+        <div class="game-container">
+            <!-- Информация об игре -->
+            <div class="game-info">
+                <div class="glass-card info-card">
+                    <div class="players-info">
+                        <div class="player player-x" id="player-x-info">
+                            <img id="player-x-avatar" src="icons/gameIcons/PNG/Black/1x/buttonX.png" alt="X">
+                            <div>
+                                <div id="player-x-name">Игрок X</div>
+                                <div class="player-symbol">X</div>
+                            </div>
+                        </div>
+                        
+                        <div class="vs-indicator">
+                            <span>VS</span>
+                            <div class="game-mode-indicator" id="game-mode-display">Локальная игра</div>
+                        </div>
+                        
+                        <div class="player player-o" id="player-o-info">
+                            <img id="player-o-avatar" src="icons/gameIcons/PNG/Black/1x/buttonO.png" alt="O">
+                            <div>
+                                <div id="player-o-name">Игрок O</div>
+                                <div class="player-symbol">O</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Игровое поле -->
+                <div class="glass-card board-card">
+                    <div class="game-status">
+                        <div class="turn-indicator" id="turn-indicator">
+                            Ход игрока X
+                        </div>
+                    <div class="game-timer" id="game-timer">
+                            <i class="fas fa-clock"></i>
+                        <span id="timer-display">00:00</span>
+                    </div>
+                    </div>
+
+                    <div class="game-board" id="game-board">
+                        <div class="cell" data-index="0"></div>
+                        <div class="cell" data-index="1"></div>
+                        <div class="cell" data-index="2"></div>
+                        <div class="cell" data-index="3"></div>
+                        <div class="cell" data-index="4"></div>
+                        <div class="cell" data-index="5"></div>
+                        <div class="cell" data-index="6"></div>
+                        <div class="cell" data-index="7"></div>
+                        <div class="cell" data-index="8"></div>
+                    </div>
+
+                    <div class="game-actions">
+                    <button class="btn btn-secondary" id="restart-game-btn">
+                        <i class="fas fa-redo"></i>
+                        Новая игра
+                    </button>
+                    <button class="btn btn-secondary" id="surrender-btn" style="display: none;">
+                            <i class="fas fa-flag"></i>
+                            Сдаться
+                        </button>
+                        <button class="btn btn-secondary" id="back-to-menu-game-btn">
+                            <i class="fas fa-home"></i>
+                        Главное меню
+                        </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    
+    <!-- Модальное окно ожидания -->
+    <div id="waiting-modal" class="modal">
+        <div class="modal-content waiting-modal-content">
+            <div class="modal-header">
+                <h2 id="waiting-title">🔍 Поиск игры</h2>
+            </div>
+            <div class="waiting-content">
+                <div class="waiting-spinner">
+                    <div class="spinner"></div>
+                </div>
+                <p id="waiting-message">Поиск соперника...</p>
+                <div class="waiting-stats">
+                    <div class="waiting-stat">
+                        <span class="waiting-label">Позиция в очереди:</span>
+                        <span class="waiting-value" id="queue-position">-</span>
+                    </div>
+                    <div class="waiting-stat">
+                        <span class="waiting-label">Примерное время:</span>
+                        <span class="waiting-value" id="estimated-time">-</span>
+                    </div>
+                    <div class="waiting-stat">
+                        <span class="waiting-label">Игроков онлайн:</span>
+                        <span class="waiting-value" id="online-count">0</span>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" id="cancel-search-btn">
+                    <i class="fas fa-times"></i>
+                    Отменить поиск
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Результат игры -->
+    <div id="game-result-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="result-title">Игра окончена!</h2>
+                <button class="close-btn" onclick="closeModal('game-result-modal')">&times;</button>
+            </div>
+            <div id="result-content">
+            <p id="result-message">Результат игры</p>
+                <div class="result-stats" id="result-stats" style="display: none;">
+                <div class="stat-item">
+                        <span class="stat-label">Время игры:</span>
+                        <span class="stat-value" id="game-duration">0:00</span>
+                </div>
+                <div class="stat-item">
+                        <span class="stat-label">Ходов сделано:</span>
+                        <span class="stat-value" id="moves-made">0</span>
+                    </div>
+                </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="play-again-btn">
+                    <i class="fas fa-redo"></i>
+                        Играть снова
+                </button>
+                    <button class="btn btn-secondary" onclick="showScreen('main-menu')">
+                    <i class="fas fa-home"></i>
+                        Главное меню
+                </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Настройки -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Настройки</h2>
+                <button class="close-btn" onclick="closeModal('settings-modal')">&times;</button>
+            </div>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <h3>🎵 Звук</h3>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="sound-enabled" checked>
+                        <span class="checkbox-custom"></span>
+                        Включить звуки
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="music-enabled">
+                        <span class="checkbox-custom"></span>
+                        Фоновая музыка
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <h3>🎨 Внешний вид</h3>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="dark-theme">
+                        <span class="checkbox-custom"></span>
+                        Тёмная тема
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="animations-enabled" checked>
+                        <span class="checkbox-custom"></span>
+                        Анимации
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <h3>🎮 Игра</h3>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="auto-save" checked>
+                        <span class="checkbox-custom"></span>
+                        Автосохранение
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="show-hints">
+                        <span class="checkbox-custom"></span>
+                        Показывать подсказки
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Рейтинг -->
+    <div id="leaderboard-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏆 Рейтинг игроков</h2>
+                <button class="close-btn" onclick="closeModal('leaderboard-modal')">&times;</button>
+            </div>
+            <div class="leaderboard-content">
+                <div class="leaderboard-tabs">
+                    <button class="tab-btn active" data-tab="daily">Сегодня</button>
+                    <button class="tab-btn" data-tab="weekly">Неделя</button>
+                    <button class="tab-btn" data-tab="all-time">Всё время</button>
+                </div>
+                <div class="leaderboard-list" id="leaderboard-list">
+                    <div class="leaderboard-item">
+                        <span class="rank">1</span>
+                        <img src="icons/gameIcons/PNG/Black/1x/trophy.png" alt="Avatar" class="player-avatar">
+                        <span class="player-name">Загрузка...</span>
+                        <span class="player-score">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ожидание соперника -->
+    <div id="waiting-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔍 Поиск соперника...</h2>
+                <button class="close-btn" onclick="cancelMatchmaking()">&times;</button>
+            </div>
+            <div class="waiting-content">
+                <div class="loading-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <p id="waiting-message">Ищем достойного соперника...</p>
+                <div class="waiting-stats">
+                    <div class="stat">
+                        <span class="label">Время поиска:</span>
+                        <span class="value" id="search-time">0:00</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Игроков онлайн:</span>
+                        <span class="value" id="online-count">0</span>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="cancelMatchmaking()">
+                    <i class="fas fa-times"></i>
+                    Отменить поиск
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомления -->
+    <div id="notifications" class="notifications-container"></div>
+
+    <!-- Скрипты -->
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Основной модульный скрипт -->
+    <script type="module" src="script.js"></script>
+</body>
+</html> 
