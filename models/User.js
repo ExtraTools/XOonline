@@ -248,6 +248,11 @@ userSchema.methods.checkPassword = async function(password) {
     return await bcrypt.compare(password, this.password);
 };
 
+// Альтернативный метод для совместимости
+userSchema.methods.comparePassword = async function(password) {
+    return this.checkPassword(password);
+};
+
 // Обновление статистики после игры
 userSchema.methods.updateStats = function(result, gameMode, opponent, gameDuration, moves) {
     // Общая статистика

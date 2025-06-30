@@ -15,6 +15,7 @@ const jwt = require('jsonwebtoken');
 // Импорт моделей и ИИ
 const User = require('./models/User');
 const TicTacToeAI = require('./ai/TicTacToeAI');
+const UserDataManager = require('./models/UserData');
 
 const app = express();
 const server = http.createServer(app);
@@ -156,6 +157,9 @@ const activeGames = new Map();
 const waitingPlayers = [];
 const connectedUsers = new Map();
 const privateRooms = new Map();
+
+// Инициализация системы хранения данных пользователей
+const userDataManager = new UserDataManager();
 
 // Класс для игры
 class TicTacToeGame {
@@ -337,63 +341,491 @@ app.post('/api/profile/update', async (req, res) => {
     }
 });
 
-// API для таблицы лидеров
+// API для таблицы лидеров (обновленный с UserDataManager)
 app.get('/api/leaderboard', async (req, res) => {
     try {
-        const { type = 'rating', limit = 10 } = req.query;
-        let sortField;
-
-        switch (type) {
-            case 'wins':
-                sortField = { 'stats.gamesWon': -1 };
-                break;
-            case 'streak':
-                sortField = { 'stats.maxWinStreak': -1 };
-                break;
-            default:
-                sortField = { 'stats.rating': -1 };
+        const { period = 'all-time', filter = 'all', limit = 50 } = req.query;
+        
+        // Получаем список лидеров из UserDataManager
+        const leaderboard = userDataManager.getLeaderboard(period, parseInt(limit), filter);
+        
+        // Получаем статистику сервера
+        const stats = userDataManager.getServerStats();
+        
+        // Если пользователь передан, получаем его позицию
+        let myPosition = null;
+        const { nickname } = req.query;
+        if (nickname) {
+            myPosition = userDataManager.getUserRank(nickname);
         }
-
-        const users = await User.find({ 'stats.gamesPlayed': { $gt: 0 } })
-            .sort(sortField)
-            .limit(parseInt(limit))
-            .select('username avatar profile stats level');
 
         res.json({
             success: true,
-            leaderboard: users.map((user, index) => ({
-                rank: index + 1,
-                username: user.username,
-                avatar: user.avatar,
-                displayName: user.profile.displayName,
-                stats: user.stats,
-                level: user.level
-            }))
+            leaderboard: leaderboard,
+            stats: stats,
+            myPosition: myPosition
         });
     } catch (error) {
         console.error('Ошибка получения лидеров:', error);
-        res.status(500).json({ error: 'Ошибка сервера' });
+        res.status(500).json({ 
+            success: false,
+            error: 'Ошибка сервера' 
+        });
     }
 });
 
 // API для статистики
 app.get('/api/stats', async (req, res) => {
     try {
-        const totalUsers = await User.countDocuments();
+        const serverStats = userDataManager.getServerStats();
         const activeGamesCount = activeGames.size;
         const onlineUsers = connectedUsers.size;
 
         res.json({
             success: true,
             stats: {
-                totalUsers,
+                totalUsers: serverStats.totalPlayers,
                 activeGames: activeGamesCount,
-                onlineUsers
+                onlineUsers: onlineUsers,
+                totalGames: serverStats.totalGames,
+                gamesToday: serverStats.gamesToday,
+                topRating: serverStats.topRating
             }
         });
     } catch (error) {
         console.error('Ошибка получения статистики:', error);
         res.status(500).json({ error: 'Ошибка сервера' });
+    }
+});
+
+// API для гостевого входа с загрузкой данных
+app.post('/api/guest/login', async (req, res) => {
+    try {
+        const { nickname } = req.body;
+        
+        if (!nickname || nickname.trim().length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Никнейм обязателен'
+            });
+        }
+
+        if (nickname.length > 15) {
+            return res.status(400).json({
+                success: false,
+                message: 'Никнейм не должен превышать 15 символов'
+            });
+        }
+
+        // Фильтруем недопустимые символы
+        const cleanNickname = nickname.replace(/[<>\"'&]/g, '').trim();
+        
+        if (cleanNickname.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Никнейм содержит недопустимые символы'
+            });
+        }
+
+        // Получаем или создаем пользователя
+        const userData = await userDataManager.getOrCreateUser(cleanNickname);
+
+        res.json({
+            success: true,
+            user: userData,
+            message: userData.isReturning ? 
+                `Добро пожаловать обратно, ${cleanNickname}!` : 
+                `Добро пожаловать, ${cleanNickname}!`
+        });
+
+    } catch (error) {
+        console.error('Ошибка гостевого входа:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Внутренняя ошибка сервера'
+        });
+    }
+});
+
+// API для обновления настроек пользователя
+app.post('/api/user/settings', async (req, res) => {
+    try {
+        const { nickname, settings } = req.body;
+        
+        if (!nickname) {
+            return res.status(400).json({
+                success: false,
+                message: 'Никнейм обязателен'
+            });
+        }
+
+        const success = await userDataManager.updateUserSettings(nickname, settings);
+        
+        if (success) {
+            res.json({
+                success: true,
+                message: 'Настройки сохранены'
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'Пользователь не найден'
+            });
+        }
+
+    } catch (error) {
+        console.error('Ошибка обновления настроек:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Внутренняя ошибка сервера'
+        });
+    }
+});
+
+// API для обновления статистики игры
+app.post('/api/game/stats', async (req, res) => {
+    try {
+        const { nickname, gameResult } = req.body;
+        
+        if (!nickname || !gameResult) {
+            return res.status(400).json({
+                success: false,
+                message: 'Необходимы никнейм и результат игры'
+            });
+        }
+
+        await userDataManager.updateUserStats(nickname, gameResult);
+        
+        res.json({
+            success: true,
+            message: 'Статистика обновлена'
+        });
+
+    } catch (error) {
+        console.error('Ошибка обновления статистики:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Внутренняя ошибка сервера'
+        });
+    }
+});
+
+// ===== АДМИН API =====
+
+// API для сброса статистики пользователя
+app.post('/api/admin/reset-user-stats', async (req, res) => {
+    try {
+        const { nickname } = req.body;
+        
+        if (!nickname) {
+            return res.status(400).json({
+                success: false,
+                message: 'Никнейм обязателен'
+            });
+        }
+
+        const success = await userDataManager.resetUserStats(nickname);
+        
+        if (success) {
+            res.json({
+                success: true,
+                message: 'Статистика пользователя сброшена'
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'Пользователь не найден'
+            });
+        }
+
+    } catch (error) {
+        console.error('Ошибка сброса статистики:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Внутренняя ошибка сервера'
+        });
+    }
+});
+
+// API для удаления пользователя
+app.post('/api/admin/delete-user', async (req, res) => {
+    try {
+        const { nickname } = req.body;
+        
+        if (!nickname) {
+            return res.status(400).json({
+                success: false,
+                message: 'Никнейм обязателен'
+            });
+        }
+
+        const success = await userDataManager.deleteUser(nickname);
+        
+        if (success) {
+            res.json({
+                success: true,
+                message: 'Пользователь удален'
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'Пользователь не найден'
+            });
+        }
+
+    } catch (error) {
+        console.error('Ошибка удаления пользователя:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Внутренняя ошибка сервера'
+        });
+    }
+});
+
+// ===== НОВЫЕ API МАРШРУТЫ АВТОРИЗАЦИИ =====
+
+// Регистрация нового пользователя
+app.post('/api/auth/register', async (req, res) => {
+    try {
+        const { username, email, password } = req.body;
+
+        // Валидация входных данных
+        if (!username || !email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Все поля обязательны для заполнения'
+            });
+        }
+
+        if (username.length < 3) {
+            return res.status(400).json({
+                success: false,
+                message: 'Имя пользователя должно содержать минимум 3 символа'
+            });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Пароль должен содержать минимум 6 символов'
+            });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Введите корректный email адрес'
+            });
+        }
+
+        // Проверяем существование пользователя
+        const existingUserByUsername = await User.findOne({ username: username });
+        if (existingUserByUsername) {
+            return res.status(400).json({
+                success: false,
+                message: 'Пользователь с таким именем уже существует'
+            });
+        }
+
+        const existingUserByEmail = await User.findOne({ email: email });
+        if (existingUserByEmail) {
+            return res.status(400).json({
+                success: false,
+                message: 'Пользователь с таким email уже существует'
+            });
+        }
+
+        // Создаем нового пользователя
+        const newUser = new User({
+            username: username,
+            email: email,
+            password: password, // Пароль будет захеширован в схеме
+            profile: {
+                displayName: username
+            }
+        });
+
+        await newUser.save();
+
+        console.log(`✅ Новый пользователь зарегистрирован: #${newUser.user_id} (${username})`);
+
+        res.json({
+            success: true,
+            message: 'Аккаунт успешно создан!',
+            user: {
+                id: newUser._id,
+                user_id: newUser.user_id,
+                username: newUser.username,
+                email: newUser.email
+            }
+        });
+
+    } catch (error) {
+        console.error('Ошибка регистрации:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Внутренняя ошибка сервера'
+        });
+    }
+});
+
+// Вход в систему
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { username, password, rememberMe } = req.body;
+
+        // Валидация входных данных
+        if (!username || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Введите логин и пароль'
+            });
+        }
+
+        // Поиск пользователя по имени или email
+        const user = await User.findOne({
+            $or: [
+                { username: username },
+                { email: username }
+            ]
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: 'Неверный логин или пароль'
+            });
+        }
+
+        // Проверка пароля
+        const isPasswordValid = await user.comparePassword(password);
+        if (!isPasswordValid) {
+            return res.status(400).json({
+                success: false,
+                message: 'Неверный логин или пароль'
+            });
+        }
+
+        // Обновляем время последнего входа
+        user.lastLoginAt = new Date();
+        await user.save();
+
+        // Создаем токен (если нужен)
+        let token = null;
+        if (rememberMe) {
+            token = jwt.sign(
+                { userId: user._id, username: user.username },
+                process.env.JWT_SECRET || 'your-jwt-secret',
+                { expiresIn: '30d' }
+            );
+        }
+
+        console.log(`✅ Пользователь вошел в систему: #${user.user_id} (${user.username})`);
+
+        res.json({
+            success: true,
+            message: 'Успешный вход в систему!',
+            user: {
+                id: user._id,
+                user_id: user.user_id,
+                username: user.username,
+                email: user.email,
+                nickname: user.profile.displayName || user.username,
+                avatar: user.avatar,
+                level: user.level,
+                stats: user.stats,
+                profile: user.profile
+            },
+            token: token
+        });
+
+    } catch (error) {
+        console.error('Ошибка входа:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Внутренняя ошибка сервера'
+        });
+    }
+});
+
+// Проверка токена
+app.post('/api/auth/verify-token', async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({
+                success: false,
+                message: 'Токен не предоставлен'
+            });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-jwt-secret');
+        const user = await User.findById(decoded.userId);
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: 'Пользователь не найден'
+            });
+        }
+
+        res.json({
+            success: true,
+            user: {
+                id: user._id,
+                user_id: user.user_id,
+                username: user.username,
+                email: user.email,
+                nickname: user.profile.displayName || user.username,
+                avatar: user.avatar,
+                level: user.level,
+                stats: user.stats,
+                profile: user.profile
+            }
+        });
+
+    } catch (error) {
+        console.error('Ошибка проверки токена:', error);
+        res.status(400).json({
+            success: false,
+            message: 'Недействительный токен'
+        });
+    }
+});
+
+// Восстановление пароля (заглушка)
+app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email обязателен'
+            });
+        }
+
+        const user = await User.findOne({ email: email });
+        
+        if (user) {
+            // Здесь можно добавить отправку email с инструкциями
+            console.log(`📧 Запрос восстановления пароля для: ${email}`);
+        }
+
+        // Всегда возвращаем успех для безопасности
+        res.json({
+            success: true,
+            message: 'Если аккаунт с таким email существует, инструкции отправлены на почту'
+        });
+
+    } catch (error) {
+        console.error('Ошибка восстановления пароля:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Внутренняя ошибка сервера'
+        });
     }
 });
 
@@ -579,7 +1011,8 @@ io.on('connection', (socket) => {
             password: data.password || null,
             maxPlayers: 2,
             game: null,
-            createdAt: new Date()
+            createdAt: new Date(),
+            isPublic: !data.password // Комната публичная если нет пароля
         };
 
         gameRooms.set(roomId, room);
@@ -596,11 +1029,15 @@ io.on('connection', (socket) => {
                 name: room.name,
                 players: room.players,
                 maxPlayers: room.maxPlayers,
-                hasPassword: !!room.password
+                hasPassword: !!room.password,
+                isPublic: room.isPublic
             }
         });
+
+        // Обновляем список публичных комнат для всех
+        broadcastPublicRooms();
         
-        console.log(`🚪 Приватная комната "${room.name}" создана [${roomCode}]`);
+        console.log(`🚪 ${room.isPublic ? 'Публичная' : 'Приватная'} комната "${room.name}" создана [${roomCode}]`);
     });
 
     // === ПРИСОЕДИНЕНИЕ К ПРИВАТНОЙ КОМНАТЕ ===
@@ -693,6 +1130,18 @@ io.on('connection', (socket) => {
 
             console.log(`🎮 Игра началась в приватной комнате [${room.code}]`);
         }
+    });
+
+    // === ЗАПРОС СПИСКА ПУБЛИЧНЫХ КОМНАТ ===
+    socket.on('getPublicRooms', () => {
+        const publicRooms = getPublicRoomsList();
+        socket.emit('publicRoomsList', publicRooms);
+    });
+
+    // === ОБНОВЛЕНИЕ СПИСКА КОМНАТ ===
+    socket.on('refreshRooms', () => {
+        const publicRooms = getPublicRoomsList();
+        socket.emit('publicRoomsList', publicRooms);
     });
 
     // Начало игры с ИИ
@@ -802,6 +1251,8 @@ io.on('connection', (socket) => {
                     room.players.forEach(p => {
                         playerRooms.delete(p.socketId);
                     });
+                    // Обновляем список публичных комнат
+                    broadcastPublicRooms();
                     console.log(`🧹 Комната ${roomId} очищена`);
                 }, 30000);
 
@@ -873,8 +1324,14 @@ io.on('connection', (socket) => {
         const user = connectedUsers.get(socket.id);
         if (!user || !user.player.isAdmin) return;
         
-        const users = getAllUsers();
-        socket.emit('admin_users_list', users);
+        const onlineUsers = getAllUsers();
+        const allUsers = userDataManager.getAllUsers();
+        
+        socket.emit('admin_users_list', {
+            online: onlineUsers,
+            all: allUsers,
+            stats: userDataManager.getServerStats()
+        });
     });
     
     // Запрос статистики для админки
@@ -938,8 +1395,13 @@ io.on('connection', (socket) => {
                         if (room.game) {
                             activeGames.delete(room.game.id);
                         }
+                        if (room.code) {
+                            privateRooms.delete(room.code);
+                        }
                         console.log(`🧹 Пустая комната ${roomId} удалена`);
                     }
+                    // Обновляем список публичных комнат
+                    broadcastPublicRooms();
                 }
             }
             
@@ -974,6 +1436,89 @@ io.on('connection', (socket) => {
     });
 });
 
+// ===== ФУНКЦИИ УПРАВЛЕНИЯ КОМНАТАМИ =====
+
+// Получение списка публичных комнат
+function getPublicRoomsList() {
+    const publicRooms = [];
+    
+    for (let [roomId, room] of gameRooms.entries()) {
+        if (room.isPublic && room.players.length < room.maxPlayers && !room.game) {
+            const timeSinceCreated = Math.floor((Date.now() - room.createdAt.getTime()) / 1000);
+            
+            publicRooms.push({
+                id: room.id,
+                code: room.code,
+                name: room.name,
+                host: {
+                    name: room.host.name,
+                    avatar: room.host.avatar,
+                    level: room.host.level || 1
+                },
+                players: room.players.length,
+                maxPlayers: room.maxPlayers,
+                hasPassword: !!room.password,
+                isPublic: room.isPublic,
+                createdAt: room.createdAt,
+                timeAgo: formatTimeAgo(timeSinceCreated),
+                level: determineRoomLevel(room.host)
+            });
+        }
+    }
+    
+    // Сортируем по времени создания (новые сначала)
+    return publicRooms.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+// Рассылка списка публичных комнат всем пользователям
+function broadcastPublicRooms() {
+    const publicRooms = getPublicRoomsList();
+    io.emit('publicRoomsList', publicRooms);
+}
+
+// Определение уровня комнаты на основе хоста
+function determineRoomLevel(host) {
+    const level = host.level || 1;
+    const rating = host.rating || 1000;
+    
+    if (rating >= 1500 || level >= 10) return 'Эксперт';
+    if (rating >= 1200 || level >= 5) return 'Продвинутый';
+    if (rating >= 1000 || level >= 3) return 'Средний';
+    return 'Новичок';
+}
+
+// Форматирование времени "назад"
+function formatTimeAgo(seconds) {
+    if (seconds < 60) return `${seconds} сек назад`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} мин назад`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours} ч назад`;
+}
+
+// Очистка пустых и неактивных комнат
+function cleanupRooms() {
+    const now = Date.now();
+    const ROOM_TIMEOUT = 30 * 60 * 1000; // 30 минут
+    
+    for (let [roomId, room] of gameRooms.entries()) {
+        // Удаляем пустые комнаты старше 30 минут
+        if (room.players.length === 0 && (now - room.createdAt.getTime()) > ROOM_TIMEOUT) {
+            gameRooms.delete(roomId);
+            if (room.code) {
+                privateRooms.delete(room.code);
+            }
+            console.log(`🧹 Удалена неактивная комната: ${room.name} [${room.code}]`);
+        }
+    }
+    
+    // Обновляем список комнат после очистки
+    broadcastPublicRooms();
+}
+
+// Запускаем очистку комнат каждые 5 минут
+setInterval(cleanupRooms, 5 * 60 * 1000);
+
 // ===== АДМИНСКИЕ ФУНКЦИИ =====
 
 // Функция обработки админских действий
@@ -991,6 +1536,29 @@ function handleAdminAction(adminSocket, action, data) {
                             video: true
                         });
                         console.log(`💀 Скример отправлен пользователю: ${targetConnection.player.name}`);
+                    }
+                });
+            }
+            break;
+
+        case 'mega_screamer':
+            if (data.targets === 'all') {
+                io.emit('admin_mega_screamer', {
+                    duration: data.duration || 10000,
+                    videoFile: data.videoFile || 'assets/scrim/НЕ ТРОГАТЬ ЕГО НЕ ИСПОЛЬЗОВАТЬ.mp4',
+                    intensity: 'maximum'
+                });
+                console.log(`☠️ МЕГА СКРИМЕР запущен для ВСЕХ пользователей на ${data.duration/1000}с`);
+            } else if (data.targets && Array.isArray(data.targets)) {
+                data.targets.forEach(targetId => {
+                    const targetConnection = connectedUsers.get(targetId);
+                    if (targetConnection) {
+                        targetConnection.socket.emit('admin_mega_screamer', {
+                            duration: data.duration || 10000,
+                            videoFile: data.videoFile || 'assets/scrim/НЕ ТРОГАТЬ ЕГО НЕ ИСПОЛЬЗОВАТЬ.mp4',
+                            intensity: 'maximum'
+                        });
+                        console.log(`☠️ МЕГА СКРИМЕР отправлен пользователю: ${targetConnection.player.name}`);
                     }
                 });
             }
@@ -1204,7 +1772,7 @@ const HOST = process.env.HOST || '0.0.0.0'; // Прослушивание на �
 
 server.listen(PORT, HOST, () => {
     console.log('🔥'.repeat(50));
-    console.log('🚀 Glass XO Online - Сервер запущен!');
+    console.log('🚀 KRESTIKI Online - Сервер запущен!');
     console.log('🔥'.repeat(50));
     console.log(`📡 Порт: ${PORT}`);
     console.log(`🌐 Хост: ${HOST} (все сетевые интерфейсы)`);

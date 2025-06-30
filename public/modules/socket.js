@@ -70,6 +70,9 @@ export class SocketManager {
 
         // Админ действия
         this.socket.on('admin_action_received', (data) => this.handleAdminAction(data));
+
+        // 🏠 СПИСОК ПУБЛИЧНЫХ КОМНАТ
+        this.socket.on('publicRoomsList', (rooms) => this.handlePublicRooms(rooms));
     }
 
     // ===== ОБРАБОТЧИКИ ПОДКЛЮЧЕНИЯ =====
@@ -335,8 +338,8 @@ export class SocketManager {
             return;
         }
 
-        // Обновляем доску
-        window.GlassXO.gameState.board = data.board;
+        // Обновляем доску в состоянии игры
+        window.GlassXO.gameState.board = data.board || window.GlassXO.gameState.board;
         window.GlassXO.gameState.currentPlayer = data.currentPlayer;
         window.GlassXO.gameState.gameStatus = data.gameStatus;
         window.GlassXO.gameState.moveCount++;
@@ -344,11 +347,23 @@ export class SocketManager {
         // Определяем чей сейчас ход
         window.GlassXO.gameState.isMyTurn = (data.currentPlayer === window.GlassXO.gameState.mySymbol);
         
-        // Обновляем клетку на доске
-        window.GlassXO.gameLogic.updateCellDisplay(data.position, data.symbol);
+        // Обновляем конкретную клетку на доске
+        if (data.position !== undefined && data.symbol) {
+            // Обновляем состояние в памяти
+            window.GlassXO.gameState.board[data.position] = data.symbol;
+            
+            // Обновляем визуальное отображение
+            window.GlassXO.ui.updateCellDisplay(data.position, data.symbol);
+            window.GlassXO.ui.playSound('move');
+        } else {
+            // Обновляем всю доску если нет конкретной позиции
+            for (let i = 0; i < 9; i++) {
+                window.GlassXO.ui.updateCellDisplay(i, window.GlassXO.gameState.board[i]);
+            }
+        }
         
-        // Обновляем интерфейс
-        window.GlassXO.ui.updateGameDisplay();
+        // Обновляем индикатор хода
+        window.GlassXO.ui.updateTurnIndicator();
         
         // Показываем уведомление о ходе
         const isMyMove = data.symbol === window.GlassXO.gameState.mySymbol;
@@ -572,6 +587,39 @@ export class SocketManager {
         // Передаём обработку в AdminPanel
         if (window.GlassXO.adminPanel) {
             window.GlassXO.adminPanel.handleIncomingAction(data);
+        }
+    }
+
+    // 🏠 ОБРАБОТЧИК СПИСКА ПУБЛИЧНЫХ КОМНАТ
+    handlePublicRooms(rooms) {
+        console.log('🏠 Получен список публичных комнат:', rooms);
+        
+        if (window.GlassXO.ui && window.GlassXO.ui.updatePublicRoomsList) {
+            window.GlassXO.ui.updatePublicRoomsList(rooms);
+        }
+    }
+
+    // 🔄 ЗАПРОС СПИСКА ПУБЛИЧНЫХ КОМНАТ
+    requestPublicRooms() {
+        if (this.socket && this.isConnected) {
+            this.socket.emit('getPublicRooms');
+        }
+    }
+
+    // 🔄 ОБНОВЛЕНИЕ СПИСКА КОМНАТ
+    refreshPublicRooms() {
+        if (this.socket && this.isConnected) {
+            this.socket.emit('refreshRooms');
+        }
+    }
+
+    // 🚪 БЫСТРОЕ ПРИСОЕДИНЕНИЕ К КОМНАТЕ
+    quickJoinRoom(roomCode) {
+        if (this.socket && this.isConnected) {
+            this.socket.emit('joinRoom', { code: roomCode });
+            console.log(`🔗 Присоединяемся к комнате: ${roomCode}`);
+        } else {
+            window.GlassXO.ui.showNotification('❌ Нет подключения к серверу', 'error');
         }
     }
 

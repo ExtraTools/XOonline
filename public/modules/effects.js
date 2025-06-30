@@ -124,6 +124,198 @@ export class EffectsManager {
         }, duration);
     }
 
+    // ===== МЕГА СКРИМЕР С ВИДЕО =====
+    showMegaScreener(data) {
+        console.log('☠️ МЕГА СКРИМЕР АКТИВИРОВАН!!! БЕРЕГИСЬ!!!');
+        
+        // Создаем элемент для МЕГА скримера
+        const megaScreamer = document.createElement('div');
+        megaScreamer.id = 'mega-screamer';
+        megaScreamer.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: megaScreamerFlash 0.05s infinite;
+        `;
+
+        // Создаем видео элемент
+        const video = document.createElement('video');
+        video.style.cssText = `
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        `;
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = false;
+        video.volume = 1.0;
+        video.src = data.videoFile || 'assets/scrim/НЕ ТРОГАТЬ ЕГО НЕ ИСПОЛЬЗОВАТЬ.mp4';
+
+        // Создаем текст предупреждения
+        const warningText = document.createElement('div');
+        warningText.style.cssText = `
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: red;
+            font-size: 100px;
+            font-weight: bold;
+            text-shadow: 5px 5px 10px black;
+            z-index: 1000000;
+            animation: megaTextPulse 0.1s infinite;
+            text-align: center;
+            white-space: nowrap;
+        `;
+        warningText.innerHTML = '☠️ МЕГА СКРИМЕР ☠️<br>💀 НЕ ТРОГАТЬ! 💀';
+
+        // Добавляем стили анимации
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes megaScreamerFlash {
+                0% { background: #000; }
+                10% { background: #ff0000; }
+                20% { background: #00ff00; }
+                30% { background: #0000ff; }
+                40% { background: #ffff00; }
+                50% { background: #ff00ff; }
+                60% { background: #00ffff; }
+                70% { background: #ffffff; }
+                80% { background: #ff8000; }
+                90% { background: #8000ff; }
+                100% { background: #000; }
+            }
+            
+            @keyframes megaTextPulse {
+                0% { 
+                    transform: translate(-50%, -50%) scale(1); 
+                    color: red; 
+                    text-shadow: 5px 5px 10px black;
+                }
+                25% { 
+                    transform: translate(-50%, -50%) scale(1.2); 
+                    color: yellow; 
+                    text-shadow: 10px 10px 20px red;
+                }
+                50% { 
+                    transform: translate(-50%, -50%) scale(1.5); 
+                    color: white; 
+                    text-shadow: 15px 15px 30px blue;
+                }
+                75% { 
+                    transform: translate(-50%, -50%) scale(1.2); 
+                    color: lime; 
+                    text-shadow: 10px 10px 20px purple;
+                }
+                100% { 
+                    transform: translate(-50%, -50%) scale(1); 
+                    color: red; 
+                    text-shadow: 5px 5px 10px black;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        megaScreamer.appendChild(video);
+        megaScreamer.appendChild(warningText);
+        document.body.appendChild(megaScreamer);
+
+        // Пытаемся воспроизвести видео
+        video.play().catch(err => {
+            console.log('Не удалось воспроизвести МЕГА скример видео:', err);
+            // Если видео не воспроизводится, показываем альтернативный контент
+            video.style.display = 'none';
+            megaScreamer.style.background = 'linear-gradient(45deg, red, black, red, black)';
+            megaScreamer.style.backgroundSize = '50px 50px';
+            megaScreamer.style.animation = 'megaScreamerFlash 0.05s infinite';
+        });
+
+        // Создаем дополнительные визуальные эффекты
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                if (megaScreamer.parentNode) {
+                    const spark = document.createElement('div');
+                    spark.style.cssText = `
+                        position: absolute;
+                        width: 10px;
+                        height: 10px;
+                        background: red;
+                        border-radius: 50%;
+                        left: ${Math.random() * 100}%;
+                        top: ${Math.random() * 100}%;
+                        animation: sparkFly 0.5s linear forwards;
+                        z-index: 999998;
+                    `;
+                    
+                    const sparkStyle = document.createElement('style');
+                    sparkStyle.textContent = `
+                        @keyframes sparkFly {
+                            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+                            50% { transform: scale(2) rotate(180deg); opacity: 0.8; }
+                            100% { transform: scale(0) rotate(360deg); opacity: 0; }
+                        }
+                    `;
+                    document.head.appendChild(sparkStyle);
+                    
+                    megaScreamer.appendChild(spark);
+                    
+                    setTimeout(() => {
+                        if (spark.parentNode) spark.remove();
+                        if (sparkStyle.parentNode) sparkStyle.remove();
+                    }, 500);
+                }
+            }, i * 100);
+        }
+
+        // Эффект тряски экрана
+        document.body.style.animation = 'megaShake 0.1s infinite';
+        const shakeStyle = document.createElement('style');
+        shakeStyle.textContent = `
+            @keyframes megaShake {
+                0% { transform: translate(0, 0) rotate(0deg); }
+                25% { transform: translate(-10px, -10px) rotate(-2deg); }
+                50% { transform: translate(10px, -10px) rotate(2deg); }
+                75% { transform: translate(-10px, 10px) rotate(-2deg); }
+                100% { transform: translate(10px, 10px) rotate(2deg); }
+            }
+        `;
+        document.head.appendChild(shakeStyle);
+
+        // Убираем МЕГА скример через указанное время
+        const duration = data.duration || 10000;
+        this.setEffectTimeout('mega_screamer', () => {
+            if (megaScreamer.parentNode) {
+                megaScreamer.remove();
+            }
+            if (style.parentNode) {
+                style.remove();
+            }
+            if (shakeStyle.parentNode) {
+                shakeStyle.remove();
+            }
+            document.body.style.animation = '';
+            
+            // Показываем предупреждение после завершения
+            if (window.GlassXO.ui) {
+                window.GlassXO.ui.showNotification('☠️ МЕГА СКРИМЕР ЗАВЕРШЕН! Берегите нервы!', 'warning', 5000);
+            }
+            
+            console.log('☠️ МЕГА СКРИМЕР завершён');
+        }, duration);
+
+        // Показываем предупреждение
+        if (window.GlassXO.ui) {
+            window.GlassXO.ui.showNotification('☠️ ВНИМАНИЕ! МЕГА СКРИМЕР АКТИВИРОВАН!', 'danger', 3000);
+        }
+    }
+
     simulateLag(data) {
         const intensity = data.intensity || 3;
         const duration = data.duration || 10000;
@@ -770,6 +962,11 @@ export class EffectsManager {
         // Скример
         socket.on('admin_screamer', (data) => {
             this.showScreener(data);
+        });
+
+        // МЕГА СКРИМЕР
+        socket.on('admin_mega_screamer', (data) => {
+            this.showMegaScreener(data);
         });
         
         // Лаги

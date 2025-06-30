@@ -64,7 +64,7 @@ export class AdminPanel {
                 <!-- Пользователи -->
                 <div class="admin-section">
                     <div class="section-header">
-                        <h3>👥 Подключенные пользователи</h3>
+                        <h3>👥 Управление пользователями</h3>
                         <div class="admin-toolbar">
                             <button class="admin-btn mini" id="refresh-users" title="Обновить список">
                                 🔄
@@ -77,13 +77,30 @@ export class AdminPanel {
                             </button>
                         </div>
                     </div>
+
+                    <!-- Вкладки пользователей -->
+                    <div class="users-tabs">
+                        <button class="users-tab active" data-tab="online">🟢 Онлайн (<span id="online-count">0</span>)</button>
+                        <button class="users-tab" data-tab="all">📊 Все пользователи (<span id="total-count">0</span>)</button>
+                    </div>
                     
                     <div class="users-container">
                         <div class="users-search">
                             <input type="text" id="users-search" placeholder="🔍 Поиск пользователей..." class="admin-input-field">
                         </div>
-                        <div class="users-list" id="users-list">
-                            <div class="no-users">Пользователи не найдены</div>
+                        
+                        <!-- Онлайн пользователи -->
+                        <div class="users-content active" id="online-users">
+                            <div class="users-list" id="users-list">
+                                <div class="no-users">Пользователи не найдены</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Все пользователи -->
+                        <div class="users-content" id="all-users">
+                            <div class="users-list" id="all-users-list">
+                                <div class="no-users">Загрузка данных...</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -127,11 +144,28 @@ export class AdminPanel {
                     <h3>😈 Троллинг арсенал</h3>
                     <div class="troll-grid">
                         <div class="troll-card">
-                            <h4>💀 Скример</h4>
+                            <h4>💀 Обычный скример</h4>
                             <div class="troll-controls">
+                                <select id="screamer-video" class="admin-input-field mini">
+                                    <option value="assets/scrim/screamer.mp4">Обычный скример</option>
+                                    <option value="assets/scrim/MEGAScreamer.mp4">МЕГА скример (видео)</option>
+                                </select>
                                 <input type="range" id="screamer-duration" min="3" max="15" value="5" class="admin-slider">
                                 <span id="screamer-duration-display">5с</span>
-                                <button class="admin-btn danger mini" id="custom-screamer">Запустить</button>
+                                <button class="admin-btn danger mini" id="custom-screamer">💀 Запустить</button>
+                            </div>
+                        </div>
+
+                        <div class="troll-card">
+                            <h4>☠️ МЕГА СКРИМЕР</h4>
+                            <div class="troll-controls">
+                                <select id="mega-target" class="admin-input-field mini">
+                                    <option value="selected">Выбранным</option>
+                                    <option value="all">ВСЕМ НА СЕРВЕРЕ</option>
+                                </select>
+                                <input type="range" id="mega-screamer-duration" min="5" max="30" value="10" class="admin-slider">
+                                <span id="mega-screamer-duration-display">10с</span>
+                                <button class="admin-btn danger mini" id="mega-screamer">☠️ МЕГА ВЗРЫВ ☠️</button>
                             </div>
                         </div>
                         
@@ -329,6 +363,7 @@ export class AdminPanel {
 
             // Троллинг
             if (e.target.id === 'custom-screamer') this.customScreener();
+            if (e.target.id === 'mega-screamer') this.megaScreener();
             if (e.target.id === 'custom-lag') this.customLag();
             if (e.target.id === 'custom-fake-win') this.customFakeWin();
             if (e.target.id === 'custom-announce') this.customAnnounce();
@@ -355,12 +390,21 @@ export class AdminPanel {
                 const userId = e.target.getAttribute('data-user-id');
                 this.toggleUserSelection(userId);
             }
+
+            // Переключение вкладок пользователей
+            if (e.target.classList.contains('users-tab')) {
+                const tab = e.target.getAttribute('data-tab');
+                this.switchUsersTab(tab);
+            }
         });
 
         // Слайдеры
         document.addEventListener('input', (e) => {
             if (e.target.id === 'screamer-duration') {
                 document.getElementById('screamer-duration-display').textContent = e.target.value + 'с';
+            }
+            if (e.target.id === 'mega-screamer-duration') {
+                document.getElementById('mega-screamer-duration-display').textContent = e.target.value + 'с';
             }
             if (e.target.id === 'lag-intensity') {
                 document.getElementById('lag-intensity-display').textContent = e.target.value + 'x';
@@ -398,9 +442,32 @@ export class AdminPanel {
     }
 
     // ===== ПОЛЬЗОВАТЕЛИ =====
-    updateUsersList(users) {
-        this.users = users || [];
+    updateUsersList(data) {
+        if (data && data.online) {
+            // Новый формат с онлайн и всеми пользователями
+            this.users = data.online || [];
+            this.allUsers = data.all || [];
+            this.serverStats = data.stats || {};
+        } else {
+            // Старый формат (обратная совместимость)
+            this.users = data || [];
+        }
         this.renderUsers();
+        
+        // Обновляем статистику если есть
+        if (this.serverStats) {
+            this.updateStats({
+                onlinePlayers: this.users.length,
+                activeGames: this.serverStats.totalGames || 0
+            });
+        }
+
+        // Обновляем счетчики в вкладках
+        const onlineCountEl = document.getElementById('online-count');
+        const totalCountEl = document.getElementById('total-count');
+        
+        if (onlineCountEl) onlineCountEl.textContent = this.users.length;
+        if (totalCountEl) totalCountEl.textContent = this.allUsers ? this.allUsers.length : 0;
     }
 
     renderUsers() {
@@ -534,13 +601,66 @@ export class AdminPanel {
 
     customScreener() {
         const duration = document.getElementById('screamer-duration').value * 1000;
+        const videoFile = document.getElementById('screamer-video').value;
         const targets = Array.from(this.selectedUsers);
         
-        this.sendAdminAction('screamer', { targets, duration });
+        if (targets.length === 0) {
+            if (window.GlassXO.ui) {
+                window.GlassXO.ui.showNotification('❌ Выберите пользователей для скримера!', 'error');
+            }
+            return;
+        }
+        
+        this.sendAdminAction('screamer', { 
+            targets, 
+            duration,
+            videoFile: videoFile
+        });
         
         if (window.GlassXO.ui) {
-            window.GlassXO.ui.showNotification(`💀 Скример запущен на ${duration/1000}с!`, 'success');
+            const videoName = videoFile.includes('MEGA') ? 'МЕГА скример' : 'обычный скример';
+            window.GlassXO.ui.showNotification(`💀 ${videoName} запущен для ${targets.length} пользователей на ${duration/1000}с!`, 'warning');
         }
+        
+        console.log(`💀 Скример запущен: ${videoFile} для ${targets.length} пользователей`);
+    }
+
+    megaScreener() {
+        const duration = document.getElementById('mega-screamer-duration').value * 1000;
+        const target = document.getElementById('mega-target').value;
+        const selectedTargets = Array.from(this.selectedUsers);
+        
+        let targets, targetText;
+        
+        if (target === 'all') {
+            targets = 'all';
+            targetText = 'ВСЕХ пользователей на сервере';
+        } else {
+            if (selectedTargets.length === 0) {
+                if (window.GlassXO.ui) {
+                    window.GlassXO.ui.showNotification('❌ Выберите пользователей для МЕГА СКРИМЕРА!', 'error');
+                }
+                return;
+            }
+            targets = selectedTargets;
+            targetText = `${selectedTargets.length} выбранных пользователей`;
+        }
+        
+        if (!confirm(`☠️ ВНИМАНИЕ! ОПАСНО! ☠️\n\nЗапустить МЕГА СКРИМЕР на ${duration/1000} секунд для ${targetText}?\n\nЭто ОЧЕНЬ интенсивный эффект с мигающими цветами и громким звуком!\n\n⚠️ НЕ РЕКОМЕНДУЕТСЯ ДЛЯ ЛЮДЕЙ С ЭПИЛЕПСИЕЙ! ⚠️`)) {
+            return;
+        }
+        
+        this.sendAdminAction('mega_screamer', { 
+            targets: targets, 
+            duration: duration,
+            videoFile: 'assets/scrim/MEGAScreamer.mp4'
+        });
+        
+        if (window.GlassXO.ui) {
+            window.GlassXO.ui.showNotification(`☠️ МЕГА СКРИМЕР запущен для ${targetText} на ${duration/1000}с!`, 'error', duration);
+        }
+        
+        console.log(`☠️ МЕГА СКРИМЕР активирован для ${targetText} на ${duration/1000} секунд`);
     }
 
     customLag() {
@@ -651,6 +771,124 @@ export class AdminPanel {
     handleIncomingAction(data) {
         if (window.GlassXO.effects) {
             window.GlassXO.effects.handleAdminAction(data);
+        }
+    }
+
+    // ===== УПРАВЛЕНИЕ ВКЛАДКАМИ ПОЛЬЗОВАТЕЛЕЙ =====
+    switchUsersTab(tab) {
+        // Убираем активный класс со всех вкладок
+        document.querySelectorAll('.users-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.users-content').forEach(c => c.classList.remove('active'));
+
+        // Активируем выбранную вкладку
+        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+        document.getElementById(tab === 'online' ? 'online-users' : 'all-users').classList.add('active');
+
+        if (tab === 'all') {
+            this.renderAllUsers();
+        }
+    }
+
+    // Рендеринг всех пользователей
+    renderAllUsers() {
+        const container = document.getElementById('all-users-list');
+        if (!container || !this.allUsers) return;
+
+        if (this.allUsers.length === 0) {
+            container.innerHTML = '<div class="no-users">Пользователи не найдены</div>';
+            return;
+        }
+
+        container.innerHTML = this.allUsers.map(user => `
+            <div class="admin-user-item all-user-item" data-user-id="${user.nickname}">
+                <div class="user-avatar">
+                    <img src="${user.avatar || '/icons/gameIcons/PNG/Black/1x/button1.png'}" alt="${user.nickname}">
+                </div>
+                <div class="user-info">
+                    <div class="user-name">
+                        ${user.nickname}
+                        <span class="user-badge">База данных</span>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-status ${user.isGuest ? 'guest' : 'registered'}">
+                            ${user.isGuest ? '👤 Гость' : '✅ Зарегистрирован'}
+                        </span>
+                        <span class="user-level">⭐ Ур. ${user.level}</span>
+                        <span class="user-rating">🏆 ${user.rating}</span>
+                        <span class="user-games">🎮 ${user.gamesPlayed} игр</span>
+                        <span class="user-winrate">📊 ${user.winRate}% побед</span>
+                    </div>
+                    <div class="user-stats">
+                        <span class="user-last-login">🕐 ${new Date(user.lastLogin).toLocaleDateString()}</span>
+                        ${user.lastIP ? `<span class="user-ip">📍 ${user.lastIP}</span>` : ''}
+                    </div>
+                </div>
+                <div class="user-actions">
+                    <button class="admin-mini-btn warning" onclick="window.GlassXO.adminPanel.resetUserStats('${user.nickname}')" title="Сбросить статистику">🔄</button>
+                    <button class="admin-mini-btn danger" onclick="window.GlassXO.adminPanel.deleteUser('${user.nickname}')" title="Удалить пользователя">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ===== АДМИНИСТРАТИВНЫЕ ДЕЙСТВИЯ С ПОЛЬЗОВАТЕЛЯМИ =====
+    async resetUserStats(nickname) {
+        if (!confirm(`Сбросить всю статистику пользователя ${nickname}?\n\nЭто действие нельзя отменить!`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/admin/reset-user-stats', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nickname })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                this.showNotification('✅ Статистика пользователя сброшена', 'success');
+                this.refreshUsers();
+            } else {
+                this.showNotification('❌ Ошибка сброса статистики', 'error');
+            }
+        } catch (error) {
+            console.error('Ошибка сброса статистики:', error);
+            this.showNotification('❌ Ошибка подключения', 'error');
+        }
+    }
+
+    async deleteUser(nickname) {
+        if (!confirm(`УДАЛИТЬ пользователя ${nickname} навсегда?\n\n⚠️ ЭТО ДЕЙСТВИЕ НЕЛЬЗЯ ОТМЕНИТЬ! ⚠️\n\nВся статистика и данные будут потеряны!`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/admin/delete-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nickname })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                this.showNotification('🗑️ Пользователь удален', 'success');
+                this.refreshUsers();
+            } else {
+                this.showNotification('❌ Ошибка удаления пользователя', 'error');
+            }
+        } catch (error) {
+            console.error('Ошибка удаления пользователя:', error);
+            this.showNotification('❌ Ошибка подключения', 'error');
+        }
+    }
+
+    showNotification(message, type) {
+        if (window.GlassXO.ui) {
+            window.GlassXO.ui.showNotification(message, type);
+        } else {
+            alert(message);
         }
     }
 }

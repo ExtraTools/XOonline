@@ -1,4 +1,4 @@
-// ===== GLASS XO v2.0 - ГЛАВНЫЙ МОДУЛЬ =====
+// ===== KRESTIKI v2.0 - ГЛАВНЫЙ МОДУЛЬ =====
 
 // Импорт модулей
 import { AdminPanel } from './modules/adminPanel.js';
@@ -62,7 +62,7 @@ window.GlassXO = {
 
 // Инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🎮 Glass XO v2.0 - Модульная инициализация...');
+    console.log('🎮 KRESTIKI v2.0 - Модульная инициализация...');
     
     try {
         // Инициализируем модули

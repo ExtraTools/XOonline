@@ -262,30 +262,40 @@ export class GameLogic {
         
         let title, message, isWin = false;
         
+        // Получаем имена игроков
+        const playerName = window.GlassXO.player?.nickname || 'Игрок';
+        const opponentName = gameState.opponent?.name || gameState.opponent || 'Соперник';
+        
         if (result.winner === 'draw') {
             title = '🤝 Ничья!';
-            message = 'Отличная игра! Попробуйте ещё раз.';
+            if (gameState.gameMode === 'online') {
+                message = `Ничья между ${playerName} и ${opponentName}! Отличная игра!`;
+            } else if (gameState.gameMode === 'ai') {
+                message = `Ничья между ${playerName} и ИИ! Вы играете как компьютер!`;
+            } else {
+                message = 'Ничья! Отличная игра! Попробуйте ещё раз.';
+            }
         } else if (gameState.gameMode === 'local') {
             title = `🎉 Победил игрок ${result.winner}!`;
             message = `Игрок ${result.winner} выиграл эту партию!`;
             isWin = true;
         } else if (gameState.gameMode === 'ai') {
             if (result.winner === 'X') {
-                title = '🎉 Вы победили!';
-                message = `Поздравляем! Вы обыграли ИИ уровня "${this.getDifficultyName(gameState.difficulty)}"!`;
+                title = `🎉 ${playerName} победил!`;
+                message = `${playerName} обыграл ИИ уровня "${this.getDifficultyName(gameState.difficulty)}"! Поздравляем!`;
                 isWin = true;
             } else {
-                title = '😞 Вы проиграли!';
-                message = `ИИ уровня "${this.getDifficultyName(gameState.difficulty)}" оказался сильнее. Попробуйте ещё раз!`;
+                title = `🤖 ИИ победил!`;
+                message = `ИИ уровня "${this.getDifficultyName(gameState.difficulty)}" обыграл ${playerName}. Попробуйте ещё раз!`;
             }
         } else if (gameState.gameMode === 'online') {
             if (result.winner === gameState.mySymbol) {
-                title = '🎉 Вы победили!';
-                message = `Поздравляем! Вы обыграли ${gameState.opponent}!`;
+                title = `🎉 ${playerName} победил!`;
+                message = `${playerName} обыграл ${opponentName}! Поздравляем с победой!`;
                 isWin = true;
             } else {
-                title = '😞 Вы проиграли!';
-                message = `${gameState.opponent} оказался сильнее. Удачи в следующий раз!`;
+                title = `😞 ${opponentName} победил!`;
+                message = `${opponentName} обыграл ${playerName}. Удачи в следующий раз!`;
             }
         }
         
@@ -360,6 +370,21 @@ export class GameLogic {
         window.GlassXO.gameState.opponent = null;
         window.GlassXO.gameState.gameStartTime = Date.now();
         window.GlassXO.gameState.moveCount = 0;
+        window.GlassXO.gameState.gameStatus = 'waiting';
+        window.GlassXO.gameState.winner = null;
+        
+        // Очищаем визуальное отображение всех клеток
+        document.querySelectorAll('.cell').forEach((cell, index) => {
+            cell.textContent = '';
+            cell.className = 'cell'; // Убираем все дополнительные классы включая winning
+            cell.style.transform = '';
+            cell.style.transition = '';
+        });
+        
+        // Закрываем модальное окно результата если открыто
+        if (window.GlassXO.ui && window.GlassXO.ui.closeModal) {
+            window.GlassXO.ui.closeModal('game-result-modal');
+        }
     }
 
     getDifficultyName(difficulty) {
