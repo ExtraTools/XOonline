@@ -1,4 +1,26 @@
-/* Стили для игры крестики-нолики */
+:root {
+    --primary-color: #4ECDC4; /* Яркий бирюзовый */
+    --secondary-color: #FF6B35; /* Оранжевый */
+    --background-color: #121212; /* Очень темный фон */
+    --surface-color: #1E1E1E; /* Цвет карточек и поверхностей */
+    --text-color: #FFFFFF; /* Белый текст */
+    --text-color-secondary: #a0a0a0; /* Второстепенный текст */
+    --border-color: rgba(255, 255, 255, 0.1);
+    --success-color: #4CAF50;
+    --error-color: #f44336;
+    --warning-color: #FF9800;
+    --font-family: 'Benzin', sans-serif;
+    --border-radius: 16px;
+    --border-radius-small: 8px;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    margin: 0;
+    line-height: 1.6;
+}
 
 /* Верхняя панель */
 .game-header {
@@ -6,9 +28,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -21,13 +42,13 @@
 }
 
 .back-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
     padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
+    border-radius: var(--border-radius-small);
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -35,12 +56,12 @@
 }
 
 .back-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
     transform: translateY(-2px);
 }
 
 .game-title {
-    color: white;
+    color: var(--text-color);
     margin: 0;
     font-size: 1.5rem;
     display: flex;
@@ -52,9 +73,9 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: rgba(255, 255, 255, 0.1);
+    background-color: var(--background-color);
     padding: 0.5rem 1rem;
-    border-radius: 2rem;
+    border-radius: 30px;
 }
 
 .player-avatar {
@@ -65,20 +86,20 @@
 }
 
 .player-name {
-    color: white;
+    color: var(--text-color);
     font-weight: 600;
     margin: 0;
 }
 
 .player-stats {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-color-secondary);
     font-size: 0.8rem;
     margin: 0;
 }
 
 /* Главное меню игры */
 .game-menu {
-    min-height: calc(100vh - 80px);
+    min-height: calc(100vh - 88px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -92,13 +113,9 @@
 }
 
 .menu-container h2 {
-    color: white;
+    color: var(--text-color);
     font-size: 2.5rem;
     margin-bottom: 3rem;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
 }
 
 .game-modes {
@@ -109,35 +126,19 @@
 }
 
 .mode-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 1rem;
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius);
     padding: 2rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     position: relative;
     overflow: hidden;
 }
 
-.mode-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: left 0.5s;
-}
-
-.mode-card:hover::before {
-    left: 100%;
-}
-
 .mode-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     border-color: var(--primary-color);
 }
 
@@ -148,19 +149,19 @@
 }
 
 .mode-card h3 {
-    color: white;
+    color: var(--text-color);
     margin-bottom: 0.5rem;
     font-size: 1.3rem;
 }
 
 .mode-card p {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-color-secondary);
     margin-bottom: 1rem;
     line-height: 1.5;
 }
 
 .mode-stats {
-    color: var(--secondary-color);
+    color: var(--primary-color);
     font-weight: 600;
 }
 
@@ -170,7 +171,7 @@
 }
 
 .ai-settings h3 {
-    color: white;
+    color: var(--text-color);
     margin-bottom: 2rem;
     font-size: 1.8rem;
 }
@@ -183,11 +184,11 @@
 }
 
 .difficulty-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
     padding: 1rem;
-    border-radius: 0.5rem;
+    border-radius: var(--border-radius-small);
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -198,13 +199,15 @@
 }
 
 .difficulty-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background-color: var(--primary-color);
+    color: var(--background-color);
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .difficulty-btn.selected {
     background: var(--primary-color);
+    color: var(--background-color);
     border-color: var(--primary-color);
 }
 
@@ -221,37 +224,38 @@
     font-size: 3rem;
     color: var(--primary-color);
     margin-bottom: 1rem;
+    animation: spin 1s linear infinite;
 }
 
 .matchmaking h3 {
-    color: white;
+    color: var(--text-color);
     margin-bottom: 0.5rem;
 }
 
 .matchmaking p {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-color-secondary);
     margin-bottom: 2rem;
 }
 
 .cancel-btn {
-    background: rgba(244, 67, 54, 0.2);
-    border: 1px solid #f44336;
-    color: #f44336;
+    background-color: var(--error-color);
+    border: none;
+    color: var(--text-color);
     padding: 0.75rem 2rem;
-    border-radius: 2rem;
+    border-radius: 30px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .cancel-btn:hover {
-    background: rgba(244, 67, 54, 0.3);
+    background-color: #d32f2f;
     transform: scale(1.05);
 }
 
 /* Игровая область */
 .game-area {
     padding: 2rem;
-    min-height: calc(100vh - 80px);
+    min-height: calc(100vh - 88px);
 }
 
 .opponent-info {
@@ -267,11 +271,10 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    background-color: var(--surface-color);
     padding: 1rem;
-    border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
 }
 
 .opponent-avatar {
@@ -282,13 +285,13 @@
 }
 
 .opponent-name {
-    color: white;
+    color: var(--text-color);
     font-weight: 600;
     margin: 0;
 }
 
 .opponent-rating {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-color-secondary);
     font-size: 0.9rem;
     margin: 0;
 }
@@ -297,7 +300,7 @@
     font-size: 2rem;
     font-weight: 900;
     color: var(--primary-color);
-    text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+    text-shadow: 0 0 20px var(--primary-color);
 }
 
 /* Игровая доска */
@@ -312,13 +315,13 @@
     align-items: center;
     margin-bottom: 2rem;
     padding: 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
 }
 
 .current-turn {
-    color: white;
+    color: var(--text-color);
     font-weight: 600;
     font-size: 1.1rem;
 }
@@ -335,20 +338,19 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
     margin-bottom: 2rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--background-color);
     padding: 20px;
-    border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
 }
 
 .board-cell {
     aspect-ratio: 1;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 0.5rem;
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-small);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 3rem;
+    font-size: 4rem;
     font-weight: 900;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -358,48 +360,30 @@
 }
 
 .board-cell:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background-color: #2a2a2a;
     border-color: var(--primary-color);
     transform: scale(1.05);
 }
 
 .board-cell.x {
     color: var(--primary-color);
-    text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+    text-shadow: 0 0 20px var(--primary-color);
 }
 
 .board-cell.o {
     color: var(--secondary-color);
-    text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+    text-shadow: 0 0 20px var(--secondary-color);
 }
 
 .board-cell.winning {
-    background: rgba(255, 215, 0, 0.3);
-    border-color: #ffd700;
+    background-color: rgba(255, 215, 0, 0.3);
+    border-color: var(--warning-color);
     animation: pulse 1s infinite;
 }
 
 .board-cell.disabled {
     cursor: not-allowed;
     opacity: 0.5;
-}
-
-.board-cell::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.3), transparent);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: all 0.3s ease;
-}
-
-.board-cell:hover::before {
-    width: 100%;
-    height: 100%;
 }
 
 /* Управление игрой */
@@ -411,11 +395,11 @@
 }
 
 .control-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
     padding: 0.75rem 1.5rem;
-    border-radius: 2rem;
+    border-radius: 30px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -424,7 +408,8 @@
 }
 
 .control-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background-color: var(--primary-color);
+    color: var(--background-color);
     transform: translateY(-2px);
 }
 
@@ -432,6 +417,8 @@
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
+    background-color: var(--surface-color);
+    color: var(--text-color);
 }
 
 /* Результат игры */
@@ -441,7 +428,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -450,14 +438,13 @@
 }
 
 .result-container {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    border-radius: 2rem;
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius);
     padding: 3rem;
     max-width: 500px;
     width: 90%;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-color);
 }
 
 .result-icon {
@@ -466,26 +453,26 @@
 }
 
 .result-icon.win {
-    color: #4CAF50;
+    color: var(--success-color);
     animation: bounce 1s ease;
 }
 
 .result-icon.lose {
-    color: #f44336;
+    color: var(--error-color);
 }
 
 .result-icon.draw {
-    color: #FF9800;
+    color: var(--warning-color);
 }
 
 .result-title {
-    color: white;
+    color: var(--text-color);
     font-size: 2.5rem;
     margin-bottom: 1rem;
 }
 
 .result-description {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-color-secondary);
     margin-bottom: 2rem;
     line-height: 1.6;
 }
@@ -498,20 +485,20 @@
 }
 
 .stat-card {
-    background: rgba(255, 255, 255, 0.05);
+    background-color: var(--background-color);
     padding: 1rem;
-    border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-small);
+    border: 1px solid var(--border-color);
 }
 
 .stat-label {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-color-secondary);
     font-size: 0.9rem;
     margin-bottom: 0.5rem;
 }
 
 .stat-value {
-    color: white;
+    color: var(--text-color);
     font-weight: 600;
     font-size: 1.1rem;
     display: flex;
@@ -523,18 +510,18 @@
 .rating-change {
     font-weight: 700;
     padding: 0.2rem 0.5rem;
-    border-radius: 1rem;
+    border-radius: 30px;
     font-size: 0.9rem;
 }
 
 .rating-change.positive {
     background: rgba(76, 175, 80, 0.2);
-    color: #4CAF50;
+    color: var(--success-color);
 }
 
 .rating-change.negative {
     background: rgba(244, 67, 54, 0.2);
-    color: #f44336;
+    color: var(--error-color);
 }
 
 .result-actions {
@@ -545,30 +532,31 @@
 }
 
 .play-btn {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
+    background: var(--primary-color);
+    color: var(--background-color);
     border: none;
     padding: 0.75rem 2rem;
-    border-radius: 2rem;
+    border-radius: 30px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    text-transform: uppercase;
 }
 
 .play-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+    box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
 }
 
 .secondary-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
     padding: 0.75rem 1.5rem;
-    border-radius: 2rem;
+    border-radius: 30px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -577,7 +565,8 @@
 }
 
 .secondary-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background-color: var(--text-color);
+    color: var(--background-color);
     transform: translateY(-2px);
 }
 
@@ -614,6 +603,15 @@
     }
 }
 
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
     .game-header {
@@ -643,7 +641,7 @@
     }
     
     .board-cell {
-        font-size: 2rem;
+        font-size: 2.5rem;
     }
     
     .menu-container h2 {
@@ -675,9 +673,9 @@
     .game-area {
         padding: 1rem;
     }
-    
+
     .board-cell {
-        font-size: 1.5rem;
+        font-size: 2rem;
     }
     
     .difficulty-buttons {

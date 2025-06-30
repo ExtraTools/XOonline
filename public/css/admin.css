@@ -1,31 +1,46 @@
 /* ===== KRESTIKI ONLINE - АДМИН ПАНЕЛЬ v3.1 ===== */
 
 :root {
-    /* Темная цветовая схема */
-    --admin-bg-primary: #1a1a1a;
-    --admin-bg-secondary: #242424;
-    --admin-bg-card: #2d2d2d;
-    --admin-bg-input: #333333;
+    /* Интеграция с основным стилем DinosGames */
+    --primary-color: #4ECDC4;
+    --secondary-color: #FF6B35;
+    --background-color: #121212;
+    --surface-color: #1E1E1E;
+    --text-color: #FFFFFF;
+    --text-color-secondary: #a0a0a0;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --success-color: #4CAF50;
+    --error-color: #f44336;
+    --warning-color: #FF9800;
+    --font-family: 'Benzin', sans-serif;
+    --border-radius: 16px;
+    --border-radius-small: 8px;
+
+    /* Переменные админ-панели, использующие основной стиль */
+    --admin-bg-primary: var(--background-color);
+    --admin-bg-secondary: #181818; /* Чуть светлее фона */
+    --admin-bg-card: var(--surface-color);
+    --admin-bg-input: var(--surface-color);
     
-    --admin-text-primary: #ffffff;
-    --admin-text-secondary: #b3b3b3;
-    --admin-text-muted: #666666;
+    --admin-text-primary: var(--text-color);
+    --admin-text-secondary: var(--text-color-secondary);
+    --admin-text-muted: #6c6c6c;
     
-    --admin-accent-primary: #ff6b35;
-    --admin-accent-secondary: #4ecdc4;
-    --admin-accent-success: #45b7d1;
-    --admin-accent-warning: #f9ca24;
-    --admin-accent-danger: #f0932b;
+    --admin-accent-primary: var(--primary-color);
+    --admin-accent-secondary: var(--secondary-color);
+    --admin-accent-success: var(--success-color);
+    --admin-accent-warning: var(--warning-color);
+    --admin-accent-danger: var(--error-color);
     
-    --admin-border: #404040;
-    --admin-border-light: #555555;
+    --admin-border: var(--border-color);
+    --admin-border-light: rgba(255, 255, 255, 0.2);
     
-    --admin-shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
-    --admin-shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
-    --admin-shadow-heavy: 0 8px 40px rgba(0, 0, 0, 0.25);
+    --admin-shadow-light: 0 4px 10px rgba(0, 0, 0, 0.2);
+    --admin-shadow-medium: 0 6px 25px rgba(0, 0, 0, 0.3);
+    --admin-shadow-heavy: 0 10px 50px rgba(0, 0, 0, 0.4);
     
-    --admin-glass-bg: rgba(45, 45, 45, 0.7);
-    --admin-glass-border: rgba(255, 255, 255, 0.1);
+    --admin-glass-bg: rgba(30, 30, 30, 0.7);
+    --admin-glass-border: var(--border-color);
 }
 
 /* ===== ОСНОВНАЯ ПАНЕЛЬ ===== */
@@ -39,12 +54,16 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--font-family);
 }
 
 .modern-admin-panel.active {
     opacity: 1;
     visibility: visible;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .admin-backdrop {
@@ -63,7 +82,7 @@
     width: 100%;
     height: 100%;
     display: flex;
-    background: linear-gradient(135deg, var(--admin-bg-primary) 0%, var(--admin-bg-secondary) 100%);
+    background: var(--admin-bg-primary);
 }
 
 /* ===== БОКОВАЯ ПАНЕЛЬ ===== */
@@ -83,33 +102,33 @@
     border-bottom: 1px solid var(--admin-border);
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 .admin-logo {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .logo-icon {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     color: var(--admin-accent-primary);
 }
 
 .logo-text {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: var(--admin-text-primary);
 }
 
 .logo-badge {
     background: var(--admin-accent-primary);
-    color: white;
+    color: var(--admin-bg-primary);
     font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.25rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--border-radius-small);
 }
 
 /* ===== МЕНЮ ===== */
@@ -144,8 +163,8 @@
     background: none;
     border: none;
     color: var(--admin-text-secondary);
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--border-radius-small);
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -163,14 +182,21 @@
 }
 
 .menu-item.active {
-    background: linear-gradient(135deg, var(--admin-accent-primary), var(--admin-accent-secondary));
-    color: white;
-    box-shadow: var(--admin-shadow-medium);
+    background: var(--admin-accent-primary);
+    color: var(--admin-bg-primary);
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
 }
 
 .menu-item i {
     width: 1.2rem;
     text-align: center;
+    background: var(--admin-accent-primary);
+    color: var(--admin-bg-primary);
+    font-weight: 700;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
 }
 
 .badge {
@@ -225,7 +251,7 @@
 .header-right {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .quick-actions {
@@ -237,10 +263,10 @@
 .quick-btn,
 .close-btn {
     background: var(--admin-bg-card);
-    border: none;
+    border: 1px solid var(--admin-border);
     color: var(--admin-text-secondary);
     padding: 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: var(--border-radius-small);
     cursor: pointer;
     transition: all 0.2s ease;
     width: 2.5rem;
@@ -252,13 +278,15 @@
 
 .quick-btn:hover {
     background: var(--admin-accent-primary);
-    color: white;
+    color: var(--admin-bg-primary);
+    border-color: var(--admin-accent-primary);
     transform: translateY(-1px);
 }
 
 .close-btn:hover {
     background: var(--admin-accent-danger);
-    color: white;
+    color: var(--admin-text-primary);
+    border-color: var(--admin-accent-danger);
 }
 
 /* ===== КОНТЕНТ СЕКЦИЙ ===== */
@@ -286,21 +314,20 @@
 }
 
 .stat-card {
-    background: var(--admin-glass-bg);
-    border: 1px solid var(--admin-glass-border);
-    border-radius: 1rem;
+    background: var(--admin-bg-card);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--border-radius);
     padding: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    gap: 1.5rem;
     transition: all 0.3s ease;
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--admin-shadow-heavy);
+    transform: translateY(-5px);
+    box-shadow: var(--admin-shadow-medium);
+    border-color: var(--admin-accent-primary);
 }
 
 .stat-card.primary { border-left: 4px solid var(--admin-accent-primary); }
@@ -309,14 +336,14 @@
 .stat-card.danger { border-left: 4px solid var(--admin-accent-danger); }
 
 .stat-icon {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 0.75rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--border-radius);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
-    background: var(--admin-bg-card);
+    font-size: 1.8rem;
+    background: var(--admin-bg-primary);
     color: var(--admin-accent-primary);
 }
 
@@ -357,11 +384,9 @@
 }
 
 .dashboard-card {
-    background: var(--admin-glass-bg);
-    border: 1px solid var(--admin-glass-border);
-    border-radius: 1rem;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--admin-bg-card);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--border-radius);
     overflow: hidden;
 }
 
@@ -389,11 +414,11 @@
 }
 
 .action-btn {
-    background: var(--admin-bg-card);
+    background: var(--admin-bg-input);
     border: 1px solid var(--admin-border);
     color: var(--admin-text-primary);
     padding: 1rem;
-    border-radius: 0.75rem;
+    border-radius: var(--border-radius-small);
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
@@ -407,6 +432,9 @@
 .action-btn:hover {
     transform: translateY(-2px);
     box-shadow: var(--admin-shadow-medium);
+    border-color: var(--admin-accent-primary);
+    background-color: var(--admin-accent-primary);
+    color: var(--admin-bg-primary);
 }
 
 .action-btn.danger:hover {
@@ -445,12 +473,10 @@
 }
 
 .action-card {
-    background: var(--admin-glass-bg);
-    border: 1px solid var(--admin-glass-border);
-    border-radius: 1rem;
+    background: var(--admin-bg-card);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--border-radius);
     padding: 1.5rem;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     transition: all 0.3s ease;
 }
 
@@ -474,7 +500,7 @@
 .action-icon {
     width: 3rem;
     height: 3rem;
-    border-radius: 0.75rem;
+    border-radius: var(--border-radius-small);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -520,25 +546,24 @@
 }
 
 .screamer-card {
-    background: var(--admin-glass-bg);
-    border: 1px solid var(--admin-glass-border);
-    border-radius: 1rem;
+    background: var(--admin-bg-card);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--border-radius);
     padding: 1.5rem;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     transition: all 0.3s ease;
 }
 
 .screamer-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--admin-shadow-medium);
+    border-color: var(--admin-accent-secondary);
 }
 
 .screamer-card.mega {
     border: 2px solid var(--admin-accent-danger);
     background: linear-gradient(135deg, 
-        rgba(240, 147, 43, 0.1), 
-        rgba(255, 107, 53, 0.1)
+        rgba(244, 110, 54, 0.1), 
+        rgba(255, 50, 50, 0.1)
     );
 }
 
@@ -549,6 +574,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-weight: 500;
 }
 
 .screamer-controls {
@@ -573,8 +599,8 @@
     background: var(--admin-bg-input);
     border: 1px solid var(--admin-border);
     color: var(--admin-text-primary);
-    padding: 0.5rem;
-    border-radius: 0.5rem;
+    padding: 0.75rem;
+    border-radius: var(--border-radius-small);
     font-size: 0.9rem;
     transition: all 0.2s ease;
 }
@@ -582,7 +608,7 @@
 .control-input:focus {
     outline: none;
     border-color: var(--admin-accent-primary);
-    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
 }
 
 .target-selector {
@@ -597,11 +623,11 @@
 }
 
 .target-option {
-    background: var(--admin-bg-card);
+    background: var(--admin-bg-input);
     border: 1px solid var(--admin-border);
     color: var(--admin-text-secondary);
     padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
+    border-radius: var(--border-radius-small);
     cursor: pointer;
     font-size: 0.9rem;
     transition: all 0.2s ease;
@@ -613,13 +639,14 @@
 .target-option.active {
     background: var(--admin-accent-primary);
     border-color: var(--admin-accent-primary);
-    color: white;
+    color: var(--admin-bg-primary);
+    font-weight: 700;
 }
 
 .selected-users {
-    background: var(--admin-bg-input);
+    background: var(--admin-bg-primary);
     border: 1px solid var(--admin-border);
-    border-radius: 0.5rem;
+    border-radius: var(--border-radius-small);
     padding: 0.5rem;
     min-height: 60px;
     max-height: 120px;
@@ -647,10 +674,11 @@
     align-items: center;
     gap: 0.25rem;
     background: var(--admin-accent-primary);
-    color: white;
+    color: var(--admin-bg-primary);
     padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: var(--border-radius-small);
     font-size: 0.8rem;
+    font-weight: 700;
     margin: 0.125rem;
     animation: fadeInUp 0.2s ease;
 }
@@ -658,7 +686,7 @@
 .remove-user {
     background: none;
     border: none;
-    color: white;
+    color: var(--admin-bg-primary);
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: bold;
@@ -672,22 +700,22 @@
 }
 
 .remove-user:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .mega-warning {
-    background: rgba(240, 147, 43, 0.2);
+    background: rgba(244, 67, 54, 0.1);
     border: 1px solid var(--admin-accent-danger);
     color: var(--admin-accent-danger);
     padding: 0.75rem;
-    border-radius: 0.5rem;
+    border-radius: var(--border-radius-small);
     text-align: center;
     font-weight: 600;
     font-size: 0.9rem;
 }
 
 .mega-btn {
-    background: linear-gradient(135deg, var(--admin-accent-danger), #d63031) !important;
+    background: linear-gradient(135deg, var(--admin-accent-danger), #c0392b) !important;
     border: 2px solid var(--admin-accent-danger) !important;
     font-weight: 700;
     font-size: 1rem;
@@ -695,8 +723,8 @@
 }
 
 @keyframes megaPulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(240, 147, 43, 0.7); }
-    50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(240, 147, 43, 0); }
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
 }
 
 /* ===== СЕКЦИЯ ЭФФЕКТОВ ===== */
@@ -707,19 +735,18 @@
 }
 
 .effect-card {
-    background: var(--admin-glass-bg);
-    border: 1px solid var(--admin-glass-border);
-    border-radius: 1rem;
+    background: var(--admin-bg-card);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--border-radius);
     padding: 1.5rem;
     text-align: center;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     transition: all 0.3s ease;
 }
 
 .effect-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--admin-shadow-heavy);
+    box-shadow: var(--admin-shadow-medium);
+    border-color: var(--admin-accent-primary);
 }
 
 .effect-card h3 {
@@ -736,7 +763,7 @@
     width: 60px;
     height: 60px;
     margin: 0 auto 1rem;
-    border-radius: 0.5rem;
+    border-radius: var(--border-radius-small);
     border: 2px solid var(--admin-border);
 }
 
@@ -871,12 +898,13 @@
 }
 
 .server-card {
-    background: var(--admin-glass-bg);
-    border: 1px solid var(--admin-glass-border);
-    border-radius: 1rem;
+    background: var(--admin-bg-card);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--border-radius);
     padding: 1.5rem;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    padding: 0.5rem;
+    background: var(--admin-bg-input);
+    border-radius: var(--border-radius-small);
 }
 
 .server-card h3 {
@@ -921,12 +949,10 @@
 
 /* ===== СЕКЦИЯ ЛОГОВ ===== */
 .logs-container {
-    background: var(--admin-glass-bg);
-    border: 1px solid var(--admin-glass-border);
-    border-radius: 1rem;
+    background: var(--admin-bg-card);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--border-radius);
     padding: 1.5rem;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
 }
 
 .logs-filters {
@@ -937,11 +963,11 @@
 }
 
 .log-filter {
-    background: var(--admin-bg-card);
+    background: var(--admin-bg-input);
     border: 1px solid var(--admin-border);
     color: var(--admin-text-secondary);
     padding: 0.4rem 0.8rem;
-    border-radius: 0.5rem;
+    border-radius: var(--border-radius-small);
     cursor: pointer;
     font-size: 0.8rem;
     transition: all 0.2s ease;
@@ -951,13 +977,14 @@
 .log-filter.active {
     background: var(--admin-accent-primary);
     border-color: var(--admin-accent-primary);
-    color: white;
+    color: var(--admin-bg-primary);
+    font-weight: 700;
 }
 
 .logs-list {
-    background: var(--admin-bg-card);
+    background: var(--admin-bg-primary);
     border: 1px solid var(--admin-border);
-    border-radius: 0.5rem;
+    border-radius: var(--border-radius-small);
     padding: 1rem;
     max-height: 400px;
     overflow-y: auto;
@@ -1010,11 +1037,11 @@
 .toggle-label {
     position: relative;
     display: inline-block;
-    width: 60px;
-    height: 30px;
+    width: 50px;
+    height: 28px;
     background: var(--admin-bg-input);
     border: 1px solid var(--admin-border);
-    border-radius: 15px;
+    border-radius: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -1024,8 +1051,8 @@
     position: absolute;
     top: 2px;
     left: 2px;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     background: var(--admin-text-secondary);
     border-radius: 50%;
     transition: all 0.3s ease;
@@ -1037,7 +1064,7 @@
 }
 
 .toggle-switch input:checked + .toggle-label::before {
-    transform: translateX(30px);
+    transform: translateX(22px);
     background: white;
 }
 
