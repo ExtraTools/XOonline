@@ -11,7 +11,7 @@
     <meta name="author" content="DinosGames Team">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/lobby.css">
     <link rel="stylesheet" href="css/admin.css">
     
     <!-- Font Awesome -->
@@ -29,321 +29,42 @@
     <meta property="og:description" content="Современная игровая площадка с множеством игр">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://dinosgames.com">
-    
-    <!-- Стили для игровой площадки -->
-    <style>
-        :root {
-            --dinos-primary: #FF6B35;
-            --dinos-secondary: #4ECDC4;
-            --dinos-success: #45B7D1;
-            --dinos-warning: #F9CA24;
-            --dinos-danger: #F0932B;
-            --dinos-dark: #2C3E50;
-            --dinos-light: #ECF0F1;
-            --dinos-purple: #9B59B6;
-            --dinos-green: #27AE60;
-        }
-
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            padding: 2rem 0;
-        }
-
-        .game-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .game-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.5s;
-        }
-
-        .game-card:hover::before {
-            left: 100%;
-        }
-
-        .game-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border-color: var(--dinos-primary);
-        }
-
-        .game-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: var(--dinos-primary);
-            display: block;
-        }
-
-        .game-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: white;
-        }
-
-        .game-description {
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-        }
-
-        .game-stats {
-            display: flex;
-            justify-content: space-around;
-            margin: 1rem 0;
-            font-size: 0.9rem;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            display: block;
-            font-weight: 700;
-            color: var(--dinos-secondary);
-        }
-
-        .stat-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.8rem;
-        }
-
-        .play-btn {
-            background: linear-gradient(135deg, var(--dinos-primary), var(--dinos-secondary));
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 2rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .play-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
-        }
-
-        .play-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .coming-soon {
-            background: rgba(155, 89, 182, 0.3);
-            color: #9B59B6;
-            border: 1px solid rgba(155, 89, 182, 0.5);
-        }
-
-        .auth-section {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .auth-section.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .auth-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border-radius: 1rem;
-            padding: 3rem;
-            max-width: 400px;
-            width: 90%;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-label {
-            color: white;
-            font-weight: 600;
-        }
-
-        .form-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            color: white;
-            font-size: 1rem;
-        }
-
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--dinos-primary);
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-        }
-
-        .hero-section {
-            text-align: center;
-            padding: 4rem 0;
-            position: relative;
-        }
-
-        .hero-title {
-            font-size: 4rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--dinos-primary), var(--dinos-secondary));
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 2rem;
-        }
-
-        .user-profile {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 1000;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid var(--dinos-primary);
-        }
-
-        .user-info {
-            color: white;
-        }
-
-        .user-name {
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .user-level {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            margin: 0;
-        }
-
-        .logout-btn {
-            background: none;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            
-            .games-grid {
-                grid-template-columns: 1fr;
-                padding: 1rem;
-            }
-            
-            .user-profile {
-                position: relative;
-                top: auto;
-                right: auto;
-                margin: 1rem auto;
-                justify-content: center;
-            }
-        }
-    </style>
 </head>
 <body>
     <!-- Главная страница DinosGames -->
     <div id="main-app" class="app">
-        <!-- Профиль пользователя (показывается если вошел) -->
-        <div id="user-profile" class="user-profile" style="display: none;">
-            <img id="user-avatar" class="user-avatar" src="" alt="Avatar">
-            <div class="user-info">
-                <p class="user-name" id="user-name">Загрузка...</p>
-                <p class="user-level" id="user-level">Уровень 1</p>
+        <header class="main-header container">
+            <div class="logo">
+                <h1><a href="/"><i class="fas fa-gamepad"></i> DinosGames</a></h1>
             </div>
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
-        </div>
+            <div class="user-controls">
+                <!-- Профиль пользователя (показывается если вошел) -->
+                <div id="user-profile" style="display: none;">
+                    <img id="user-avatar" class="user-avatar" src="" alt="Avatar">
+                    <div class="user-info">
+                        <p class="user-name" id="user-name">Загрузка...</p>
+                        <p class="user-level" id="user-level">Уровень 1</p>
+                    </div>
+                    <button class="btn-icon" onclick="logout()" title="Выйти">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
 
-        <!-- Кнопка входа (показывается если не вошел) -->
-        <div id="login-button" class="user-profile">
-            <button class="play-btn" onclick="showAuth('login')">
-                <i class="fas fa-user"></i> Войти
-            </button>
-        </div>
+                <!-- Кнопка входа (показывается если не вошел) -->
+                <div id="login-button">
+                    <button class="play-btn" onclick="showAuth('login')">
+                        <i class="fas fa-user"></i> Войти
+                    </button>
+                </div>
+            </div>
+        </header>
 
         <!-- Главный контент -->
         <div class="container">
             <!-- Секция приветствия -->
             <section class="hero-section">
-                <h1 class="hero-title">🦕 DinosGames</h1>
-                <p class="hero-subtitle">Современная игровая площадка с множеством захватывающих игр</p>
+                <h1 class="hero-title">Игровая вселенная</h1>
+                <p class="hero-subtitle">Современная игровая площадка с множеством захватывающих игр. Присоединяйтесь к нам!</p>
             </section>
 
             <!-- Сетка игр -->
@@ -499,14 +220,12 @@
                     <i class="fas fa-user-plus"></i> Зарегистрироваться
                 </button>
             </form>
-
-            <!-- Переключение между формами -->
-            <div style="text-align: center; margin-top: 1rem;">
-                <button id="auth-switch" class="logout-btn" onclick="switchAuthMode()">
+            <div class="auth-actions">
+                <button id="auth-switch" class="btn-link" onclick="switchAuthMode()">
                     Нет аккаунта? Зарегистрируйтесь
                 </button>
-                <button class="logout-btn" onclick="hideAuth()" style="margin-left: 1rem;">
-                    <i class="fas fa-times"></i> Закрыть
+                <button class="btn-icon" onclick="hideAuth()" title="Закрыть">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
         </div>
@@ -519,7 +238,7 @@
             <div class="container" style="padding: 2rem;">
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <h2 style="color: white;">🎮 Крестики-нолики</h2>
-                    <button class="logout-btn" onclick="backToGames()">
+                    <button class="btn-secondary" onclick="backToGames()">
                         <i class="fas fa-arrow-left"></i> Назад к играм
                     </button>
                 </div>
@@ -535,25 +254,30 @@
     <!-- Уведомления -->
     <div id="notifications" class="notifications"></div>
 
-    <!-- Звуки -->
+    <!-- Звуки (ВРЕМЕННО ОТКЛЮЧЕНЫ, т.к. файлы отсутствуют) -->
+    <!-- 
     <audio id="move-sound" preload="auto">
-        <source src="assets/sounds/move.mp3" type="audio/mpeg">
+        <source src="/assets/sounds/move.mp3" type="audio/mpeg">
     </audio>
     <audio id="win-sound" preload="auto">
-        <source src="assets/sounds/win.mp3" type="audio/mpeg">
-    </audio>
+        <source src="/assets/sounds/win.mp3" type="audio/mpeg">
+    </audio> 
+    -->
 
     <!-- Скример (для админки) -->
     <div id="screamer" class="screamer">
         <video id="screamer-video" muted loop>
-            <source src="assets/scrim/screamer.mp4" type="video/mp4">
+            <source src="/assets/scrim/screamer.mp4" type="video/mp4">
         </video>
+        <!-- 
         <audio id="screamer-sound" preload="auto">
-            <source src="assets/sounds/screamer.mp3" type="audio/mpeg">
-        </audio>
+            <source src="/assets/sounds/screamer.mp3" type="audio/mpeg">
+        </audio> 
+        -->
     </div>
 
     <!-- JavaScript модули -->
+    <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html> 

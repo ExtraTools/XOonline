@@ -391,57 +391,31 @@ export class UIManager {
     updatePlayerProfile() {
         const player = window.GlassXO.player;
         
-        // Отображаем имя с ID если есть
-        const nameDisplay = player.user_id ? 
-            `${player.nickname} #${player.user_id}` : 
-            player.nickname;
-        
-        document.getElementById('player-name').textContent = nameDisplay;
-        document.getElementById('player-avatar').src = player.avatar;
-        document.getElementById('player-level').textContent = player.level;
-        document.getElementById('win-rate').textContent = player.winRate + '%';
-        document.getElementById('games-played').textContent = player.gamesPlayed;
-        document.getElementById('win-streak').textContent = player.winStreak;
-        
-        // Показываем кнопки для авторизованных пользователей
-        document.getElementById('profile-btn').style.display = player.isGuest ? 'none' : 'block';
-        document.getElementById('logout-btn').style.display = 'block';
-        
-        // Логируем информацию о пользователе
-        if (player.user_id && player.registration) {
-            const registrationDate = new Date(player.registration.date).toLocaleDateString('ru-RU');
-            console.log(`👤 Профиль: Пользователь #${player.user_id} (${player.username}), зарегистрирован ${registrationDate}`);
-            
-            // Отображаем IP если есть
-            if (player.ip) {
-                console.log(`🌐 IP: ${player.ip}`);
-            }
+        const profileElement = document.getElementById('user-profile');
+        if (!profileElement) return;
+
+        const userNameEl = profileElement.querySelector('.user-name');
+        const userLevelEl = profileElement.querySelector('.user-level');
+        const userAvatarEl = profileElement.querySelector('.user-avatar');
+
+        if (userNameEl) {
+            userNameEl.textContent = player.nickname || 'Гость';
+        }
+        if (userLevelEl) {
+            userLevelEl.textContent = `Уровень ${player.level || 1}`;
+        }
+        if (userAvatarEl) {
+            userAvatarEl.src = player.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${player.nickname || 'guest'}`;
         }
     }
 
-    updateOnlineStats() {
-        const stats = window.GlassXO.onlineStats;
-        
-        // Обновляем числа
-        document.getElementById('players-online').textContent = stats.playersOnline;
-        document.getElementById('active-games').textContent = stats.activeGames;
-        
-        // Добавляем очередь если её нет
-        const queueElement = document.getElementById('queue-size');
-        if (queueElement) {
-            queueElement.textContent = stats.queueSize || 0;
-        }
-        
-        // Обновляем прогресс-бары с анимацией
-        this.updateProgressBar('players-progress', stats.playersOnline, 100);
-        this.updateProgressBar('games-progress', stats.activeGames, 50);
-        this.updateProgressBar('queue-progress', stats.queueSize || 0, 20);
-        
-        // Обновляем статистику в модальном окне ожидания
-        const onlineCount = document.getElementById('online-count');
-        if (onlineCount) {
-            onlineCount.textContent = stats.playersOnline;
-        }
+    updateOnlineStats(stats) {
+        /*
+        this.onlinePlayers.textContent = stats.playersOnline || 0;
+        this.activeGames.textContent = stats.activeGames || 0;
+        this.serverStatus.textContent = 'Online';
+        this.serverStatus.classList.add('online');
+        */
     }
 
     updateProgressBar(barId, value, maxValue) {

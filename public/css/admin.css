@@ -1045,6 +1045,10 @@
     display: none;
 }
 
+.screamer {
+    display: none;
+}
+
 /* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 1200px) {
     .screamers-grid,

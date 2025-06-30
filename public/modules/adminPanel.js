@@ -18,7 +18,6 @@ export class AdminPanel {
     init() {
         this.createModernAdminPanel();
         this.setupEventListeners();
-        this.setupSecretInput();
     }
 
     // ===== СОЗДАНИЕ СОВРЕМЕННОЙ АДМИН ПАНЕЛИ =====
@@ -768,66 +767,6 @@ export class AdminPanel {
                 this.filterUsers(e.target.value);
             }
         });
-    }
-
-    // ===== СЕКРЕТНЫЙ ВХОД =====
-    setupSecretInput() {
-        console.log('🔧 Настройка секретного ввода...');
-        
-        const secretInput = document.createElement('input');
-        secretInput.type = 'text';
-        secretInput.id = 'secret-admin-input';
-        secretInput.style.cssText = `
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            width: 50px;
-            height: 30px;
-            opacity: 0;
-            border: none;
-            background: transparent;
-            z-index: 99999;
-            pointer-events: auto;
-            font-size: 12px;
-            color: transparent;
-        `;
-        
-        secretInput.addEventListener('focus', () => {
-            secretInput.style.opacity = '0.1';
-            secretInput.style.background = 'rgba(255, 0, 0, 0.05)';
-        });
-        
-        secretInput.addEventListener('blur', () => {
-            secretInput.style.opacity = '0';
-            secretInput.style.background = 'transparent';
-        });
-        
-        secretInput.addEventListener('input', (e) => {
-            if (e.target.value.toLowerCase() === 'admin-start') {
-                this.activateAdmin();
-                e.target.value = '';
-                e.target.blur();
-            }
-        });
-        
-        document.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'a' && !e.ctrlKey && !e.altKey && !e.metaKey) {
-                if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-                    secretInput.focus();
-                    e.preventDefault();
-                }
-            }
-        });
-        
-        document.addEventListener('click', (e) => {
-            if (e.clientX < 80 && e.clientY < 80) {
-                secretInput.focus();
-                e.preventDefault();
-            }
-        });
-        
-        document.body.appendChild(secretInput);
-        console.log('✅ Секретный вход настроен: кликните в левый верхний угол и введите "admin-start"');
     }
 
     // ===== АКТИВАЦИЯ АДМИНА =====
