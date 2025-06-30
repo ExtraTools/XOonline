@@ -101,8 +101,17 @@ export class GameLogic {
         } else if (gameState.gameMode === 'online') {
             // В онлайн игре отправляем ход на сервер
             gameState.isMyTurn = false;
-            if (window.GlassXO.socket) {
-                window.GlassXO.socket.sendMove(index, player);
+            if (window.GlassXO.socket && gameState.gameId) {
+                window.GlassXO.socket.sendMove(index, gameState.gameId);
+                console.log(`🎯 Отправляем ход онлайн: позиция ${index}, игра ${gameState.gameId}`);
+            } else {
+                console.error('❌ Нет подключения к серверу или ID игры');
+                window.GlassXO.ui.showNotification('❌ Ошибка отправки хода', 'error');
+                // Откатываем ход
+                gameState.board[index] = null;
+                gameState.moveCount--;
+                gameState.isMyTurn = true;
+                window.GlassXO.ui.updateCellDisplay(index, null);
             }
         }
         
@@ -383,42 +392,37 @@ export class GameLogic {
         window.GlassXO.saveGameData();
     }
 
-    // ===== ОБРАБОТЧИКИ ОНЛАЙН ИГРЫ =====
-    handleOnlineMove(data) {
-        window.GlassXO.gameState.board[data.index] = data.player;
-        window.GlassXO.gameState.moveCount++;
-        window.GlassXO.ui.updateCellDisplay(data.index, data.player);
+    // ===== НОВЫЕ ОБРАБОТЧИКИ ОНЛАЙН ИГРЫ =====
+    updateCellDisplay(position, symbol) {
+        // Обновляем только отображение клетки (без изменения логики)
+        if (window.GlassXO.ui && window.GlassXO.ui.updateCellDisplay) {
+            window.GlassXO.ui.updateCellDisplay(position, symbol);
+            window.GlassXO.ui.playSound('move');
+        }
+    }
+
+    handleGameEnd(data) {
+        console.log('🎮 Обработка завершения игры:', data);
         
-        const result = this.checkGameResult();
-        if (result) {
-            this.endGame(result);
-            return;
+        window.GlassXO.gameState.gameActive = false;
+        window.GlassXO.gameState.gameStatus = 'finished';
+        
+        // Определяем результат для локального отображения
+        let localResult = null;
+        if (data.winner && data.winner.winner) {
+            localResult = {
+                winner: data.winner.winner,
+                pattern: data.winner.pattern || null
+            };
+        } else if (data.winner && data.winner.winner === null) {
+            localResult = {
+                winner: 'draw',
+                pattern: null
+            };
         }
         
-        window.GlassXO.gameState.currentPlayer = window.GlassXO.gameState.currentPlayer === 'X' ? 'O' : 'X';
-        window.GlassXO.gameState.isMyTurn = window.GlassXO.gameState.currentPlayer === window.GlassXO.gameState.mySymbol;
-        
-        window.GlassXO.ui.updateTurnIndicator();
-        window.GlassXO.ui.playSound('move');
-    }
-
-    handleOnlineGameEnd(data) {
-        window.GlassXO.gameState.gameActive = false;
-        
-        const result = {
-            winner: data.winner,
-            pattern: data.winningPattern
-        };
-        
-        this.endGame(result);
-    }
-
-    handleOpponentLeft() {
-        window.GlassXO.gameState.gameActive = false;
-        window.GlassXO.ui.showNotification('😞 Ваш соперник покинул игру', 'warning');
-        
-        setTimeout(() => {
-            window.GlassXO.ui.showScreen('main-menu');
-        }, 3000);
+        if (localResult) {
+            this.endGame(localResult);
+        }
     }
 } 

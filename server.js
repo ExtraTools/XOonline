@@ -397,10 +397,15 @@ app.get('/api/stats', async (req, res) => {
     }
 });
 
+// 🚀 НОВАЯ СИСТЕМА КОМНАТ И ОНЛАЙН ИГРЫ
+const gameRooms = new Map(); // roomId -> { players: [], game: Game, spectators: [] }
+const playerRooms = new Map(); // socketId -> roomId
+
 // Socket.IO обработчики
 io.on('connection', (socket) => {
-    console.log('👤 Игрок подключился:', socket.id);
+    console.log('🔌 Новый игрок подключился:', socket.id);
 
+    // === ПОДКЛЮЧЕНИЕ ИГРОКА ===
     socket.on('player-connect', async (data) => {
         try {
             const { user, guestName } = data;
@@ -415,16 +420,15 @@ io.on('connection', (socket) => {
             let dbUser = null;
             
             if (user && user.id && !user.id.startsWith('guest_') && mongoose.Types.ObjectId.isValid(user.id)) {
-                // Авторизованный пользователь - проверяем что ID это валидный ObjectId
                 try {
                     dbUser = await User.findById(user.id);
                     if (dbUser) {
-                        // Запускаем новую сессию
                         dbUser.startSession(clientIP, userAgent);
                         await dbUser.save();
                         
                         playerData = {
                             id: dbUser._id.toString(),
+                            socketId: socket.id,
                             user_id: dbUser.user_id,
                             name: dbUser.profile.displayName || dbUser.username,
                             username: dbUser.username,
@@ -432,24 +436,22 @@ io.on('connection', (socket) => {
                             isGuest: false,
                             stats: dbUser.stats,
                             level: dbUser.level,
-                            registration: dbUser.registration,
                             ip: clientIP
                         };
                         
-                        console.log(`👤 Пользователь #${dbUser.user_id} (${dbUser.username}) подключился с IP: ${clientIP}`);
+                        console.log(`✅ Пользователь #${dbUser.user_id} (${dbUser.username}) подключился`);
                     }
                 } catch (dbError) {
-                    console.warn('Ошибка поиска пользователя в БД, создаем гостевого:', dbError.message);
-                    // Если ошибка БД, создаем гостевого пользователя
+                    console.warn('⚠️ Ошибка БД, создаем гостя:', dbError.message);
                     playerData = null;
                 }
             }
             
-            // Если не удалось найти авторизованного пользователя или это гость
             if (!playerData) {
                 const name = guestName || user?.name || `Гость_${Date.now()}`;
                 playerData = {
                     id: socket.id,
+                    socketId: socket.id,
                     user_id: null,
                     name: name,
                     username: name,
@@ -460,118 +462,155 @@ io.on('connection', (socket) => {
                     ip: clientIP
                 };
                 
-                console.log(`👤 Гость "${name}" подключился с IP: ${clientIP}`);
+                console.log(`✅ Гость "${name}" подключился`);
             }
 
-            if (playerData) {
-                connectedUsers.set(socket.id, {
-                    socket,
-                    player: playerData,
-                    dbUser: dbUser // Сохраняем ссылку на БД пользователя
-                });
+            connectedUsers.set(socket.id, {
+                socket,
+                player: playerData,
+                dbUser: dbUser
+            });
 
-                socket.emit('player-connected', {
-                    success: true,
-                    player: playerData
-                });
+            socket.emit('player-connected', {
+                success: true,
+                player: playerData
+            });
 
-                // Отправляем статистику всем
-                io.emit('stats-update', {
-                    onlinePlayers: connectedUsers.size,
-                    activeGames: activeGames.size
-                });
-            }
+            // Статистика
+            io.emit('stats-update', {
+                onlinePlayers: connectedUsers.size,
+                activeGames: activeGames.size
+            });
+
         } catch (error) {
-            console.error('Ошибка подключения игрока:', error);
+            console.error('❌ Ошибка подключения:', error);
             socket.emit('error', { message: 'Ошибка подключения' });
         }
     });
 
-    // Поиск игры
+    // === БЫСТРАЯ ИГРА ===
     socket.on('findGame', () => {
-        const user = connectedUsers.get(socket.id);
-        if (!user) return;
+        const userConnection = connectedUsers.get(socket.id);
+        if (!userConnection) return;
 
-        // Проверяем, есть ли ожидающие игроки
+        const player = userConnection.player;
+
+        // Ищем соперника в очереди
         if (waitingPlayers.length > 0) {
-            const opponent = waitingPlayers.shift();
+            const opponentConnection = waitingPlayers.shift();
+            const opponent = opponentConnection.player;
             
-            // Создаем игру
-            const game = new TicTacToeGame(user.player, opponent.player);
-            activeGames.set(game.id, game);
+            // Создаем уникальную комнату
+            const roomId = `quick_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const game = new TicTacToeGame(player, opponent, 'pvp');
+            
+            const room = {
+                id: roomId,
+                type: 'quick_game',
+                players: [
+                    { ...player, symbol: 'X', socketId: socket.id },
+                    { ...opponent, symbol: 'O', socketId: opponentConnection.socket.id }
+                ],
+                game: game,
+                createdAt: new Date()
+            };
 
-            // Уведомляем игроков
+            gameRooms.set(roomId, room);
+            activeGames.set(game.id, game);
+            
+            // Присоединяем к комнате
+            socket.join(roomId);
+            opponentConnection.socket.join(roomId);
+            
+            playerRooms.set(socket.id, roomId);
+            playerRooms.set(opponentConnection.socket.id, roomId);
+
+            // Отправляем данные обоим игрокам
             socket.emit('gameStart', {
                 gameId: game.id,
-                opponent: opponent.player,
-                symbol: 'X',
-                roomCode: game.id
+                roomId: roomId,
+                yourSymbol: 'X',
+                yourTurn: true,
+                opponent: { ...opponent, symbol: 'O' },
+                players: room.players,
+                board: game.board,
+                gameStatus: game.gameStatus
             });
 
-            opponent.socket.emit('gameStart', {
+            opponentConnection.socket.emit('gameStart', {
                 gameId: game.id,
-                opponent: user.player,
-                symbol: 'O',
-                roomCode: game.id
+                roomId: roomId,
+                yourSymbol: 'O', 
+                yourTurn: false,
+                opponent: { ...player, symbol: 'X' },
+                players: room.players,
+                board: game.board,
+                gameStatus: game.gameStatus
             });
 
-            // Добавляем игроков в комнату
-            socket.join(game.id);
-            opponent.socket.join(game.id);
-            
-            console.log(`🎮 Быстрая игра: ${user.player.name} vs ${opponent.player.name}`);
+            console.log(`🎮 Быстрая игра: ${player.name} (X) vs ${opponent.name} (O) [${roomId}]`);
         } else {
             // Добавляем в очередь
-            waitingPlayers.push({
-                socket: socket,
-                player: user.player,
-                timestamp: Date.now()
+            waitingPlayers.push(userConnection);
+            socket.emit('searching', { 
+                message: 'Ищем соперника...', 
+                playersInQueue: waitingPlayers.length 
             });
-            
-            socket.emit('searching', {
-                position: waitingPlayers.length,
-                estimatedWait: waitingPlayers.length * 30 // примерное время ожидания в секундах
-            });
-            
-            console.log(`🔍 ${user.player.name} ищет игру (позиция в очереди: ${waitingPlayers.length})`);
+            console.log(`🔍 ${player.name} в очереди поиска (позиция: ${waitingPlayers.length})`);
         }
     });
 
-    // Создание приватной комнаты
+    // === СОЗДАНИЕ ПРИВАТНОЙ КОМНАТЫ ===
     socket.on('createRoom', (data) => {
-        const user = connectedUsers.get(socket.id);
-        if (!user) return;
+        const userConnection = connectedUsers.get(socket.id);
+        if (!userConnection) return;
 
+        const player = userConnection.player;
         const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const roomId = `private_${roomCode}`;
+        
         const room = {
-            id: roomCode,
+            id: roomId,
             code: roomCode,
-            creator: user.player,
+            type: 'private_room',
+            name: data.name || `Комната ${player.name}`,
+            host: player,
+            players: [{ ...player, symbol: 'X', socketId: socket.id, ready: false }],
             password: data.password || null,
-            name: data.name || `Комната ${user.player.name}`,
-            players: [user.player],
             maxPlayers: 2,
+            game: null,
             createdAt: new Date()
         };
 
+        gameRooms.set(roomId, room);
         privateRooms.set(roomCode, room);
-        socket.join(roomCode);
+        socket.join(roomId);
+        playerRooms.set(socket.id, roomId);
 
         socket.emit('roomCreated', {
+            success: true,
             code: roomCode,
             name: room.name,
-            room
+            room: {
+                code: roomCode,
+                name: room.name,
+                players: room.players,
+                maxPlayers: room.maxPlayers,
+                hasPassword: !!room.password
+            }
         });
         
-        console.log(`🚪 Комната "${room.name}" создана с кодом: ${roomCode}`);
+        console.log(`🚪 Приватная комната "${room.name}" создана [${roomCode}]`);
     });
 
-    // Подключение к приватной комнате
+    // === ПРИСОЕДИНЕНИЕ К ПРИВАТНОЙ КОМНАТЕ ===
     socket.on('joinRoom', (data) => {
-        const user = connectedUsers.get(socket.id);
-        if (!user) return;
+        const userConnection = connectedUsers.get(socket.id);
+        if (!userConnection) return;
 
+        const player = userConnection.player;
         const room = privateRooms.get(data.code);
+
         if (!room) {
             socket.emit('roomError', { message: 'Комната не найдена' });
             return;
@@ -587,31 +626,72 @@ io.on('connection', (socket) => {
             return;
         }
 
-        room.players.push(user.player);
-        socket.join(data.code);
+        // Добавляем игрока
+        room.players.push({ ...player, symbol: 'O', socketId: socket.id, ready: false });
+        socket.join(room.id);
+        playerRooms.set(socket.id, room.id);
 
+        // Уведомляем всех в комнате
+        io.to(room.id).emit('roomUpdated', {
+            room: {
+                code: room.code,
+                name: room.name,
+                players: room.players,
+                maxPlayers: room.maxPlayers,
+                hasPassword: !!room.password
+            }
+        });
+
+        socket.emit('roomJoined', {
+            success: true,
+            code: room.code,
+            name: room.name,
+            room: {
+                code: room.code,
+                name: room.name,
+                players: room.players,
+                maxPlayers: room.maxPlayers,
+                hasPassword: !!room.password
+            }
+        });
+
+        console.log(`👤 ${player.name} присоединился к комнате [${data.code}]`);
+
+        // Если комната заполнена, можно начать игру
         if (room.players.length === 2) {
-            // Начинаем игру
-            const game = new TicTacToeGame(room.players[0], room.players[1]);
+            // Автоматически начинаем игру
+            const game = new TicTacToeGame(room.players[0], room.players[1], 'pvp');
+            room.game = game;
             activeGames.set(game.id, game);
 
-            io.to(data.code).emit('gameStart', {
+            // Отправляем всем в комнате
+            io.to(room.id).emit('gameStart', {
                 gameId: game.id,
-                symbol: room.players[0].id === user.player.id ? 'O' : 'X',
-                opponent: room.players[0].id === user.player.id ? room.players[1] : room.players[0],
-                roomCode: data.code
+                roomId: room.id,
+                players: room.players,
+                board: game.board,
+                gameStatus: game.gameStatus,
+                currentPlayer: game.currentPlayer
             });
 
-            // Удаляем комнату
-            privateRooms.delete(data.code);
-            console.log(`🎮 Игра началась в комнате: ${data.code}`);
-        } else {
-            socket.emit('roomJoined', { 
-                code: data.code,
-                name: room.name,
-                room 
+            // Отправляем индивидуально каждому
+            room.players.forEach((roomPlayer, index) => {
+                const playerSocket = connectedUsers.get(roomPlayer.socketId)?.socket;
+                if (playerSocket) {
+                    playerSocket.emit('gameStart', {
+                        gameId: game.id,
+                        roomId: room.id,
+                        yourSymbol: roomPlayer.symbol,
+                        yourTurn: roomPlayer.symbol === 'X',
+                        opponent: room.players[index === 0 ? 1 : 0],
+                        players: room.players,
+                        board: game.board,
+                        gameStatus: game.gameStatus
+                    });
+                }
             });
-            console.log(`👤 ${user.player.name} присоединился к комнате: ${data.code}`);
+
+            console.log(`🎮 Игра началась в приватной комнате [${room.code}]`);
         }
     });
 
@@ -640,45 +720,107 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Ход в игре
+    // === ХОД В ИГРЕ ===
     socket.on('make-move', async (data) => {
-        const user = connectedUsers.get(socket.id);
-        if (!user) return;
+        const userConnection = connectedUsers.get(socket.id);
+        if (!userConnection) return;
 
-        const game = activeGames.get(data.gameId);
-        if (!game) return;
-
-        // Определяем символ игрока
-        let playerSymbol;
-        if (game.players.X.id === user.player.id) playerSymbol = 'X';
-        else if (game.players.O.id === user.player.id) playerSymbol = 'O';
-        else return;
-
-        const result = game.makeMove(playerSymbol, data.position);
-        if (result.success) {
-                    // Отправляем обновление всем в комнате
-        io.to(data.gameId).emit('move-made', {
-            position: data.position,
-            player: playerSymbol,
-            board: result.board,
-            currentPlayer: result.currentPlayer || game.currentPlayer,
-            gameStatus: game.gameStatus,
-            winner: result.winner || game.winner
-        });
-
-        // Если игра закончена, обновляем статистику
-        if (game.gameStatus === 'finished') {
-            await updatePlayerStats(game);
-            
-            // Обновляем счетчик игр в сессии
-            const userConnection = connectedUsers.get(socket.id);
-            if (userConnection && userConnection.dbUser) {
-                userConnection.dbUser.addGameToSession();
-                await userConnection.dbUser.save();
-            }
-            
-            activeGames.delete(data.gameId);
+        const player = userConnection.player;
+        const roomId = playerRooms.get(socket.id);
+        const room = gameRooms.get(roomId);
+        
+        if (!room || !room.game) {
+            console.log(`❌ Комната не найдена для игрока ${player.name}`);
+            return;
         }
+
+        const game = room.game;
+
+        // Находим игрока в комнате и получаем его символ
+        const roomPlayer = room.players.find(p => p.socketId === socket.id);
+        if (!roomPlayer) {
+            console.log(`❌ Игрок ${player.name} не найден в комнате ${roomId}`);
+            return;
+        }
+
+        const playerSymbol = roomPlayer.symbol;
+
+        // Проверяем, чей сейчас ход
+        if (game.currentPlayer !== playerSymbol) {
+            socket.emit('move-error', { 
+                message: 'Сейчас не ваш ход!',
+                currentPlayer: game.currentPlayer 
+            });
+            return;
+        }
+
+        // Выполняем ход
+        const moveResult = game.makeMove(playerSymbol, data.position);
+        
+        if (moveResult.success) {
+            // Отправляем обновление ВСЕМ в комнате
+            io.to(roomId).emit('move-made', {
+                position: data.position,
+                symbol: playerSymbol,
+                playerName: player.name,
+                board: game.board,
+                currentPlayer: game.currentPlayer,
+                gameStatus: game.gameStatus,
+                winner: game.winner,
+                gameId: game.id
+            });
+
+            console.log(`🎯 Ход: ${player.name} (${playerSymbol}) -> позиция ${data.position} [${roomId}]`);
+
+            // Если игра закончена
+            if (game.gameStatus === 'finished') {
+                // Отправляем результат игры
+                const gameResult = {
+                    gameId: game.id,
+                    winner: game.winner,
+                    players: room.players,
+                    finalBoard: game.board
+                };
+
+                io.to(roomId).emit('game-finished', gameResult);
+
+                // Обновляем статистику игроков
+                await updatePlayerStats(game);
+                
+                // Обновляем счетчик игр в сессии
+                if (userConnection.dbUser) {
+                    userConnection.dbUser.addGameToSession();
+                    await userConnection.dbUser.save();
+                }
+                
+                // Очищаем игру из активных
+                activeGames.delete(game.id);
+                
+                // Очищаем комнату через 30 секунд
+                setTimeout(() => {
+                    gameRooms.delete(roomId);
+                    room.players.forEach(p => {
+                        playerRooms.delete(p.socketId);
+                    });
+                    console.log(`🧹 Комната ${roomId} очищена`);
+                }, 30000);
+
+                let resultMessage = '';
+                if (game.winner.winner) {
+                    const winnerPlayer = room.players.find(p => p.symbol === game.winner.winner);
+                    resultMessage = `🏆 Победил: ${winnerPlayer.name} (${game.winner.winner})`;
+                } else {
+                    resultMessage = '🤝 Ничья!';
+                }
+                console.log(`🎮 Игра завершена: ${resultMessage} [${roomId}]`);
+            }
+        } else {
+            // Ошибка хода
+            socket.emit('move-error', { 
+                message: moveResult.error || 'Неверный ход',
+                position: data.position 
+            });
+            console.log(`❌ Неверный ход от ${player.name}: ${moveResult.error}`);
         }
     });
 
@@ -696,13 +838,19 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Отмена поиска игры
+    // === ОТМЕНА ПОИСКА ===
     socket.on('cancel-search', () => {
         const userIndex = waitingPlayers.findIndex(p => p.socket.id === socket.id);
         if (userIndex > -1) {
-            const user = waitingPlayers[userIndex];
+            const userConnection = waitingPlayers[userIndex];
             waitingPlayers.splice(userIndex, 1);
-            console.log(`❌ ${user.player.name} отменил поиск игры`);
+            
+            socket.emit('search-cancelled', { 
+                message: 'Поиск игры отменен',
+                success: true 
+            });
+            
+            console.log(`❌ ${userConnection.player.name} отменил поиск игры`);
         }
     });
 
@@ -750,23 +898,63 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Отключение
+    // === ОТКЛЮЧЕНИЕ ИГРОКА ===
     socket.on('disconnect', async () => {
-        console.log('👤 Игрок отключился:', socket.id);
+        console.log('💔 Игрок отключился:', socket.id);
         
-        // Получаем данные пользователя
         const userConnection = connectedUsers.get(socket.id);
-        if (userConnection && userConnection.dbUser) {
-            try {
-                // Завершаем сессию в БД
-                userConnection.dbUser.endSession();
-                await userConnection.dbUser.save();
+        
+        if (userConnection) {
+            const player = userConnection.player;
+            
+            // Обрабатываем отключение в активной игре
+            const roomId = playerRooms.get(socket.id);
+            if (roomId) {
+                const room = gameRooms.get(roomId);
+                if (room && room.game && room.game.gameStatus === 'playing') {
+                    // Уведомляем соперника об отключении
+                    socket.to(roomId).emit('opponent-disconnected', {
+                        message: `${player.name} отключился от игры`,
+                        disconnectedPlayer: player.name,
+                        gameId: room.game.id
+                    });
+                    
+                    // Завершаем игру
+                    room.game.gameStatus = 'finished';
+                    room.game.winner = { 
+                        winner: room.players.find(p => p.socketId !== socket.id)?.symbol || null,
+                        reason: 'opponent_disconnected'
+                    };
+                    
+                    console.log(`🔌 Игра ${room.game.id} завершена из-за отключения ${player.name}`);
+                }
                 
-                const user = userConnection.player;
-                console.log(`👤 Пользователь #${user.user_id} (${user.username}) отключился`);
-            } catch (error) {
-                console.error('Ошибка при завершении сессии:', error);
+                // Очищаем ссылки на игрока
+                playerRooms.delete(socket.id);
+                if (room) {
+                    room.players = room.players.filter(p => p.socketId !== socket.id);
+                    if (room.players.length === 0) {
+                        gameRooms.delete(roomId);
+                        if (room.game) {
+                            activeGames.delete(room.game.id);
+                        }
+                        console.log(`🧹 Пустая комната ${roomId} удалена`);
+                    }
+                }
             }
+            
+            // Завершаем сессию в БД
+            if (userConnection.dbUser) {
+                try {
+                    userConnection.dbUser.endSession();
+                    await userConnection.dbUser.save();
+                    console.log(`📊 Сессия завершена для #${player.user_id} (${player.username})`);
+                } catch (error) {
+                    console.error('❌ Ошибка завершения сессии:', error);
+                }
+            }
+            
+            console.log(`👋 ${player.name} покинул сервер`);
         }
         
         // Удаляем из списка подключенных
@@ -781,7 +969,7 @@ io.on('connection', (socket) => {
         // Обновляем статистику
         io.emit('stats-update', {
             onlinePlayers: connectedUsers.size,
-            activeGames: activeGames.size
+            activeGames: gameRooms.size
         });
     });
 });
