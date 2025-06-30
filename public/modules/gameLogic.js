@@ -263,8 +263,17 @@ export class GameLogic {
         let title, message, isWin = false;
         
         // Получаем имена игроков
-        const playerName = window.GlassXO.player?.nickname || 'Игрок';
-        const opponentName = gameState.opponent?.name || gameState.opponent || 'Соперник';
+        const playerName = window.GlassXO.player?.nickname || window.GlassXO.player?.name || 'Игрок';
+        
+        // Правильно извлекаем имя соперника
+        let opponentName = 'Соперник';
+        if (gameState.opponent) {
+            if (typeof gameState.opponent === 'string') {
+                opponentName = gameState.opponent;
+            } else if (typeof gameState.opponent === 'object') {
+                opponentName = gameState.opponent.name || gameState.opponent.nickname || gameState.opponent.username || 'Соперник';
+            }
+        }
         
         if (result.winner === 'draw') {
             title = '🤝 Ничья!';
@@ -331,7 +340,14 @@ export class GameLogic {
         } else if (window.GlassXO.gameState.gameMode === 'ai') {
             this.startAIGame();
         } else if (window.GlassXO.gameState.gameMode === 'online' && window.GlassXO.socket) {
-            window.GlassXO.socket.requestRestart();
+            if (window.GlassXO.socket.isConnected) {
+                console.log('🔄 Запрашиваем рестарт онлайн игры');
+                window.GlassXO.socket.requestRestart();
+                window.GlassXO.ui.showNotification('🔄 Запрос на рестарт отправлен сопернику...', 'info');
+            } else {
+                window.GlassXO.ui.showNotification('❌ Нет подключения к серверу', 'error');
+                window.GlassXO.ui.showScreen('online-lobby-screen');
+            }
         }
     }
 
@@ -356,7 +372,20 @@ export class GameLogic {
         } else if (gameState.gameMode === 'ai') {
             window.GlassXO.ui.showScreen('ai-difficulty-screen');
         } else if (gameState.gameMode === 'online') {
-            window.GlassXO.ui.showScreen('online-lobby-screen');
+            // Для онлайн игры предлагаем варианты
+            if (gameState.roomId && window.GlassXO.socket && window.GlassXO.socket.isConnected) {
+                // Если есть активная комната, запросим рестарт в ней
+                if (confirm('🔄 Начать новую игру в этой же комнате?')) {
+                    window.GlassXO.socket.requestRestart();
+                    window.GlassXO.ui.showNotification('🔄 Запрос на новую игру отправлен...', 'info');
+                } else {
+                    // Если отказался от рестарта, идем в лобби
+                    window.GlassXO.ui.showScreen('online-lobby-screen');
+                }
+            } else {
+                // Если нет активной комнаты или соединения, идем в лобби
+                window.GlassXO.ui.showScreen('online-lobby-screen');
+            }
         }
     }
 
@@ -427,27 +456,48 @@ export class GameLogic {
     }
 
     handleGameEnd(data) {
-        console.log('🎮 Обработка завершения игры:', data);
+        console.log('🎮 Обработка завершения онлайн игры:', data);
+        
+        if (!window.GlassXO.gameState.gameActive) {
+            console.log('⚠️ Игра уже завершена, пропускаем обработку');
+            return;
+        }
         
         window.GlassXO.gameState.gameActive = false;
         window.GlassXO.gameState.gameStatus = 'finished';
         
         // Определяем результат для локального отображения
         let localResult = null;
-        if (data.winner && data.winner.winner) {
+        if (data.winner) {
+            if (data.winner.winner) {
+                localResult = {
+                    winner: data.winner.winner,
+                    pattern: data.winner.pattern || null
+                };
+            } else if (data.winner.winner === null) {
+                localResult = {
+                    winner: 'draw',
+                    pattern: null
+                };
+            }
+        } else if (data.result) {
+            // Альтернативная структура данных
             localResult = {
-                winner: data.winner.winner,
-                pattern: data.winner.pattern || null
-            };
-        } else if (data.winner && data.winner.winner === null) {
-            localResult = {
-                winner: 'draw',
-                pattern: null
+                winner: data.result,
+                pattern: data.pattern || null
             };
         }
         
         if (localResult) {
+            console.log('🏆 Завершаем игру с результатом:', localResult);
             this.endGame(localResult);
+        } else {
+            console.log('❌ Не удалось определить результат игры:', data);
+            // Показываем общее сообщение о завершении
+            window.GlassXO.ui.showNotification('🎮 Игра завершена', 'info');
+            window.GlassXO.ui.openModal('game-result-modal');
+            document.getElementById('result-title').textContent = '🎮 Игра завершена';
+            document.getElementById('result-message').textContent = 'Связь с сервером потеряна или произошла ошибка.';
         }
     }
 } 

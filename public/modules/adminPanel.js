@@ -1,230 +1,343 @@
-// ===== ADMIN PANEL MODULE =====
+// ===== СОВРЕМЕННАЯ АДМИН ПАНЕЛЬ v3.0 =====
 
 export class AdminPanel {
     constructor() {
         this.isVisible = false;
         this.isAdmin = false;
         this.users = [];
+        this.allUsers = [];
         this.stats = { onlinePlayers: 0, activeGames: 0 };
         this.selectedUsers = new Set();
+        this.currentSection = 'dashboard';
+        this.actionCount = 0;
         
         this.init();
-        console.log('🔥 AdminPanel инициализирована');
+        console.log('🔥 Modern AdminPanel v3.0 инициализирована');
     }
 
     init() {
-        this.createAdminPanel();
+        this.createModernAdminPanel();
         this.setupEventListeners();
         this.setupSecretInput();
     }
 
-    // ===== СОЗДАНИЕ АДМИН ПАНЕЛИ =====
-    createAdminPanel() {
+    // ===== СОЗДАНИЕ СОВРЕМЕННОЙ АДМИН ПАНЕЛИ =====
+    createModernAdminPanel() {
         const panel = document.createElement('div');
         panel.id = 'admin-panel';
-        panel.className = 'admin-panel';
+        panel.className = 'modern-admin-panel';
         panel.innerHTML = `
-            <div class="admin-header">
-                <div class="admin-title">
-                    <h2>🔥 KRESTIKI ADMIN PANEL</h2>
-                    <span class="admin-badge">СУПЕР АДМИН</span>
-                </div>
-                <button class="admin-close" id="admin-close-btn">×</button>
-            </div>
-
-            <div class="admin-content">
-                <!-- Статистика -->
-                <div class="admin-section">
-                    <h3>📊 Статистика сервера</h3>
-                    <div class="admin-stats-grid">
-                        <div class="admin-stat-card">
-                            <div class="stat-icon">👤</div>
-                            <div class="stat-info">
-                                <div class="stat-number" id="admin-online">0</div>
-                                <div class="stat-label">Онлайн</div>
-                            </div>
+            <div class="admin-backdrop" id="admin-backdrop"></div>
+            <div class="admin-container">
+                <!-- Боковая навигация -->
+                <nav class="admin-sidebar">
+                    <div class="sidebar-header">
+                        <div class="admin-logo">
+                            <span class="logo-icon">🔥</span>
+                            <span class="logo-text">KRESTIKI</span>
+                            <span class="logo-badge">ADMIN</span>
                         </div>
-                        <div class="admin-stat-card">
-                            <div class="stat-icon">🎮</div>
-                            <div class="stat-info">
-                                <div class="stat-number" id="admin-games">0</div>
-                                <div class="stat-label">Активных игр</div>
-                            </div>
-                        </div>
-                        <div class="admin-stat-card">
-                            <div class="stat-icon">⚡</div>
-                            <div class="stat-info">
-                                <div class="stat-number" id="admin-actions">0</div>
-                                <div class="stat-label">Выполнено действий</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Пользователи -->
-                <div class="admin-section">
-                    <div class="section-header">
-                        <h3>👥 Управление пользователями</h3>
-                        <div class="admin-toolbar">
-                            <button class="admin-btn mini" id="refresh-users" title="Обновить список">
-                                🔄
-                            </button>
-                            <button class="admin-btn mini" id="select-all-users" title="Выбрать всех">
-                                ☑️
-                            </button>
-                            <button class="admin-btn mini danger" id="clear-selection" title="Очистить выбор">
-                                ❌
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Вкладки пользователей -->
-                    <div class="users-tabs">
-                        <button class="users-tab active" data-tab="online">🟢 Онлайн (<span id="online-count">0</span>)</button>
-                        <button class="users-tab" data-tab="all">📊 Все пользователи (<span id="total-count">0</span>)</button>
+                        <button class="sidebar-toggle" id="sidebar-toggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
                     </div>
                     
-                    <div class="users-container">
-                        <div class="users-search">
-                            <input type="text" id="users-search" placeholder="🔍 Поиск пользователей..." class="admin-input-field">
-                        </div>
-                        
-                        <!-- Онлайн пользователи -->
-                        <div class="users-content active" id="online-users">
-                            <div class="users-list" id="users-list">
-                                <div class="no-users">Пользователи не найдены</div>
+                    <div class="sidebar-menu">
+                        <div class="menu-section">
+                            <span class="section-title">Управление</span>
+                            <div class="menu-items">
+                                <button class="menu-item active" data-section="dashboard">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Дашборд</span>
+                                </button>
+                                <button class="menu-item" data-section="users">
+                                    <i class="fas fa-users"></i>
+                                    <span>Пользователи</span>
+                                    <span class="badge" id="users-badge">0</span>
+                                </button>
+                                <button class="menu-item" data-section="actions">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>Действия</span>
+                                </button>
                             </div>
                         </div>
                         
-                        <!-- Все пользователи -->
-                        <div class="users-content" id="all-users">
-                            <div class="users-list" id="all-users-list">
-                                <div class="no-users">Загрузка данных...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Массовые действия -->
-                <div class="admin-section">
-                    <h3>⚡ Массовые действия</h3>
-                    <div class="mass-actions-grid">
-                        <button class="admin-btn danger" id="mass-screamer">
-                            💀 Скример всем
-                        </button>
-                        <button class="admin-btn warning" id="mass-disconnect">
-                            🚫 Отключить всех
-                        </button>
-                        <button class="admin-btn warning" id="mass-lag">
-                            🐌 Лаги всем
-                        </button>
-                        <button class="admin-btn success" id="mass-announce">
-                            📢 Объявление
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Спецэффекты -->
-                <div class="admin-section">
-                    <h3>✨ Спецэффекты</h3>
-                    <div class="effects-grid">
-                        <button class="admin-btn" data-effect="rainbow">🌈 Радуга</button>
-                        <button class="admin-btn" data-effect="shake">📳 Тряска</button>
-                        <button class="admin-btn" data-effect="snow">❄️ Снег</button>
-                        <button class="admin-btn" data-effect="fireworks">🎆 Фейерверк</button>
-                        <button class="admin-btn" data-effect="matrix">💊 Матрица</button>
-                        <button class="admin-btn" data-effect="disco">🕺 Диско</button>
-                        <button class="admin-btn" data-effect="glitch">📺 Глитч</button>
-                        <button class="admin-btn" data-effect="upside_down">🙃 Переворот</button>
-                    </div>
-                </div>
-
-                <!-- Троллинг -->
-                <div class="admin-section">
-                    <h3>😈 Троллинг арсенал</h3>
-                    <div class="troll-grid">
-                        <div class="troll-card">
-                            <h4>💀 Обычный скример</h4>
-                            <div class="troll-controls">
-                                <select id="screamer-video" class="admin-input-field mini">
-                                    <option value="assets/scrim/screamer.mp4">Обычный скример</option>
-                                    <option value="assets/scrim/MEGAScreamer.mp4">МЕГА скример (видео)</option>
-                                </select>
-                                <input type="range" id="screamer-duration" min="3" max="15" value="5" class="admin-slider">
-                                <span id="screamer-duration-display">5с</span>
-                                <button class="admin-btn danger mini" id="custom-screamer">💀 Запустить</button>
-                            </div>
-                        </div>
-
-                        <div class="troll-card">
-                            <h4>☠️ МЕГА СКРИМЕР</h4>
-                            <div class="troll-controls">
-                                <select id="mega-target" class="admin-input-field mini">
-                                    <option value="selected">Выбранным</option>
-                                    <option value="all">ВСЕМ НА СЕРВЕРЕ</option>
-                                </select>
-                                <input type="range" id="mega-screamer-duration" min="5" max="30" value="10" class="admin-slider">
-                                <span id="mega-screamer-duration-display">10с</span>
-                                <button class="admin-btn danger mini" id="mega-screamer">☠️ МЕГА ВЗРЫВ ☠️</button>
+                        <div class="menu-section">
+                            <span class="section-title">Троллинг</span>
+                            <div class="menu-items">
+                                <button class="menu-item" data-section="screamers">
+                                    <i class="fas fa-skull"></i>
+                                    <span>Скримеры</span>
+                                </button>
+                                <button class="menu-item" data-section="effects">
+                                    <i class="fas fa-magic"></i>
+                                    <span>Эффекты</span>
+                                </button>
                             </div>
                         </div>
                         
-                        <div class="troll-card">
-                            <h4>🐌 Лаги</h4>
-                            <div class="troll-controls">
-                                <input type="range" id="lag-intensity" min="1" max="5" value="3" class="admin-slider">
-                                <span id="lag-intensity-display">3x</span>
-                                <button class="admin-btn warning mini" id="custom-lag">Активировать</button>
-                            </div>
-                        </div>
-
-                        <div class="troll-card">
-                            <h4>🎉 Фейк победа</h4>
-                            <div class="troll-controls">
-                                <input type="text" id="fake-win-text" placeholder="Текст победы..." class="admin-input-field mini">
-                                <button class="admin-btn success mini" id="custom-fake-win">Показать</button>
-                            </div>
-                        </div>
-
-                        <div class="troll-card">
-                            <h4>📢 Объявление</h4>
-                            <div class="troll-controls">
-                                <input type="text" id="announcement-text" placeholder="Текст объявления..." class="admin-input-field mini">
-                                <button class="admin-btn success mini" id="custom-announce">Отправить</button>
+                        <div class="menu-section">
+                            <span class="section-title">Система</span>
+                            <div class="menu-items">
+                                <button class="menu-item" data-section="server">
+                                    <i class="fas fa-server"></i>
+                                    <span>Сервер</span>
+                                </button>
+                                <button class="menu-item" data-section="logs">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span>Логи</span>
+                                </button>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Серверные команды -->
-                <div class="admin-section">
-                    <h3>🔧 Управление сервером</h3>
-                    <div class="server-controls">
-                        <button class="admin-btn warning" id="maintenance-mode">
-                            🔧 Режим обслуживания
-                        </button>
-                        <button class="admin-btn danger" id="restart-server">
-                            ♻️ Перезагрузка сервера
-                        </button>
-                        <button class="admin-btn" id="clear-effects">
-                            🧹 Очистить эффекты
-                        </button>
-                        <button class="admin-btn success" id="save-config">
-                            💾 Сохранить настройки
+                    
+                    <div class="sidebar-footer">
+                        <div class="admin-profile">
+                            <div class="profile-avatar">👑</div>
+                            <div class="profile-info">
+                                <div class="profile-name">Супер Админ</div>
+                                <div class="profile-status">Онлайн</div>
+                            </div>
+                        </div>
+                        <button class="logout-btn" id="admin-logout">
+                            <i class="fas fa-sign-out-alt"></i>
                         </button>
                     </div>
-                </div>
+                </nav>
+
+                <!-- Основной контент -->
+                <main class="admin-main">
+                    <div class="admin-header">
+                        <div class="header-left">
+                            <h1 class="page-title" id="page-title">Дашборд</h1>
+                            <div class="breadcrumb">
+                                <span>Админ панель</span>
+                                <i class="fas fa-chevron-right"></i>
+                                <span id="breadcrumb-current">Дашборд</span>
+                            </div>
+                        </div>
+                        <div class="header-right">
+                            <div class="quick-actions">
+                                <button class="quick-btn" id="quick-refresh" title="Обновить">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="quick-btn" id="quick-settings" title="Настройки">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <button class="close-btn" id="admin-close">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-content">
+                        <!-- Дашборд -->
+                        <div class="content-section active" id="dashboard-section">
+                            <div class="stats-grid">
+                                <div class="stat-card primary">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="stat-online">0</div>
+                                        <div class="stat-label">Онлайн</div>
+                                    </div>
+                                    <div class="stat-trend up">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>+12%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-card success">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-gamepad"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="stat-games">0</div>
+                                        <div class="stat-label">Активных игр</div>
+                                    </div>
+                                    <div class="stat-trend up">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>+8%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-card warning">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-bolt"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="stat-actions">0</div>
+                                        <div class="stat-label">Выполнено действий</div>
+                                    </div>
+                                    <div class="stat-trend up">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>+25%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-card danger">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-database"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="stat-total">0</div>
+                                        <div class="stat-label">Всего пользователей</div>
+                                    </div>
+                                    <div class="stat-trend up">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>+15%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-grid">
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3>🔥 Быстрые действия</h3>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="quick-actions-grid">
+                                            <button class="action-btn danger" id="mass-mega-screamer">
+                                                <i class="fas fa-skull-crossbones"></i>
+                                                МЕГА СКРИМЕР
+                                            </button>
+                                            <button class="action-btn warning" id="mass-disconnect">
+                                                <i class="fas fa-ban"></i>
+                                                Отключить всех
+                                            </button>
+                                            <button class="action-btn info" id="mass-announcement">
+                                                <i class="fas fa-bullhorn"></i>
+                                                Объявление
+                                            </button>
+                                            <button class="action-btn success" id="server-restart">
+                                                <i class="fas fa-redo"></i>
+                                                Перезагрузка
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3>📊 Активность</h3>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="activity-list" id="activity-list">
+                                            <div class="activity-item">
+                                                <div class="activity-icon success">
+                                                    <i class="fas fa-user-plus"></i>
+                                                </div>
+                                                <div class="activity-content">
+                                                    <div class="activity-title">Новый пользователь</div>
+                                                    <div class="activity-time">Только что</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Пользователи -->
+                        <div class="content-section" id="users-section">
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <h2>👥 Управление пользователями</h2>
+                                    <span class="subtitle">Активных: <span id="users-count">0</span></span>
+                                </div>
+                                <div class="section-actions">
+                                    <button class="btn secondary" id="select-all-users">
+                                        <i class="fas fa-check-square"></i>
+                                        Выбрать всех
+                                    </button>
+                                    <button class="btn primary" id="refresh-users">
+                                        <i class="fas fa-sync-alt"></i>
+                                        Обновить
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="users-controls">
+                                <div class="controls-left">
+                                    <div class="tabs">
+                                        <button class="tab active" data-tab="online">
+                                            🟢 Онлайн (<span id="online-count">0</span>)
+                                        </button>
+                                        <button class="tab" data-tab="all">
+                                            📊 Все (<span id="total-count">0</span>)
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="controls-right">
+                                    <div class="search-box">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="users-search" placeholder="Поиск пользователей...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="users-container">
+                                <div class="users-grid" id="users-grid">
+                                    <!-- Пользователи будут добавлены динамически -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Другие секции будут добавлены в следующей части -->
+                    </div>
+                </main>
             </div>
         `;
         
         document.body.appendChild(panel);
     }
 
+    // ===== СОБЫТИЯ =====
+    setupEventListeners() {
+        document.addEventListener('click', (e) => {
+            // Закрытие панели
+            if (e.target.id === 'admin-close' || e.target.id === 'admin-backdrop') {
+                this.hide();
+            }
+            
+            // Навигация по секциям
+            if (e.target.classList.contains('menu-item')) {
+                const section = e.target.getAttribute('data-section');
+                this.switchSection(section);
+            }
+            
+            // Вкладки пользователей
+            if (e.target.classList.contains('tab')) {
+                const tab = e.target.getAttribute('data-tab');
+                this.switchUsersTab(tab);
+            }
+            
+            // Быстрые действия
+            if (e.target.id === 'refresh-users' || e.target.id === 'quick-refresh') this.refreshUsers();
+            if (e.target.id === 'select-all-users') this.selectAllUsers();
+            if (e.target.id === 'mass-mega-screamer') this.quickMegaScreener();
+            if (e.target.id === 'mass-disconnect') this.quickMassDisconnect();
+            if (e.target.id === 'mass-announcement') this.quickAnnouncement();
+            if (e.target.id === 'server-restart') this.quickServerRestart();
+            
+            // Логаут
+            if (e.target.id === 'admin-logout') this.logout();
+        });
+
+        // Поиск пользователей
+        document.addEventListener('input', (e) => {
+            if (e.target.id === 'users-search') {
+                this.filterUsers(e.target.value);
+            }
+        });
+    }
+
     // ===== СЕКРЕТНЫЙ ВХОД =====
     setupSecretInput() {
         console.log('🔧 Настройка секретного ввода...');
         
-        // Создаем невидимое поле ввода в левом верхнем углу
         const secretInput = document.createElement('input');
         secretInput.type = 'text';
         secretInput.id = 'secret-admin-input';
@@ -243,11 +356,9 @@ export class AdminPanel {
             color: transparent;
         `;
         
-        // При фокусе делаем поле видимым для отладки
         secretInput.addEventListener('focus', () => {
-            secretInput.style.opacity = '0.3';
-            secretInput.style.background = 'rgba(255, 0, 0, 0.1)';
-            console.log('🔍 Секретное поле активно');
+            secretInput.style.opacity = '0.1';
+            secretInput.style.background = 'rgba(255, 0, 0, 0.05)';
         });
         
         secretInput.addEventListener('blur', () => {
@@ -255,22 +366,15 @@ export class AdminPanel {
             secretInput.style.background = 'transparent';
         });
         
-        document.body.appendChild(secretInput);
-        
-        // Обработчик ввода секретного кода
         secretInput.addEventListener('input', (e) => {
-            console.log('🔤 Ввод в секретное поле:', e.target.value);
             if (e.target.value.toLowerCase() === 'admin-start') {
-                console.log('🎯 Секретный код введен!');
                 this.activateAdmin();
                 e.target.value = '';
                 e.target.blur();
             }
         });
         
-        // Глобальный обработчик нажатий клавиш
         document.addEventListener('keydown', (e) => {
-            // Если пользователь нажимает A, фокусируемся на секретном поле
             if (e.key.toLowerCase() === 'a' && !e.ctrlKey && !e.altKey && !e.metaKey) {
                 if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
                     secretInput.focus();
@@ -279,144 +383,64 @@ export class AdminPanel {
             }
         });
         
-        // Фокус на поле при клике в левый верхний угол
         document.addEventListener('click', (e) => {
             if (e.clientX < 80 && e.clientY < 80) {
-                console.log('🖱️ Клик в секретной зоне');
                 secretInput.focus();
                 e.preventDefault();
             }
         });
         
-        console.log('✅ Секретное поле настроено. Инструкции:');
-        console.log('   📍 Кликните в левый верхний угол страницы');
-        console.log('   📍 Или нажмите букву "A" и начните печатать');
-        console.log('   📍 Введите: admin-start');
+        document.body.appendChild(secretInput);
+        console.log('✅ Секретный вход настроен: кликните в левый верхний угол и введите "admin-start"');
     }
 
+    // ===== АКТИВАЦИЯ АДМИНА =====
     activateAdmin() {
         this.isAdmin = true;
         window.GlassXO.player.isAdmin = true;
         
-        console.log('🔥 Активация админ панели...');
-        
-        // Уведомляем сервер об активации админских прав
-        const notifyServer = () => {
-            if (window.GlassXO.socket && window.GlassXO.socket.socket && window.GlassXO.socket.socket.connected) {
-                window.GlassXO.socket.socket.emit('admin_activate', {
-                    timestamp: Date.now()
-                });
-                console.log('✅ Сервер уведомлен об активации админа');
-            } else {
-                console.log('⏳ Ожидание подключения к серверу...');
-                setTimeout(notifyServer, 1000);
-            }
-        };
-        
-        notifyServer();
-        
-        // Показываем кнопку админ панели
-        const adminBtn = document.getElementById('admin-btn');
-        if (adminBtn) {
-            adminBtn.style.display = 'block';
+        if (window.GlassXO.socket && window.GlassXO.socket.socket) {
+            window.GlassXO.socket.socket.emit('admin_activate', {
+                timestamp: Date.now()
+            });
         }
         
-        // Показываем уведомление
-        const showNotification = () => {
-            if (window.GlassXO.ui && window.GlassXO.ui.showNotification) {
-                window.GlassXO.ui.showNotification('🔥 Админ режим активирован!', 'success');
-            } else {
-                // Показываем нативное уведомление
-                alert('🔥 Админ режим активирован!');
-            }
-        };
+        if (window.GlassXO.ui) {
+            window.GlassXO.ui.showNotification('🔥 Современная админ панель v3.0 активирована!', 'success');
+        }
         
-        showNotification();
-        
-        console.log('🔥 Админ панель активирована');
         this.show();
     }
 
-    // ===== СОБЫТИЯ =====
-    setupEventListeners() {
-        document.addEventListener('click', (e) => {
-            // Закрытие панели
-            if (e.target.id === 'admin-close-btn') {
-                this.hide();
-            }
-            
-            // Кнопка админ панели в навигации
-            if (e.target.id === 'admin-btn' && this.isAdmin) {
-                this.show();
-            }
-
-            // Массовые действия
-            if (e.target.id === 'mass-screamer') this.massAction('screamer');
-            if (e.target.id === 'mass-disconnect') this.massAction('disconnect');
-            if (e.target.id === 'mass-lag') this.massAction('lag');
-            if (e.target.id === 'mass-announce') this.massAnnounce();
-
-            // Спецэффекты
-            if (e.target.hasAttribute('data-effect')) {
-                this.applyEffect(e.target.getAttribute('data-effect'));
-            }
-
-            // Троллинг
-            if (e.target.id === 'custom-screamer') this.customScreener();
-            if (e.target.id === 'mega-screamer') this.megaScreener();
-            if (e.target.id === 'custom-lag') this.customLag();
-            if (e.target.id === 'custom-fake-win') this.customFakeWin();
-            if (e.target.id === 'custom-announce') this.customAnnounce();
-
-            // Управление пользователями
-            if (e.target.id === 'refresh-users') this.refreshUsers();
-            if (e.target.id === 'select-all-users') this.selectAllUsers();
-            if (e.target.id === 'clear-selection') this.clearSelection();
-
-            // Серверные команды
-            if (e.target.id === 'clear-effects') this.clearAllEffects();
-            if (e.target.id === 'maintenance-mode') this.toggleMaintenance();
-            if (e.target.id === 'restart-server') this.restartServer();
-
-            // Действия с отдельными пользователями
-            if (e.target.classList.contains('user-action-btn')) {
-                const userId = e.target.getAttribute('data-user-id');
-                const action = e.target.getAttribute('data-action');
-                this.userAction(userId, action);
-            }
-
-            // Выбор пользователей
-            if (e.target.classList.contains('user-checkbox')) {
-                const userId = e.target.getAttribute('data-user-id');
-                this.toggleUserSelection(userId);
-            }
-
-            // Переключение вкладок пользователей
-            if (e.target.classList.contains('users-tab')) {
-                const tab = e.target.getAttribute('data-tab');
-                this.switchUsersTab(tab);
-            }
-        });
-
-        // Слайдеры
-        document.addEventListener('input', (e) => {
-            if (e.target.id === 'screamer-duration') {
-                document.getElementById('screamer-duration-display').textContent = e.target.value + 'с';
-            }
-            if (e.target.id === 'mega-screamer-duration') {
-                document.getElementById('mega-screamer-duration-display').textContent = e.target.value + 'с';
-            }
-            if (e.target.id === 'lag-intensity') {
-                document.getElementById('lag-intensity-display').textContent = e.target.value + 'x';
-            }
-        });
-
-        // Поиск пользователей
-        document.addEventListener('input', (e) => {
-            if (e.target.id === 'users-search') {
-                this.filterUsers(e.target.value);
-            }
-        });
+    // ===== ПЕРЕКЛЮЧЕНИЕ СЕКЦИЙ =====
+    switchSection(section) {
+        // Убираем активные классы
+        document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+        
+        // Активируем новую секцию
+        document.querySelector(`[data-section="${section}"]`).classList.add('active');
+        document.getElementById(`${section}-section`)?.classList.add('active');
+        
+        // Обновляем заголовок
+        const titles = {
+            dashboard: 'Дашборд',
+            users: 'Пользователи',
+            actions: 'Действия',
+            screamers: 'Скримеры',
+            effects: 'Эффекты',
+            server: 'Сервер',
+            logs: 'Логи'
+        };
+        
+        document.getElementById('page-title').textContent = titles[section];
+        document.getElementById('breadcrumb-current').textContent = titles[section];
+        
+        this.currentSection = section;
+        
+        if (section === 'users') {
+            this.refreshUsers();
+        }
     }
 
     // ===== УПРАВЛЕНИЕ ПАНЕЛЬЮ =====
@@ -429,7 +453,7 @@ export class AdminPanel {
             this.isVisible = true;
             this.refreshUsers();
             this.updateStats();
-            console.log('🔥 Админ панель открыта');
+            console.log('🔥 Современная админ панель открыта');
         }
     }
 
@@ -441,302 +465,231 @@ export class AdminPanel {
         }
     }
 
-    // ===== ПОЛЬЗОВАТЕЛИ =====
-    updateUsersList(data) {
-        if (data && data.online) {
-            // Новый формат с онлайн и всеми пользователями
-            this.users = data.online || [];
-            this.allUsers = data.all || [];
-            this.serverStats = data.stats || {};
-        } else {
-            // Старый формат (обратная совместимость)
-            this.users = data || [];
-        }
-        this.renderUsers();
+    logout() {
+        this.isAdmin = false;
+        window.GlassXO.player.isAdmin = false;
+        this.hide();
         
-        // Обновляем статистику если есть
-        if (this.serverStats) {
-            this.updateStats({
-                onlinePlayers: this.users.length,
-                activeGames: this.serverStats.totalGames || 0
-            });
+        if (window.GlassXO.ui) {
+            window.GlassXO.ui.showNotification('👋 Выход из админ панели', 'info');
         }
-
-        // Обновляем счетчики в вкладках
-        const onlineCountEl = document.getElementById('online-count');
-        const totalCountEl = document.getElementById('total-count');
-        
-        if (onlineCountEl) onlineCountEl.textContent = this.users.length;
-        if (totalCountEl) totalCountEl.textContent = this.allUsers ? this.allUsers.length : 0;
     }
 
-    renderUsers() {
-        const container = document.getElementById('users-list');
-        if (!container) return;
-
-        if (this.users.length === 0) {
-            container.innerHTML = '<div class="no-users">Пользователи не найдены</div>';
-            return;
-        }
-
-        container.innerHTML = this.users.map(user => `
-            <div class="admin-user-item" data-user-id="${user.id}">
-                <div class="user-checkbox-container">
-                    <input type="checkbox" class="user-checkbox" data-user-id="${user.id}" 
-                           ${this.selectedUsers.has(user.id) ? 'checked' : ''}>
-                </div>
-                <div class="user-avatar">
-                    <img src="${user.avatar}" alt="${user.name}" onerror="this.src='icons/gameIcons/PNG/Black/1x/button1.png'">
-                </div>
-                <div class="user-info">
-                    <div class="user-name">
-                        ${user.name || 'Безымянный'}
-                        ${user.user_id ? `<span class="user-id">#${user.user_id}</span>` : ''}
-                    </div>
-                    <div class="user-details">
-                        <span class="user-status ${user.isGuest ? 'guest' : 'registered'}">
-                            ${user.isGuest ? '👤 Гость' : '✅ Зарегистрирован'}
-                        </span>
-                        <span class="user-ip">📍 ${user.ip || 'unknown'}</span>
-                        <span class="user-level">⭐ Ур. ${user.level || 1}</span>
-                    </div>
-                </div>
-                <div class="user-actions">
-                    <button class="admin-mini-btn danger user-action-btn" data-user-id="${user.id}" data-action="screamer" title="Скример">💀</button>
-                    <button class="admin-mini-btn warning user-action-btn" data-user-id="${user.id}" data-action="lag" title="Лаги">🐌</button>
-                    <button class="admin-mini-btn user-action-btn" data-user-id="${user.id}" data-action="fake_win" title="Фейк победа">🎉</button>
-                    <button class="admin-mini-btn danger user-action-btn" data-user-id="${user.id}" data-action="disconnect" title="Отключить">🚫</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
+    // ===== ОБНОВЛЕНИЕ ДАННЫХ =====
     refreshUsers() {
         if (window.GlassXO.socket && window.GlassXO.socket.socket) {
             window.GlassXO.socket.socket.emit('admin_get_users');
         }
     }
 
-    selectAllUsers() {
-        this.users.forEach(user => this.selectedUsers.add(user.id));
-        this.renderUsers();
-    }
-
-    clearSelection() {
-        this.selectedUsers.clear();
-        this.renderUsers();
-    }
-
-    toggleUserSelection(userId) {
-        if (this.selectedUsers.has(userId)) {
-            this.selectedUsers.delete(userId);
+    updateUsersList(data) {
+        console.log('📊 Обновление списка пользователей:', data);
+        
+        if (data && data.online) {
+            this.users = data.online || [];
+            this.allUsers = data.all || [];
+            this.serverStats = data.stats || {};
         } else {
-            this.selectedUsers.add(userId);
+            this.users = Array.isArray(data) ? data : [];
         }
+        
+        this.renderUsers();
+        this.updateCounters();
+        this.updateStats(this.serverStats);
     }
 
-    filterUsers(searchTerm) {
-        const items = document.querySelectorAll('.admin-user-item');
-        const term = searchTerm.toLowerCase();
-        
-        items.forEach(item => {
-            const name = item.querySelector('.user-name').textContent.toLowerCase();
-            const id = item.querySelector('.user-id')?.textContent.toLowerCase() || '';
-            const ip = item.querySelector('.user-ip').textContent.toLowerCase();
-            
-            if (name.includes(term) || id.includes(term) || ip.includes(term)) {
-                item.style.display = 'flex';
-            } else {
-                item.style.display = 'none';
-            }
-        });
+    updateCounters() {
+        document.getElementById('users-badge').textContent = this.users.length;
+        document.getElementById('online-count').textContent = this.users.length;
+        document.getElementById('total-count').textContent = this.allUsers ? this.allUsers.length : 0;
+        document.getElementById('users-count').textContent = this.users.length;
     }
 
-    // ===== ДЕЙСТВИЯ =====
-    massAction(action) {
-        const targets = Array.from(this.selectedUsers);
-        if (targets.length === 0) {
-            if (window.GlassXO.ui) {
-                window.GlassXO.ui.showNotification('⚠️ Выберите пользователей для действия', 'warning');
-            }
-            return;
-        }
-
-        this.sendAdminAction(action, { targets, mass: true });
+    updateStats(stats) {
+        if (stats) this.stats = stats;
         
-        const messages = {
-            screamer: '💀 Скример отправлен выбранным пользователям!',
-            disconnect: '🚫 Выбранные пользователи отключены!',
-            lag: '🐌 Лаги активированы для выбранных!'
-        };
-
-        if (window.GlassXO.ui) {
-            window.GlassXO.ui.showNotification(messages[action], 'success');
-        }
+        document.getElementById('stat-online').textContent = this.users.length || 0;
+        document.getElementById('stat-games').textContent = this.stats.activeGames || 0;
+        document.getElementById('stat-actions').textContent = this.actionCount;
+        document.getElementById('stat-total').textContent = this.allUsers ? this.allUsers.length : 0;
     }
 
-    userAction(userId, action) {
-        this.sendAdminAction(action, { targets: [userId] });
-        
-        const messages = {
-            screamer: '💀 Скример отправлен!',
-            lag: '🐌 Лаги активированы!',
-            fake_win: '🎉 Фейковая победа показана!',
-            disconnect: '🚫 Пользователь отключен!'
-        };
-
-        if (window.GlassXO.ui) {
-            window.GlassXO.ui.showNotification(messages[action], 'success');
-        }
-    }
-
-    applyEffect(effect) {
-        const targets = Array.from(this.selectedUsers);
-        this.sendAdminAction(effect, { targets });
-        
-        if (window.GlassXO.ui) {
-            window.GlassXO.ui.showNotification(`✨ Эффект "${effect}" применён!`, 'success');
-        }
-    }
-
-    customScreener() {
-        const duration = document.getElementById('screamer-duration').value * 1000;
-        const videoFile = document.getElementById('screamer-video').value;
-        const targets = Array.from(this.selectedUsers);
-        
-        if (targets.length === 0) {
-            if (window.GlassXO.ui) {
-                window.GlassXO.ui.showNotification('❌ Выберите пользователей для скримера!', 'error');
-            }
+    // ===== БЫСТРЫЕ ДЕЙСТВИЯ =====
+    quickMegaScreener() {
+        if (!confirm('☠️ ВНИМАНИЕ!\n\nЗапустить МЕГА СКРИМЕР для ВСЕХ пользователей на сервере?\n\nЭто очень интенсивный эффект!')) {
             return;
         }
         
-        this.sendAdminAction('screamer', { 
-            targets, 
-            duration,
-            videoFile: videoFile
-        });
-        
-        if (window.GlassXO.ui) {
-            const videoName = videoFile.includes('MEGA') ? 'МЕГА скример' : 'обычный скример';
-            window.GlassXO.ui.showNotification(`💀 ${videoName} запущен для ${targets.length} пользователей на ${duration/1000}с!`, 'warning');
-        }
-        
-        console.log(`💀 Скример запущен: ${videoFile} для ${targets.length} пользователей`);
-    }
-
-    megaScreener() {
-        const duration = document.getElementById('mega-screamer-duration').value * 1000;
-        const target = document.getElementById('mega-target').value;
-        const selectedTargets = Array.from(this.selectedUsers);
-        
-        let targets, targetText;
-        
-        if (target === 'all') {
-            targets = 'all';
-            targetText = 'ВСЕХ пользователей на сервере';
-        } else {
-            if (selectedTargets.length === 0) {
-                if (window.GlassXO.ui) {
-                    window.GlassXO.ui.showNotification('❌ Выберите пользователей для МЕГА СКРИМЕРА!', 'error');
-                }
-                return;
-            }
-            targets = selectedTargets;
-            targetText = `${selectedTargets.length} выбранных пользователей`;
-        }
-        
-        if (!confirm(`☠️ ВНИМАНИЕ! ОПАСНО! ☠️\n\nЗапустить МЕГА СКРИМЕР на ${duration/1000} секунд для ${targetText}?\n\nЭто ОЧЕНЬ интенсивный эффект с мигающими цветами и громким звуком!\n\n⚠️ НЕ РЕКОМЕНДУЕТСЯ ДЛЯ ЛЮДЕЙ С ЭПИЛЕПСИЕЙ! ⚠️`)) {
-            return;
-        }
-        
-        this.sendAdminAction('mega_screamer', { 
-            targets: targets, 
-            duration: duration,
+        this.sendAdminAction('mega_screamer', {
+            targets: 'all',
+            duration: 10000,
             videoFile: 'assets/scrim/MEGAScreamer.mp4'
         });
         
-        if (window.GlassXO.ui) {
-            window.GlassXO.ui.showNotification(`☠️ МЕГА СКРИМЕР запущен для ${targetText} на ${duration/1000}с!`, 'error', duration);
-        }
-        
-        console.log(`☠️ МЕГА СКРИМЕР активирован для ${targetText} на ${duration/1000} секунд`);
+        this.showNotification('☠️ МЕГА СКРИМЕР запущен для всех!', 'error');
     }
 
-    customLag() {
-        const intensity = document.getElementById('lag-intensity').value;
-        const targets = Array.from(this.selectedUsers);
+    quickMassDisconnect() {
+        if (!confirm('⚠️ Отключить всех пользователей с сервера?')) return;
         
-        this.sendAdminAction('lag', { targets, intensity });
-        
-        if (window.GlassXO.ui) {
-            window.GlassXO.ui.showNotification(`🐌 Лаги активированы (${intensity}x)!`, 'success');
-        }
+        this.sendAdminAction('disconnect', { targets: 'all' });
+        this.showNotification('🚫 Все пользователи отключены!', 'warning');
     }
 
-    customFakeWin() {
-        const message = document.getElementById('fake-win-text').value || 'Поздравляем с победой!';
-        const targets = Array.from(this.selectedUsers);
-        
-        this.sendAdminAction('fake_win', { targets, message });
-        
-        if (window.GlassXO.ui) {
-            window.GlassXO.ui.showNotification('🎉 Фейковая победа отправлена!', 'success');
-        }
-    }
-
-    customAnnounce() {
-        const message = document.getElementById('announcement-text').value;
-        if (!message.trim()) return;
-        
-        const targets = Array.from(this.selectedUsers);
-        this.sendAdminAction('announce', { targets, message });
-        
-        if (window.GlassXO.ui) {
-            window.GlassXO.ui.showNotification('📢 Объявление отправлено!', 'success');
-        }
-        
-        document.getElementById('announcement-text').value = '';
-    }
-
-    massAnnounce() {
-        const message = prompt('Введите текст объявления:');
+    quickAnnouncement() {
+        const message = prompt('📢 Введите текст объявления для всех пользователей:');
         if (!message) return;
         
         this.sendAdminAction('announce', { targets: 'all', message });
+        this.showNotification('📢 Массовое объявление отправлено!', 'success');
+    }
+
+    quickServerRestart() {
+        if (!confirm('♻️ Перезагрузить сервер?\n\nВсе пользователи будут отключены!')) return;
         
+        this.sendAdminAction('restart_server', {});
+        this.showNotification('♻️ Сервер перезагружается...', 'warning');
+    }
+
+    // ===== ОБРАБОТКА ВХОДЯЩИХ ДЕЙСТВИЙ =====
+    handleIncomingAction(data) {
+        console.log('🔧 Обработка входящего админ действия:', data);
+        
+        switch(data.action || data.type) {
+            case 'screamer':
+                this.handleScreener(data);
+                break;
+                
+            case 'mega_screamer':
+                this.handleMegaScreener(data);
+                break;
+                
+            case 'announcement':
+                this.handleAnnouncement(data);
+                break;
+                
+            case 'disconnect':
+                this.handleDisconnect(data);
+                break;
+                
+            case 'clear_effects':
+                this.handleClearEffects(data);
+                break;
+                
+            case 'maintenance':
+                this.handleMaintenance(data);
+                break;
+                
+            case 'server_restart':
+                this.handleServerRestart(data);
+                break;
+                
+            default:
+                console.log('❓ Неизвестное админ действие:', data);
+                break;
+        }
+        
+        // Добавляем в лог активности
+        this.addActivity(data);
+    }
+
+    handleScreener(data) {
+        if (window.GlassXO.effects) {
+            window.GlassXO.effects.showScreener(data.duration || 5000);
+        }
+        this.showNotification('💀 Скример активирован!', 'error');
+    }
+
+    handleMegaScreener(data) {
+        if (window.GlassXO.effects) {
+            window.GlassXO.effects.showMegaScreener(data.duration || 10000, data.videoFile);
+        }
+        this.showNotification('☠️ МЕГА СКРИМЕР активирован!', 'error');
+    }
+
+    handleAnnouncement(data) {
+        this.showNotification(`📢 ${data.message}`, 'info');
+        
+        // Показываем модальное окно с объявлением
         if (window.GlassXO.ui) {
-            window.GlassXO.ui.showNotification('📢 Массовое объявление отправлено!', 'success');
+            alert(`📢 Объявление администратора:\n\n${data.message}`);
         }
     }
 
-    clearAllEffects() {
-        this.sendAdminAction('clear_effects', { targets: 'all' });
+    handleDisconnect(data) {
+        this.showNotification('🚫 Вы были отключены администратором', 'error');
         
-        if (window.GlassXO.ui) {
-            window.GlassXO.ui.showNotification('🧹 Все эффекты очищены!', 'success');
-        }
-    }
-
-    toggleMaintenance() {
-        this.sendAdminAction('maintenance', { enabled: true });
-        
-        if (window.GlassXO.ui) {
-            window.GlassXO.ui.showNotification('🔧 Режим обслуживания активирован!', 'warning');
-        }
-    }
-
-    restartServer() {
-        if (confirm('Вы уверены, что хотите перезагрузить сервер?')) {
-            this.sendAdminAction('restart_server', {});
-            
-            if (window.GlassXO.ui) {
-                window.GlassXO.ui.showNotification('♻️ Сервер перезагружается...', 'warning');
+        // Отключаемся через 2 секунды
+        setTimeout(() => {
+            if (window.GlassXO.socket) {
+                window.GlassXO.socket.disconnect();
             }
+            location.reload();
+        }, 2000);
+    }
+
+    handleClearEffects(data) {
+        if (window.GlassXO.effects) {
+            window.GlassXO.effects.clearAllEffects();
+        }
+        this.showNotification('🧹 Все эффекты очищены', 'success');
+    }
+
+    handleMaintenance(data) {
+        if (data.enabled) {
+            this.showNotification('🔧 Режим обслуживания включен', 'warning');
+        } else {
+            this.showNotification('✅ Режим обслуживания отключен', 'success');
         }
     }
 
-    // ===== ОТПРАВКА КОМАНД =====
+    handleServerRestart(data) {
+        this.showNotification('♻️ Сервер будет перезагружен через 10 секунд!', 'error');
+        
+        // Показываем предупреждение
+        if (window.GlassXO.ui) {
+            alert('♻️ ВНИМАНИЕ!\n\nСервер будет перезагружен через 10 секунд!\nВся несохраненная информация будет потеряна.');
+        }
+    }
+
+    addActivity(data) {
+        const activityList = document.getElementById('activity-list');
+        if (!activityList) return;
+        
+        const actionIcons = {
+            'screamer': { icon: 'fas fa-skull', color: 'danger' },
+            'mega_screamer': { icon: 'fas fa-skull-crossbones', color: 'danger' },
+            'announcement': { icon: 'fas fa-bullhorn', color: 'info' },
+            'disconnect': { icon: 'fas fa-ban', color: 'warning' },
+            'maintenance': { icon: 'fas fa-wrench', color: 'warning' },
+            'server_restart': { icon: 'fas fa-redo', color: 'danger' }
+        };
+        
+        const actionData = actionIcons[data.action] || { icon: 'fas fa-cog', color: 'info' };
+        
+        const activityItem = document.createElement('div');
+        activityItem.className = 'activity-item';
+        activityItem.innerHTML = `
+            <div class="activity-icon ${actionData.color}">
+                <i class="${actionData.icon}"></i>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">Админ действие: ${data.action}</div>
+                <div class="activity-time">Только что</div>
+            </div>
+        `;
+        
+        // Добавляем в начало списка
+        activityList.insertBefore(activityItem, activityList.firstChild);
+        
+        // Ограничиваем количество элементов
+        const items = activityList.querySelectorAll('.activity-item');
+        if (items.length > 10) {
+            items[items.length - 1].remove();
+        }
+    }
+
+    // ===== УТИЛИТЫ =====
     sendAdminAction(action, data) {
         if (window.GlassXO.socket && window.GlassXO.socket.socket) {
             window.GlassXO.socket.socket.emit('admin_action', {
@@ -744,143 +697,9 @@ export class AdminPanel {
                 data: data,
                 timestamp: Date.now()
             });
-        }
-        
-        // Увеличиваем счетчик действий
-        const counter = document.getElementById('admin-actions');
-        if (counter) {
-            const current = parseInt(counter.textContent) || 0;
-            counter.textContent = current + 1;
-        }
-    }
-
-    // ===== ОБНОВЛЕНИЕ СТАТИСТИКИ =====
-    updateStats(stats) {
-        if (stats) {
-            this.stats = stats;
-        }
-        
-        const onlineEl = document.getElementById('admin-online');
-        const gamesEl = document.getElementById('admin-games');
-        
-        if (onlineEl) onlineEl.textContent = this.stats.onlinePlayers || 0;
-        if (gamesEl) gamesEl.textContent = this.stats.activeGames || 0;
-    }
-
-    // ===== ОБРАБОТКА ВХОДЯЩИХ ДЕЙСТВИЙ =====
-    handleIncomingAction(data) {
-        if (window.GlassXO.effects) {
-            window.GlassXO.effects.handleAdminAction(data);
-        }
-    }
-
-    // ===== УПРАВЛЕНИЕ ВКЛАДКАМИ ПОЛЬЗОВАТЕЛЕЙ =====
-    switchUsersTab(tab) {
-        // Убираем активный класс со всех вкладок
-        document.querySelectorAll('.users-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.users-content').forEach(c => c.classList.remove('active'));
-
-        // Активируем выбранную вкладку
-        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-        document.getElementById(tab === 'online' ? 'online-users' : 'all-users').classList.add('active');
-
-        if (tab === 'all') {
-            this.renderAllUsers();
-        }
-    }
-
-    // Рендеринг всех пользователей
-    renderAllUsers() {
-        const container = document.getElementById('all-users-list');
-        if (!container || !this.allUsers) return;
-
-        if (this.allUsers.length === 0) {
-            container.innerHTML = '<div class="no-users">Пользователи не найдены</div>';
-            return;
-        }
-
-        container.innerHTML = this.allUsers.map(user => `
-            <div class="admin-user-item all-user-item" data-user-id="${user.nickname}">
-                <div class="user-avatar">
-                    <img src="${user.avatar || '/icons/gameIcons/PNG/Black/1x/button1.png'}" alt="${user.nickname}">
-                </div>
-                <div class="user-info">
-                    <div class="user-name">
-                        ${user.nickname}
-                        <span class="user-badge">База данных</span>
-                    </div>
-                    <div class="user-details">
-                        <span class="user-status ${user.isGuest ? 'guest' : 'registered'}">
-                            ${user.isGuest ? '👤 Гость' : '✅ Зарегистрирован'}
-                        </span>
-                        <span class="user-level">⭐ Ур. ${user.level}</span>
-                        <span class="user-rating">🏆 ${user.rating}</span>
-                        <span class="user-games">🎮 ${user.gamesPlayed} игр</span>
-                        <span class="user-winrate">📊 ${user.winRate}% побед</span>
-                    </div>
-                    <div class="user-stats">
-                        <span class="user-last-login">🕐 ${new Date(user.lastLogin).toLocaleDateString()}</span>
-                        ${user.lastIP ? `<span class="user-ip">📍 ${user.lastIP}</span>` : ''}
-                    </div>
-                </div>
-                <div class="user-actions">
-                    <button class="admin-mini-btn warning" onclick="window.GlassXO.adminPanel.resetUserStats('${user.nickname}')" title="Сбросить статистику">🔄</button>
-                    <button class="admin-mini-btn danger" onclick="window.GlassXO.adminPanel.deleteUser('${user.nickname}')" title="Удалить пользователя">🗑️</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // ===== АДМИНИСТРАТИВНЫЕ ДЕЙСТВИЯ С ПОЛЬЗОВАТЕЛЯМИ =====
-    async resetUserStats(nickname) {
-        if (!confirm(`Сбросить всю статистику пользователя ${nickname}?\n\nЭто действие нельзя отменить!`)) {
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/admin/reset-user-stats', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nickname })
-            });
-
-            const data = await response.json();
             
-            if (data.success) {
-                this.showNotification('✅ Статистика пользователя сброшена', 'success');
-                this.refreshUsers();
-            } else {
-                this.showNotification('❌ Ошибка сброса статистики', 'error');
-            }
-        } catch (error) {
-            console.error('Ошибка сброса статистики:', error);
-            this.showNotification('❌ Ошибка подключения', 'error');
-        }
-    }
-
-    async deleteUser(nickname) {
-        if (!confirm(`УДАЛИТЬ пользователя ${nickname} навсегда?\n\n⚠️ ЭТО ДЕЙСТВИЕ НЕЛЬЗЯ ОТМЕНИТЬ! ⚠️\n\nВся статистика и данные будут потеряны!`)) {
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/admin/delete-user', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nickname })
-            });
-
-            const data = await response.json();
-            
-            if (data.success) {
-                this.showNotification('🗑️ Пользователь удален', 'success');
-                this.refreshUsers();
-            } else {
-                this.showNotification('❌ Ошибка удаления пользователя', 'error');
-            }
-        } catch (error) {
-            console.error('Ошибка удаления пользователя:', error);
-            this.showNotification('❌ Ошибка подключения', 'error');
+            this.actionCount++;
+            this.updateStats();
         }
     }
 
@@ -891,11 +710,219 @@ export class AdminPanel {
             alert(message);
         }
     }
+
+    // ===== РЕНДЕРИНГ ПОЛЬЗОВАТЕЛЕЙ =====
+    renderUsers() {
+        const usersGrid = document.getElementById('users-grid');
+        if (!usersGrid) return;
+        
+        const currentTab = document.querySelector('.tab.active')?.getAttribute('data-tab') || 'online';
+        const usersList = currentTab === 'online' ? this.users : this.allUsers;
+        
+        usersGrid.innerHTML = '';
+        
+        if (!usersList || usersList.length === 0) {
+            usersGrid.innerHTML = `
+                <div class="no-users">
+                    <div class="no-users-icon">👥</div>
+                    <div class="no-users-text">Пользователей не найдено</div>
+                </div>
+            `;
+            return;
+        }
+        
+        usersList.forEach(user => {
+            const userCard = this.createUserCard(user, currentTab === 'online');
+            usersGrid.appendChild(userCard);
+        });
+    }
+
+    createUserCard(user, isOnline = false) {
+        const card = document.createElement('div');
+        card.className = `user-card ${this.selectedUsers.has(user.id || user.socketId) ? 'selected' : ''}`;
+        card.dataset.userId = user.id || user.socketId;
+        
+        const statusBadge = isOnline ? 
+            '<span class="user-status online">🟢 Онлайн</span>' : 
+            '<span class="user-status offline">⚫ Оффлайн</span>';
+        
+        const stats = user.stats || {};
+        const level = user.level || 1;
+        const rating = stats.rating || 1000;
+        
+        card.innerHTML = `
+            <div class="user-card-header">
+                <div class="user-avatar">
+                    ${user.avatar ? `<img src="${user.avatar}" alt="Avatar">` : '👤'}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">${user.name || user.nickname || 'Неизвестный'}</div>
+                    <div class="user-details">
+                        ${statusBadge}
+                        <span class="user-level">Уровень ${level}</span>
+                    </div>
+                </div>
+                <button class="user-select-btn" onclick="window.GlassXO.adminPanel.toggleUserSelection('${user.id || user.socketId}')">
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
+            
+            <div class="user-stats">
+                <div class="stat-item">
+                    <div class="stat-value">${stats.gamesPlayed || 0}</div>
+                    <div class="stat-label">Игр</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.gamesWon || 0}</div>
+                    <div class="stat-label">Побед</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${Math.round(stats.winRate || 0)}%</div>
+                    <div class="stat-label">Винрейт</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${rating}</div>
+                    <div class="stat-label">Рейтинг</div>
+                </div>
+            </div>
+            
+            <div class="user-actions">
+                <button class="action-btn-sm danger" onclick="window.GlassXO.adminPanel.quickAction('screamer', ['${user.id || user.socketId}'])" title="Скример">
+                    <i class="fas fa-skull"></i>
+                </button>
+                <button class="action-btn-sm warning" onclick="window.GlassXO.adminPanel.quickAction('lag', ['${user.id || user.socketId}'])" title="Лаг">
+                    <i class="fas fa-stopwatch"></i>
+                </button>
+                <button class="action-btn-sm info" onclick="window.GlassXO.adminPanel.quickAction('announce', ['${user.id || user.socketId}'])" title="Сообщение">
+                    <i class="fas fa-comment"></i>
+                </button>
+                <button class="action-btn-sm danger" onclick="window.GlassXO.adminPanel.quickAction('disconnect', ['${user.id || user.socketId}'])" title="Отключить">
+                    <i class="fas fa-ban"></i>
+                </button>
+            </div>
+        `;
+        
+        return card;
+    }
+
+    // ===== УПРАВЛЕНИЕ ВЫБОРОМ =====
+    toggleUserSelection(userId) {
+        if (this.selectedUsers.has(userId)) {
+            this.selectedUsers.delete(userId);
+        } else {
+            this.selectedUsers.add(userId);
+        }
+        
+        // Обновляем визуальное отображение
+        const card = document.querySelector(`[data-user-id="${userId}"]`);
+        if (card) {
+            card.classList.toggle('selected', this.selectedUsers.has(userId));
+        }
+        
+        this.updateSelectionCounter();
+    }
+
+    selectAllUsers() {
+        const userCards = document.querySelectorAll('.user-card');
+        userCards.forEach(card => {
+            const userId = card.dataset.userId;
+            this.selectedUsers.add(userId);
+            card.classList.add('selected');
+        });
+        
+        this.updateSelectionCounter();
+    }
+
+    updateSelectionCounter() {
+        const selectedCount = this.selectedUsers.size;
+        const selectAllBtn = document.getElementById('select-all-users');
+        if (selectAllBtn) {
+            selectAllBtn.innerHTML = `
+                <i class="fas fa-check-square"></i>
+                Выбрано: ${selectedCount}
+            `;
+        }
+    }
+
+    // ===== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК =====
+    switchUsersTab(tab) {
+        // Убираем активный класс со всех вкладок
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        
+        // Активируем нужную вкладку
+        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+        
+        // Очищаем выбор
+        this.selectedUsers.clear();
+        
+        // Перерендериваем пользователей
+        this.renderUsers();
+    }
+
+    // ===== ФИЛЬТРАЦИЯ =====
+    filterUsers(query) {
+        if (!query) {
+            this.renderUsers();
+            return;
+        }
+        
+        const userCards = document.querySelectorAll('.user-card');
+        const searchQuery = query.toLowerCase();
+        
+        userCards.forEach(card => {
+            const userName = card.querySelector('.user-name').textContent.toLowerCase();
+            const matches = userName.includes(searchQuery);
+            card.style.display = matches ? 'block' : 'none';
+        });
+    }
+
+    // ===== БЫСТРЫЕ ДЕЙСТВИЯ С ПОЛЬЗОВАТЕЛЯМИ =====
+    quickAction(action, userIds) {
+        if (!userIds || userIds.length === 0) {
+            this.showNotification('❌ Выберите пользователей', 'error');
+            return;
+        }
+        
+        switch(action) {
+            case 'screamer':
+                this.sendAdminAction('screamer', {
+                    targets: userIds,
+                    duration: 5000
+                });
+                this.showNotification(`💀 Скример отправлен ${userIds.length} пользователям`, 'warning');
+                break;
+                
+            case 'lag':
+                this.sendAdminAction('lag', {
+                    targets: userIds,
+                    intensity: 3,
+                    duration: 10000
+                });
+                this.showNotification(`🐌 Лаги активированы для ${userIds.length} пользователей`, 'warning');
+                break;
+                
+            case 'announce':
+                const message = prompt('📢 Введите сообщение для выбранных пользователей:');
+                if (!message) return;
+                
+                this.sendAdminAction('announce', {
+                    targets: userIds,
+                    message: message
+                });
+                this.showNotification(`📢 Сообщение отправлено ${userIds.length} пользователям`, 'success');
+                break;
+                
+            case 'disconnect':
+                if (!confirm(`🚫 Отключить ${userIds.length} пользователей?`)) return;
+                
+                this.sendAdminAction('disconnect', {
+                    targets: userIds
+                });
+                this.showNotification(`🚫 Отключено ${userIds.length} пользователей`, 'danger');
+                break;
+        }
+    }
 }
 
-// Глобальные функции для быстрого доступа
-window.quickTroll = (userId, trollType) => {
-    if (window.GlassXO.adminPanel) {
-        window.GlassXO.adminPanel.quickTroll(userId, trollType);
-    }
-}; 
+// Экспорт для совместимости
+window.AdminPanel = AdminPanel; 

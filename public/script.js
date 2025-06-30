@@ -70,7 +70,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.GlassXO.effects = new EffectsManager();
         window.GlassXO.socket = new SocketManager();
         window.GlassXO.gameLogic = new GameLogic();
-        window.GlassXO.adminPanel = new AdminPanel();
+        // Инициализируем современную админ панель v3.0
+    window.GlassXO.adminPanel = new AdminPanel();
         
         // Загружаем сохранённые данные
         loadGameData();
