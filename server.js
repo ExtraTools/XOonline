@@ -1223,15 +1223,43 @@ io.on('connection', (socket) => {
 
             // Если игра закончена
             if (game.gameStatus === 'finished') {
-                // Отправляем результат игры
-                const gameResult = {
-                    gameId: game.id,
-                    winner: game.winner,
-                    players: room.players,
-                    finalBoard: game.board
-                };
-
-                io.to(roomId).emit('game-finished', gameResult);
+                // Находим игроков для корректного отображения имен
+                const player1 = room.players.find(p => p.symbol === 'X');
+                const player2 = room.players.find(p => p.symbol === 'O');
+                
+                // Создаем детальный результат для каждого игрока
+                room.players.forEach(roomPlayer => {
+                    const playerSocket = connectedUsers.get(roomPlayer.socketId);
+                    if (playerSocket) {
+                        const opponent = room.players.find(p => p.socketId !== roomPlayer.socketId);
+                        
+                        // Отправляем персональный результат каждому игроку
+                        playerSocket.socket.emit('game-finished', {
+                            gameId: game.id,
+                            winner: game.winner,
+                            players: room.players,
+                            finalBoard: game.board,
+                            yourSymbol: roomPlayer.symbol,
+                            yourName: roomPlayer.name,
+                            opponentSymbol: opponent?.symbol || null,
+                            opponentName: opponent?.name || 'Соперник',
+                            playerData: {
+                                you: {
+                                    name: roomPlayer.name,
+                                    symbol: roomPlayer.symbol,
+                                    avatar: roomPlayer.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${roomPlayer.name}`
+                                },
+                                opponent: opponent ? {
+                                    name: opponent.name,
+                                    symbol: opponent.symbol,
+                                    avatar: opponent.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${opponent.name}`
+                                } : null
+                            }
+                        });
+                        
+                        console.log(`📤 Результат отправлен игроку ${roomPlayer.name}: ${game.winner.winner ? 'победитель - ' + game.winner.winner : 'ничья'}`);
+                    }
+                });
 
                 // Обновляем статистику игроков
                 await updatePlayerStats(game);
@@ -1259,7 +1287,7 @@ io.on('connection', (socket) => {
                 let resultMessage = '';
                 if (game.winner.winner) {
                     const winnerPlayer = room.players.find(p => p.symbol === game.winner.winner);
-                    resultMessage = `🏆 Победил: ${winnerPlayer.name} (${game.winner.winner})`;
+                    resultMessage = `🏆 Победил: ${winnerPlayer?.name || 'Неизвестный'} (${game.winner.winner})`;
                 } else {
                     resultMessage = '🤝 Ничья!';
                 }
@@ -1713,6 +1741,7 @@ async function updatePlayerStats(game) {
         if (game.gameMode === 'ai') {
             // Обновляем статистику только для человека
             const player = game.players.X;
+            
             if (!player.isGuest) {
                 const user = await User.findById(player.id);
                 if (user) {
@@ -1724,12 +1753,25 @@ async function updatePlayerStats(game) {
                     user.updateStats(result, 'ai');
                     await user.save();
                 }
+            } else {
+                // Обновляем статистику гостевого пользователя
+                let result;
+                if (game.winner?.winner === 'X') result = 'win';
+                else if (game.winner?.winner === 'O') result = 'loss';
+                else result = 'draw';
+                
+                await userDataManager.updateUserStats(player.name || player.username, { 
+                    result, 
+                    gameMode: 'ai' 
+                });
+                console.log(`📊 Статистика обновлена для гостя: ${player.name} (результат: ${result})`);
             }
         } else if (game.gameMode === 'pvp') {
             // Обновляем статистику для обоих игроков
             const playerX = game.players.X;
             const playerO = game.players.O;
 
+            // Игрок X
             if (!playerX.isGuest) {
                 const userX = await User.findById(playerX.id);
                 if (userX) {
@@ -1741,8 +1783,22 @@ async function updatePlayerStats(game) {
                     userX.updateStats(result, 'player');
                     await userX.save();
                 }
+            } else {
+                // Гостевой игрок X
+                let result;
+                if (game.winner?.winner === 'X') result = 'win';
+                else if (game.winner?.winner === 'O') result = 'loss';
+                else result = 'draw';
+                
+                await userDataManager.updateUserStats(playerX.name || playerX.username, { 
+                    result, 
+                    gameMode: 'pvp',
+                    opponentName: playerO.name || playerO.username
+                });
+                console.log(`📊 Статистика обновлена для гостя X: ${playerX.name} (результат: ${result})`);
             }
 
+            // Игрок O
             if (!playerO.isGuest) {
                 const userO = await User.findById(playerO.id);
                 if (userO) {
@@ -1754,6 +1810,19 @@ async function updatePlayerStats(game) {
                     userO.updateStats(result, 'player');
                     await userO.save();
                 }
+            } else {
+                // Гостевой игрок O
+                let result;
+                if (game.winner?.winner === 'O') result = 'win';
+                else if (game.winner?.winner === 'X') result = 'loss';
+                else result = 'draw';
+                
+                await userDataManager.updateUserStats(playerO.name || playerO.username, { 
+                    result, 
+                    gameMode: 'pvp',
+                    opponentName: playerX.name || playerX.username
+                });
+                console.log(`📊 Статистика обновлена для гостя O: ${playerO.name} (результат: ${result})`);
             }
         }
     } catch (error) {

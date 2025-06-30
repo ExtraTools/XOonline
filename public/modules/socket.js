@@ -394,17 +394,31 @@ export class SocketManager {
         window.GlassXO.gameState.gameStatus = 'finished';
         window.GlassXO.gameState.winner = data.winner;
         
+        // Обновляем данные об игроках из детального ответа
+        if (data.playerData) {
+            window.GlassXO.gameState.opponentName = data.playerData.opponent?.name || data.opponentName || 'Соперник';
+            window.GlassXO.gameState.yourName = data.playerData.you?.name || data.yourName || window.GlassXO.player?.nickname || 'Вы';
+        } else {
+            // Фолбэк для старого формата
+            window.GlassXO.gameState.opponentName = data.opponentName || 'Соперник';
+            window.GlassXO.gameState.yourName = data.yourName || window.GlassXO.player?.nickname || 'Вы';
+        }
+        
         if (window.GlassXO.gameLogic) {
             window.GlassXO.gameLogic.handleGameEnd(data);
         }
         
-        // Показываем результат
+        // Показываем уведомление с правильными именами
         let message = '';
         if (data.winner.winner) {
             const isWinner = data.winner.winner === window.GlassXO.gameState.mySymbol;
-            message = isWinner ? '🏆 Вы победили!' : '😔 Вы проиграли';
+            if (isWinner) {
+                message = `🏆 ${window.GlassXO.gameState.yourName} победил!`;
+            } else {
+                message = `😔 ${window.GlassXO.gameState.opponentName} победил!`;
+            }
         } else {
-            message = '🤝 Ничья!';
+            message = `🤝 Ничья между ${window.GlassXO.gameState.yourName} и ${window.GlassXO.gameState.opponentName}!`;
         }
         
         window.GlassXO.ui.showNotification(message, data.winner.winner === window.GlassXO.gameState.mySymbol ? 'success' : 'info');

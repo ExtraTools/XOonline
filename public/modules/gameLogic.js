@@ -466,6 +466,20 @@ export class GameLogic {
         window.GlassXO.gameState.gameActive = false;
         window.GlassXO.gameState.gameStatus = 'finished';
         
+        // Обновляем имена игроков из детализированных данных
+        if (data.playerData) {
+            window.GlassXO.gameState.opponentName = data.playerData.opponent?.name || data.opponentName || 'Соперник';
+            window.GlassXO.gameState.playerName = data.playerData.you?.name || data.yourName || window.GlassXO.player?.nickname || 'Вы';
+        } else {
+            // Фолбэк для старого формата
+            if (data.opponentName) {
+                window.GlassXO.gameState.opponentName = data.opponentName;
+            }
+            if (data.yourName) {
+                window.GlassXO.gameState.playerName = data.yourName;
+            }
+        }
+        
         // Определяем результат для локального отображения
         let localResult = null;
         if (data.winner) {
@@ -490,6 +504,27 @@ export class GameLogic {
         
         if (localResult) {
             console.log('🏆 Завершаем игру с результатом:', localResult);
+            
+            // Вызываем endGame с обновленными именами
+            const originalEndGame = this.endGame.bind(this);
+            this.endGame = function(result) {
+                const gameState = window.GlassXO.gameState;
+                
+                // Используем правильные имена игроков
+                const playerName = gameState.playerName || window.GlassXO.player?.nickname || 'Игрок';
+                const opponentName = gameState.opponentName || 'Соперник';
+                
+                // Временно обновляем состояние
+                const oldOpponent = gameState.opponent;
+                gameState.opponent = opponentName;
+                
+                // Вызываем оригинальную функцию
+                originalEndGame(result);
+                
+                // Восстанавливаем состояние
+                gameState.opponent = oldOpponent;
+            };
+            
             this.endGame(localResult);
         } else {
             console.log('❌ Не удалось определить результат игры:', data);
