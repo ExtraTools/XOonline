@@ -76,16 +76,31 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Сессии
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'dino-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 * 7 // 7 дней
-    }
-}));
+if (process.env.NODE_ENV === 'production') {
+    // В production используем простые сессии для Railway
+    app.use(session({
+        secret: process.env.SESSION_SECRET || 'dino-secret-railway-prod',
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: false, // HTTP в Railway
+            httpOnly: true,
+            maxAge: 1000 * 60 * 60 * 24 // 1 день для production
+        }
+    }));
+} else {
+    // В development стандартные сессии
+    app.use(session({
+        secret: process.env.SESSION_SECRET || 'dino-secret',
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: false,
+            httpOnly: true,
+            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 дней
+        }
+    }));
+}
 
 // Статические файлы
 app.use(express.static(join(__dirname, 'public')));

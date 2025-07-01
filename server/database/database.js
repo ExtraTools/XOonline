@@ -6,8 +6,30 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Создаем базу данных
-const dbPath = join(__dirname, '../../data/dinosgames.db');
-const db = new sqlite3.Database(dbPath);
+let dbPath;
+let db;
+
+if (process.env.NODE_ENV === 'production') {
+    // В production используем базу в памяти (Railway)
+    console.log('🐘 Использую SQLite в памяти для production');
+    db = new sqlite3.Database(':memory:', (err) => {
+        if (err) {
+            console.error('❌ Ошибка создания базы в памяти:', err);
+        } else {
+            console.log('✅ База данных в памяти готова');
+        }
+    });
+} else {
+    // В development используем файл
+    dbPath = join(__dirname, '../../data/dinosgames.db');
+    db = new sqlite3.Database(dbPath, (err) => {
+        if (err) {
+            console.error('❌ Ошибка открытия файла базы:', err);
+        } else {
+            console.log('✅ База данных файл готова');
+        }
+    });
+}
 
 // Инициализация таблиц
 export const initDatabase = () => {
