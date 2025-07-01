@@ -87,9 +87,12 @@ const loginValidation = [
 // Регистрация
 router.post('/register', registerValidation, async (req, res) => {
     try {
+        console.log('📝 Register attempt:', req.body);
+        
         // Проверяем валидацию
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            console.log('❌ Register validation errors:', errors.array());
             return res.status(400).json({
                 success: false,
                 message: 'Ошибки валидации',
@@ -161,9 +164,12 @@ router.post('/register', registerValidation, async (req, res) => {
 // Вход
 router.post('/login', loginValidation, async (req, res) => {
     try {
+        console.log('🔐 Login attempt:', req.body);
+        
         // Проверяем валидацию
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            console.log('❌ Validation errors:', errors.array());
             return res.status(400).json({
                 success: false,
                 message: 'Ошибки валидации',
@@ -172,6 +178,7 @@ router.post('/login', loginValidation, async (req, res) => {
         }
 
         const { login, password } = req.body;
+        console.log('🔍 Looking for user:', login);
 
         // Находим пользователя по email или username
         let user = await userQueries.findByEmail(login);
@@ -180,11 +187,14 @@ router.post('/login', loginValidation, async (req, res) => {
         }
         
         if (!user) {
+            console.log('❌ User not found:', login);
             return res.status(400).json({
                 success: false,
                 message: 'Неверный логин или пароль'
             });
         }
+        
+        console.log('✅ User found:', user.username);
 
         // Проверяем пароль
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);

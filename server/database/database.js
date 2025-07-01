@@ -132,12 +132,18 @@ export const userQueries = {
     // Поиск пользователя по email
     findByEmail: (email) => {
         return new Promise((resolve, reject) => {
+            console.log('🔍 DB: searching user by email:', email);
             db.get(
                 'SELECT * FROM users WHERE email = ?',
                 [email],
                 (err, row) => {
-                    if (err) reject(err);
-                    else resolve(row);
+                    if (err) {
+                        console.log('❌ DB error in findByEmail:', err);
+                        reject(err);
+                    } else {
+                        console.log('📊 DB result:', row ? 'found' : 'not found');
+                        resolve(row);
+                    }
                 }
             );
         });
@@ -160,12 +166,18 @@ export const userQueries = {
     // Поиск пользователя по username
     findByUsername: (username) => {
         return new Promise((resolve, reject) => {
+            console.log('🔍 DB: searching user by username:', username);
             db.get(
                 'SELECT * FROM users WHERE username = ?',
                 [username],
                 (err, row) => {
-                    if (err) reject(err);
-                    else resolve(row);
+                    if (err) {
+                        console.log('❌ DB error in findByUsername:', err);
+                        reject(err);
+                    } else {
+                        console.log('📊 DB result:', row ? 'found' : 'not found');
+                        resolve(row);
+                    }
                 }
             );
         });
