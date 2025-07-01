@@ -379,16 +379,71 @@ class LobbyApp {
         document.getElementById('loginForm').reset();
         document.getElementById('registerForm').reset();
     }
+
+    // Discord функционал
+    async loadDiscordData() {
+        try {
+            const response = await fetch('https://discord.com/api/guilds/1369754088941682830/widget.json');
+            const data = await response.json();
+            
+            if (data && data.presence_count !== undefined) {
+                this.updateDiscordWidgets(data);
+            }
+        } catch (error) {
+            console.log('Discord API недоступен, используем fallback данные');
+            // Используем статичные данные как fallback
+            this.updateDiscordWidgets({
+                name: '49 Battalion',
+                presence_count: 36,
+                members: []
+            });
+        }
+    }
+
+    updateDiscordWidgets(discordData) {
+        // Обновляем счетчик на странице успеха
+        const successCount = document.getElementById('discordOnlineCount');
+        if (successCount) {
+            successCount.textContent = discordData.presence_count || 36;
+        }
+
+        // Обновляем счетчик в боковой панели лобби
+        const sidebarCount = document.getElementById('discordSidebarCount');
+        if (sidebarCount) {
+            sidebarCount.textContent = discordData.presence_count || 36;
+        }
+    }
+
+    startDiscordUpdates() {
+        // Загружаем данные Discord при инициализации
+        this.loadDiscordData();
+        
+        // Обновляем данные Discord каждые 2 минуты
+        this.discordUpdateInterval = setInterval(() => {
+            this.loadDiscordData();
+        }, 120000); // 2 минуты
+    }
+
+    stopDiscordUpdates() {
+        if (this.discordUpdateInterval) {
+            clearInterval(this.discordUpdateInterval);
+            this.discordUpdateInterval = null;
+        }
+    }
 }
 
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
     window.lobbyApp = new LobbyApp();
+    
+    // Запускаем обновления Discord виджетов
+    window.lobbyApp.startDiscordUpdates();
 });
 
 // Обработка закрытия страницы
 window.addEventListener('beforeunload', () => {
     if (window.lobbyApp) {
         window.lobbyApp.stopLobbyUpdates();
+        window.lobbyApp.stopDiscordUpdates();
     }
 }); 

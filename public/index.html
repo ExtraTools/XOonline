@@ -92,20 +92,34 @@
                 <button class="logout-btn-success" id="logoutBtnSuccess">Выйти из аккаунта</button>
             </div>
 
-            <!-- Правая часть - техобслуживание -->
+            <!-- Правая часть - Discord сервер -->
             <div class="success-right">
-                <div class="maintenance-notice">
-                    <div class="maintenance-icon">🔧</div>
-                    <h3 class="maintenance-title">Техническое обслуживание</h3>
-                    <p class="maintenance-text">
-                        Сайт временно закрыт на техническое обслуживание.<br>
-                        Мы работаем над улучшением игрового опыта.<br>
-                        Спасибо за понимание!
-                    </p>
-                    <div class="maintenance-status">
-                        <span class="status-indicator"></span>
-                        <span>Ожидаемое время восстановления: скоро</span>
+                <div class="discord-widget">
+                    <div class="discord-header">
+                        <div class="discord-icon">💬</div>
+                        <div class="discord-logo">Discord</div>
                     </div>
+                    <h3 class="discord-title">Присоединяйтесь к нам!</h3>
+                    <div class="discord-server-name">49 Battalion</div>
+                    <p class="discord-text">
+                        Пока идёт техническое обслуживание,<br>
+                        присоединяйтесь к нашему Discord серверу!<br>
+                        Общайтесь с игроками и следите за новостями.
+                    </p>
+                    <div class="discord-stats">
+                        <div class="discord-stat">
+                            <span class="discord-stat-value" id="discordOnlineCount">36</span>
+                            <span class="discord-stat-label">Онлайн</span>
+                        </div>
+                        <div class="discord-stat">
+                            <span class="discord-stat-value">∞</span>
+                            <span class="discord-stat-label">Участников</span>
+                        </div>
+                    </div>
+                    <a href="https://discord.gg/49battalion" target="_blank" class="discord-invite-btn">
+                        <span class="discord-online-dot"></span>
+                        Присоединиться к серверу
+                    </a>
                 </div>
             </div>
         </div>
@@ -152,6 +166,24 @@
 
             <!-- Боковая панель -->
             <aside class="sidebar">
+                <!-- Discord сервер -->
+                <div class="discord-sidebar-widget">
+                    <div class="discord-sidebar-header">
+                        <div class="discord-sidebar-icon">💬</div>
+                        <div class="discord-sidebar-title">Discord</div>
+                    </div>
+                    <div class="discord-sidebar-content">
+                        <div class="discord-sidebar-server">49 Battalion</div>
+                        <div class="discord-sidebar-count">
+                            <span class="discord-online-dot"></span>
+                            <span id="discordSidebarCount">36</span> участников онлайн
+                        </div>
+                        <a href="https://discord.gg/49battalion" target="_blank" class="discord-sidebar-btn">
+                            Присоединиться
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Пользователи онлайн -->
                 <div class="sidebar-card">
                     <h3 class="section-title">Онлайн (<span id="onlineCount">0</span>)</h3>
