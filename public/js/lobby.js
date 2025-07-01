@@ -395,7 +395,7 @@ class LobbyApp {
             this.updateDiscordWidgets({
                 name: '49 Battalion',
                 presence_count: 33,
-                instant_invite: 'https://discord.com/invite/MRv5xtu8',
+                instant_invite: 'https://discord.com/invite/49bt',
                 members: []
             });
         }
