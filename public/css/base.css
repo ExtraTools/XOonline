@@ -62,18 +62,4 @@ body {
     font-style: italic;
     font-size: 0.8rem;
     padding: 1rem 0;
-}
-
-/* Logo Styles */
-.lobby-logo-image {
-    max-height: 40px;
-    height: auto;
-    filter: brightness(0) invert(1); /* Делает логотип белым */
-    opacity: 0.9;
-    transition: all 0.3s ease;
-}
-
-.lobby-logo-image:hover {
-    opacity: 1;
-    transform: scale(1.05);
 } 
