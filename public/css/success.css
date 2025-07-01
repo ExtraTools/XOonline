@@ -319,6 +319,18 @@
 .discord-text {
     color: var(--text-secondary);
     line-height: 1.6;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.discord-widget .maintenance-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #f59e0b;
     margin-bottom: 1.5rem;
     position: relative;
     z-index: 1;

@@ -394,7 +394,8 @@ class LobbyApp {
             // Используем статичные данные как fallback
             this.updateDiscordWidgets({
                 name: '49 Battalion',
-                presence_count: 36,
+                presence_count: 33,
+                instant_invite: 'https://discord.com/invite/MRv5xtu8',
                 members: []
             });
         }
@@ -404,13 +405,21 @@ class LobbyApp {
         // Обновляем счетчик на странице успеха
         const successCount = document.getElementById('discordOnlineCount');
         if (successCount) {
-            successCount.textContent = discordData.presence_count || 36;
+            successCount.textContent = discordData.presence_count || 33;
         }
 
         // Обновляем счетчик в боковой панели лобби
         const sidebarCount = document.getElementById('discordSidebarCount');
         if (sidebarCount) {
-            sidebarCount.textContent = discordData.presence_count || 36;
+            sidebarCount.textContent = discordData.presence_count || 33;
+        }
+
+        // Обновляем ссылки приглашения если есть новая
+        if (discordData.instant_invite) {
+            const inviteLinks = document.querySelectorAll('a[href*="discord.com/invite"], a[href*="discord.gg"]');
+            inviteLinks.forEach(link => {
+                link.href = discordData.instant_invite;
+            });
         }
     }
 
