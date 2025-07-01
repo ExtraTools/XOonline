@@ -110,22 +110,30 @@ export const initDatabase = () => {
 // Утилиты для работы с пользователями
 export const userQueries = {
     // Создание пользователя
-    create: (username, email, passwordHash) => {
-        return new Promise((resolve, reject) => {
-            const stmt = db.prepare(`
-                INSERT INTO users (username, email, password_hash) 
-                VALUES (?, ?, ?)
-            `);
-            
-            stmt.run([username, email, passwordHash], function(err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve({ id: this.lastID, username, email });
-                }
-            });
-            
-            stmt.finalize();
+    create: async (username, email, password) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Хешируем пароль
+                const bcrypt = await import('bcrypt');
+                const passwordHash = await bcrypt.default.hash(password, 12);
+                
+                const stmt = db.prepare(`
+                    INSERT INTO users (username, email, password_hash) 
+                    VALUES (?, ?, ?)
+                `);
+                
+                stmt.run([username, email, passwordHash], function(err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve({ id: this.lastID, username, email });
+                    }
+                });
+                
+                stmt.finalize();
+            } catch (err) {
+                reject(err);
+            }
         });
     },
 

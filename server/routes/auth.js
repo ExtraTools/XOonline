@@ -120,11 +120,8 @@ router.post('/register', registerValidation, async (req, res) => {
             });
         }
 
-        // Хешируем пароль
-        const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-
-        // Создаем пользователя
-        const user = await userQueries.create(username, email, passwordHash);
+        // Создаем пользователя (пароль будет захеширован автоматически в модели)
+        const user = await userQueries.create(username, email, password);
 
         // Создаем JWT токен
         const token = jwt.sign(
@@ -195,10 +192,14 @@ router.post('/login', loginValidation, async (req, res) => {
         }
         
         console.log('✅ User found:', user.username);
+        console.log('🔑 Password hash from DB:', user.password_hash ? 'exists' : 'missing');
 
         // Проверяем пароль
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+        console.log('🔐 Password validation result:', isPasswordValid);
+        
         if (!isPasswordValid) {
+            console.log('❌ Password validation failed for user:', user.username);
             return res.status(400).json({
                 success: false,
                 message: 'Неверный логин или пароль'
