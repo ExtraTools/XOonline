@@ -1,0 +1,65 @@
+/* Base Styles - Базовые стили */
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Benzin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Background Animation */
+.background {
+    position: fixed;
+    inset: 0;
+    background: 
+        radial-gradient(circle at 25% 25%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(0, 212, 170, 0.05) 0%, transparent 50%);
+    animation: backgroundFloat 30s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes backgroundFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    33% { transform: translateY(-10px) scale(1.02); }
+    66% { transform: translateY(5px) scale(0.98); }
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+/* Initial State - Показываем форму авторизации по умолчанию */
+#lobbyContainer,
+#successContainer {
+    display: none;
+}
+
+#authContainer {
+    display: flex;
+}
+
+.loading {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 0.8rem;
+    padding: 1rem 0;
+} 

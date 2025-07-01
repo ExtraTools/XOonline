@@ -3,56 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DinosGames - Игровая площадка</title>
+    <title>DinosGames - Игровое лобби</title>
     
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦕</text></svg>">
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css?v=13">
-    <link rel="stylesheet" href="css/admin.css?v=1">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Манифест -->
-    <link rel="manifest" href="manifest.json">
+    <!-- CSS Modules -->
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/fonts.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/success.css">
 </head>
 <body>
-        <!-- Particle Canvas Background -->
-    <canvas id="particleCanvas"></canvas>
-    
-    <!-- Grok-style interface -->
-    <div class="grok-container">
-        <div class="main-content">
-            <h1 class="main-title">
-                <span class="dino-icon" onclick="startDinoGame()">🦕</span>
-                DinoGames
-            </h1>
-            <p class="subtitle">Coming Soon</p>
+    <div class="background"></div>
+
+    <!-- Контейнер авторизации -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-card">
+            <h1 class="auth-logo">DinosGames</h1>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Вход</button>
+                <button class="auth-tab" data-tab="register">Регистрация</button>
+            </div>
+
+            <!-- Форма входа -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Email или никнейм</label>
+                    <input type="text" class="form-input" name="login" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Пароль</label>
+                    <input type="password" class="form-input" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="form-button">Войти</button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+
+            <!-- Форма регистрации -->
+            <form id="registerForm" class="auth-form hidden">
+                <div class="form-group">
+                    <label class="form-label">Имя пользователя</label>
+                    <input type="text" class="form-input" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" name="email" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Пароль</label>
+                    <input type="password" class="form-input" name="password" id="registerPassword" required autocomplete="new-password">
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar">
+                            <div class="strength-segments">
+                                <div class="strength-segment" id="segment1"></div>
+                                <div class="strength-segment" id="segment2"></div>
+                                <div class="strength-segment" id="segment3"></div>
+                                <div class="strength-segment" id="segment4"></div>
+                            </div>
+                        </div>
+                        <div class="strength-text" id="strengthText">Введите пароль</div>
+                    </div>
+                </div>
+                <button type="submit" class="form-button">Зарегистрироваться</button>
+                <div id="registerError" class="error-message"></div>
+            </form>
         </div>
     </div>
 
-    <!-- Мини-игра Динозаврик -->
-    <div id="dino-game" class="dino-game" style="display: none;">
-        <div class="game-container">
-            <div class="game-header">
-                <h3>🦕 Dino Game</h3>
-                <div class="game-score">Счёт: <span id="score">0</span></div>
-                <button class="close-game" onclick="closeDinoGame()">✕</button>
+        <!-- Страница успешной регистрации -->
+    <div id="successContainer" class="success-container">
+        <div class="success-card">
+            <!-- Левая часть - приветствие -->
+            <div class="success-left">
+                <div class="success-icon">🎉</div>
+                <h1 class="success-title">Добро пожаловать!</h1>
+                <p class="success-message">
+                    Вы успешно зарегистрировались на нашей игровой платформе <strong>DinosGames</strong>!
+                </p>
+                
+                <div class="user-welcome">
+                    <div class="welcome-avatar" id="welcomeAvatar"></div>
+                    <div class="welcome-info">
+                        <h2 class="welcome-username" id="welcomeUsername">Ваш никнейм</h2>
+                        <p class="welcome-email" id="welcomeEmail">email@example.com</p>
+                    </div>
+                </div>
+
+                <button class="logout-btn-success" id="logoutBtnSuccess">Выйти из аккаунта</button>
             </div>
-            <canvas id="gameCanvas" width="800" height="200"></canvas>
-            <div class="game-instructions">
-                <p>Нажмите SPACE или кликните для прыжка</p>
+
+            <!-- Правая часть - техобслуживание -->
+            <div class="success-right">
+                <div class="maintenance-notice">
+                    <div class="maintenance-icon">🔧</div>
+                    <h3 class="maintenance-title">Техническое обслуживание</h3>
+                    <p class="maintenance-text">
+                        Сайт временно закрыт на техническое обслуживание.<br>
+                        Мы работаем над улучшением игрового опыта.<br>
+                        Спасибо за понимание!
+                    </p>
+                    <div class="maintenance-status">
+                        <span class="status-indicator"></span>
+                        <span>Ожидаемое время восстановления: скоро</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Уведомления -->
-    <div id="notifications" class="notifications"></div>
+    <!-- Контейнер лобби (скрыт) -->
+    <div id="lobbyContainer" class="lobby-container">
+        <!-- Шапка лобби -->
+        <header class="lobby-header">
+            <div class="lobby-logo">DinosGames</div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar"></div>
+                <div class="user-details">
+                    <div class="username" id="username"></div>
+                    <div class="user-rating" id="userRating"></div>
+                </div>
+                <button class="logout-btn" id="logoutBtn">Выход</button>
+            </div>
+        </header>
 
-    <!-- JavaScript -->
-    <script src="modules/particleSystem.js?v=1"></script>
-    <script src="script.js?v=7"></script>
+        <!-- Основной контент -->
+        <div class="lobby-content">
+            <!-- Секция игр -->
+            <main class="games-section">
+                <h2 class="section-title">Доступные игры</h2>
+                <div class="games-grid">
+                    <div class="game-card" data-game="tictactoe">
+                        <div class="game-icon">⭕</div>
+                        <div class="game-title">Крестики-нолики</div>
+                        <div class="game-description">Классическая игра 3×3</div>
+                    </div>
+                    <div class="game-card" data-game="battleship">
+                        <div class="game-icon">🚢</div>
+                        <div class="game-title">Морской бой</div>
+                        <div class="game-description">Онлайн битва флотов</div>
+                    </div>
+                    <div class="game-card coming-soon">
+                        <div class="game-icon">🎯</div>
+                        <div class="game-title">Новые игры</div>
+                        <div class="game-description">Скоро появятся...</div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Боковая панель -->
+            <aside class="sidebar">
+                <!-- Пользователи онлайн -->
+                <div class="sidebar-card">
+                    <h3 class="section-title">Онлайн (<span id="onlineCount">0</span>)</h3>
+                    <div id="userList" class="user-list">
+                        <div class="loading">Загружаем список...</div>
+                    </div>
+                </div>
+
+                <!-- Статистика -->
+                <div class="sidebar-card">
+                    <h3 class="section-title">Статистика</h3>
+                    <div class="stat-item">
+                        <span>Игроков онлайн:</span>
+                        <span class="stat-value" id="statsOnline">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Активных комнат:</span>
+                        <span class="stat-value" id="statsRooms">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Игр в процессе:</span>
+                        <span class="stat-value" id="statsGames">0</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="/js/passwordStrength.js"></script>
+    <script src="/js/lobby.js"></script>
 </body>
 </html> 

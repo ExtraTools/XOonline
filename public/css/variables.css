@@ -1,0 +1,43 @@
+/* CSS Variables - Переменные дизайн-системы */
+:root {
+    /* Цветовая палитра */
+    --bg-primary: #0f0f23;
+    --bg-secondary: #1a1a2e;
+    --bg-card: #16213e;
+    --bg-elevated: #1e2749;
+    
+    /* Акцентные цвета */
+    --accent-primary: #00d4aa;
+    --accent-secondary: #00b894;
+    
+    /* Текстовые цвета */
+    --text-primary: #e2e8f0;
+    --text-secondary: #a0aec0;
+    --text-muted: #718096;
+    
+    /* Границы */
+    --border-subtle: rgba(0, 212, 170, 0.15);
+    --border-accent: rgba(0, 212, 170, 0.4);
+    
+    /* Статусные цвета */
+    --error: #ff6b6b;
+    --success: #51cf66;
+    --warning: #ffd93d;
+    
+    /* Радиусы скругления */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    
+    /* Тени */
+    --shadow-sm: 0 2px 8px rgba(15, 15, 35, 0.4);
+    --shadow-md: 0 4px 16px rgba(15, 15, 35, 0.5);
+    --shadow-lg: 0 8px 32px rgba(15, 15, 35, 0.6);
+    --shadow-accent: 0 4px 20px rgba(0, 212, 170, 0.25);
+    
+    /* Переходы */
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.15s ease;
+    --transition-slow: all 0.5s ease;
+} 
