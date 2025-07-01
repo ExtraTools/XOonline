@@ -12,6 +12,11 @@ import dotenv from 'dotenv';
 import session from 'express-session';
 import rateLimit from 'express-rate-limit';
 
+// Импорт модулей базы данных и роутов
+import { initDatabase, sessionQueries } from './server/database/database.js';
+import authRoutes from './server/routes/auth.js';
+import lobbyRoutes from './server/routes/lobby.js';
+
 // Загрузка переменных окружения
 dotenv.config();
 
@@ -79,8 +84,13 @@ app.use(session({
 // Статические файлы
 app.use(express.static(join(__dirname, 'public')));
 app.use('/socket.io', express.static(join(__dirname, 'node_modules/socket.io/client-dist')));
+app.use('/FRONTS', express.static(join(__dirname, 'FRONTS')));
 
-// Временные API маршруты (пока без импортов)
+// API маршруты
+app.use('/api/auth', authRoutes);
+app.use('/api/lobby', lobbyRoutes);
+
+// Системные API маршруты
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });
@@ -106,9 +116,23 @@ app.get('*', (req, res) => {
     res.sendFile(join(__dirname, 'public', 'index.html'));
 });
 
-// Запуск сервера
+// Инициализация базы данных и запуск сервера
 const PORT = process.env.PORT || 3000;
-httpServer.listen(PORT, () => {
-    console.log(`🚀 DinoGames сервер запущен на порту ${PORT}`);
-    console.log(`🌐 Откройте http://localhost:${PORT}`);
-}); 
+
+initDatabase()
+    .then(() => {
+        // Очистка истекших сессий при запуске
+        sessionQueries.cleanup()
+            .then(() => console.log('🧹 Очищены истекшие сессии'))
+            .catch(err => console.error('Ошибка очистки сессий:', err));
+
+        httpServer.listen(PORT, () => {
+            console.log(`🚀 DinoGames сервер запущен на порту ${PORT}`);
+            console.log(`🌐 Откройте http://localhost:${PORT}`);
+            console.log(`📊 База данных SQLite готова`);
+        });
+    })
+    .catch((error) => {
+        console.error('❌ Ошибка инициализации базы данных:', error);
+        process.exit(1);
+    }); 
