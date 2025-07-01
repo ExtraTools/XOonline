@@ -35,20 +35,34 @@
 
 
 .auth-logo {
-    font-size: 2.5rem;
-    font-weight: 500;
-    background: linear-gradient(135deg, #00d4aa, #00f5ff, #00d4aa);
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
     text-align: center;
     margin-bottom: 2rem;
-    text-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
-    letter-spacing: 0.5px;
-    animation: gradientShift 3s ease-in-out infinite;
     position: relative;
     z-index: 1;
+}
+
+.logo-image {
+    max-width: 200px;
+    height: auto;
+    filter: brightness(0) invert(1); /* Делает логотип белым */
+    opacity: 0.9;
+    transition: all 0.3s ease;
+    animation: logoGlow 3s ease-in-out infinite;
+}
+
+.logo-image:hover {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: brightness(0) invert(1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+}
+
+@keyframes logoGlow {
+    0%, 100% { 
+        filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(0, 212, 170, 0.3)); 
+    }
+    50% { 
+        filter: brightness(0) invert(1) drop-shadow(0 0 20px rgba(0, 245, 255, 0.5)); 
+    }
 }
 
 @keyframes gradientShift {
@@ -366,7 +380,7 @@
         margin: 0.5rem;
     }
 
-    .auth-logo {
-        font-size: 2rem;
+    .logo-image {
+        max-width: 150px;
     }
 } 
