@@ -1,4 +1,5 @@
 import sqlite3 from 'sqlite3';
+import bcrypt from 'bcrypt';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -114,8 +115,7 @@ export const userQueries = {
         return new Promise(async (resolve, reject) => {
             try {
                 // Хешируем пароль
-                const bcrypt = await import('bcrypt');
-                const passwordHash = await bcrypt.default.hash(password, 12);
+                const passwordHash = await bcrypt.hash(password, 12);
                 
                 const stmt = db.prepare(`
                     INSERT INTO users (username, email, password_hash) 
