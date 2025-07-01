@@ -65,6 +65,12 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
+// Логирование запросов
+app.use((req, res, next) => {
+    console.log(`📝 ${req.method} ${req.path} - ${req.ip}`);
+    next();
+});
+
 // Middleware для парсинга
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -97,10 +103,16 @@ app.get('/api/health', (req, res) => {
 
 // Health check для Railway
 app.get('/health', (req, res) => {
-    res.status(200).send('OK');
+    console.log('🏥 Health check запрос');
+    res.status(200).json({ 
+        status: 'healthy', 
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
 });
 
 app.get('/', (req, res) => {
+    console.log('🏠 Запрос главной страницы');
     res.sendFile(join(__dirname, 'public', 'index.html'));
 });
 
@@ -132,23 +144,43 @@ console.log('🔧 Начинаем инициализацию DinosGames...');
 console.log(`📡 Порт: ${PORT}`);
 console.log(`🌍 NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
 
-initDatabase()
-    .then(() => {
-        // Очистка истекших сессий при запуске
-        sessionQueries.cleanup()
-            .then(() => console.log('🧹 Очищены истекшие сессии'))
-            .catch(err => console.error('Ошибка очистки сессий:', err));
-
-        httpServer.listen(PORT, '0.0.0.0', () => {
-            console.log(`🚀 DinoGames сервер запущен на порту ${PORT}`);
-            console.log(`🌐 Сервер доступен на 0.0.0.0:${PORT}`);
-            console.log(`📊 База данных SQLite готова`);
-        }).on('error', (error) => {
-            console.error('❌ Ошибка запуска сервера:', error);
-            process.exit(1);
+// Запускаем сервер сразу без ожидания БД
+httpServer.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 DinoGames сервер запущен на порту ${PORT}`);
+    console.log(`🌐 Сервер доступен на 0.0.0.0:${PORT}`);
+    console.log(`📊 Инициализируем базу данных...`);
+    
+    // Инициализируем БД асинхронно
+    initDatabase()
+        .then(() => {
+            console.log('✅ База данных SQLite готова');
+            // Очистка истекших сессий при запуске
+            sessionQueries.cleanup()
+                .then(() => console.log('🧹 Очищены истекшие сессии'))
+                .catch(err => console.error('⚠️ Ошибка очистки сессий:', err));
+        })
+        .catch((error) => {
+            console.error('❌ Ошибка инициализации базы данных:', error);
+            // Не выходим, позволяем серверу работать без БД
         });
-    })
-    .catch((error) => {
-        console.error('❌ Ошибка инициализации базы данных:', error);
-        process.exit(1);
+}).on('error', (error) => {
+    console.error('❌ Ошибка запуска сервера:', error);
+    process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('🛑 Получен SIGTERM, завершаем работу...');
+    httpServer.close(() => {
+        console.log('✅ Сервер остановлен');
+        process.exit(0);
+    });
+});
+
+process.on('SIGINT', () => {
+    console.log('🛑 Получен SIGINT, завершаем работу...');
+    httpServer.close(() => {
+        console.log('✅ Сервер остановлен');
+        process.exit(0);
+    });
 }); 
