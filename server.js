@@ -95,6 +95,15 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });
 
+// Health check для Railway
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(join(__dirname, 'public', 'index.html'));
+});
+
 app.get('/api/status', (req, res) => {
         res.json({
         status: 'ok', 
@@ -111,13 +120,17 @@ app.get('/api/status', (req, res) => {
     });
 });
 
-// SPA fallback
+// SPA fallback - должен быть последним
 app.get('*', (req, res) => {
     res.sendFile(join(__dirname, 'public', 'index.html'));
 });
 
 // Инициализация базы данных и запуск сервера
 const PORT = process.env.PORT || 3000;
+
+console.log('🔧 Начинаем инициализацию DinosGames...');
+console.log(`📡 Порт: ${PORT}`);
+console.log(`🌍 NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
 
 initDatabase()
     .then(() => {
@@ -126,10 +139,13 @@ initDatabase()
             .then(() => console.log('🧹 Очищены истекшие сессии'))
             .catch(err => console.error('Ошибка очистки сессий:', err));
 
-        httpServer.listen(PORT, () => {
+        httpServer.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 DinoGames сервер запущен на порту ${PORT}`);
-            console.log(`🌐 Откройте http://localhost:${PORT}`);
+            console.log(`🌐 Сервер доступен на 0.0.0.0:${PORT}`);
             console.log(`📊 База данных SQLite готова`);
+        }).on('error', (error) => {
+            console.error('❌ Ошибка запуска сервера:', error);
+            process.exit(1);
         });
     })
     .catch((error) => {
