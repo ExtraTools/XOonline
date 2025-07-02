@@ -1,15 +1,17 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { body, validationResult } from 'express-validator';
-import { userQueries, sessionQueries } from '../database/database.js';
+import { userQueries, refreshTokenQueries } from '../database/database.js';
 
 const router = express.Router();
 
 // Константы
 const JWT_SECRET = process.env.JWT_SECRET || 'dino-secret-key';
 const SALT_ROUNDS = 12;
-const TOKEN_EXPIRES_IN = '7d';
+const ACCESS_TOKEN_EXPIRES_IN = '15m';
+const REFRESH_TOKEN_EXPIRES_DAYS = 7;
 
 // Middleware для проверки авторизации
 export const authenticateToken = async (req, res, next) => {
@@ -24,34 +26,19 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     try {
-        // Проверяем токен в базе данных
-        const session = await sessionQueries.findByToken(token);
-        if (!session) {
-            return res.status(403).json({ 
-                success: false, 
-                message: 'Недействительный токен' 
-            });
-        }
-
-        // Верифицируем JWT
+        // Верифицируем JWT access token
         const decoded = jwt.verify(token, JWT_SECRET);
         const user = await userQueries.findById(decoded.userId);
-        
+
         if (!user) {
-            return res.status(403).json({ 
-                success: false, 
-                message: 'Пользователь не найден' 
-            });
+            return res.status(403).json({ success: false, message: 'Пользователь не найден' });
         }
 
         req.user = user;
         next();
     } catch (error) {
         console.error('Ошибка проверки токена:', error);
-        return res.status(403).json({ 
-            success: false, 
-            message: 'Недействительный токен' 
-        });
+        return res.status(403).json({ success: false, message: 'Недействительный токен' });
     }
 };
 
@@ -83,6 +70,9 @@ const loginValidation = [
         .notEmpty()
         .withMessage('Пароль обязателен')
 ];
+
+// Генерация криптостойкого refresh токена
+const generateRefreshToken = () => crypto.randomBytes(64).toString('hex');
 
 // Регистрация
 router.post('/register', registerValidation, async (req, res) => {
@@ -123,17 +113,17 @@ router.post('/register', registerValidation, async (req, res) => {
         // Создаем пользователя (пароль будет захеширован автоматически в модели)
         const user = await userQueries.create(username, email, password);
 
-        // Создаем JWT токен
-        const token = jwt.sign(
+        // Создаем access и refresh токены
+        const accessToken = jwt.sign(
             { userId: user.id, username: user.username },
             JWT_SECRET,
-            { expiresIn: TOKEN_EXPIRES_IN }
+            { expiresIn: ACCESS_TOKEN_EXPIRES_IN }
         );
 
-        // Сохраняем сессию в базе
+        const refreshToken = generateRefreshToken();
         const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 7); // 7 дней
-        await sessionQueries.create(user.id, token, expiresAt.toISOString());
+        expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRES_DAYS);
+        await refreshTokenQueries.create(user.id, refreshToken, expiresAt.toISOString());
 
         // Устанавливаем статус онлайн
         await userQueries.updateOnlineStatus(user.id, true);
@@ -146,7 +136,8 @@ router.post('/register', registerValidation, async (req, res) => {
                 username: user.username,
                 email: user.email
             },
-            token
+            accessToken,
+            refreshToken
         });
 
     } catch (error) {
@@ -230,17 +221,17 @@ router.post('/login', loginValidation, async (req, res) => {
             }
         }
 
-        // Создаем JWT токен
-        const token = jwt.sign(
+        // Создаем access и refresh токены
+        const accessToken = jwt.sign(
             { userId: user.id, username: user.username },
             JWT_SECRET,
-            { expiresIn: TOKEN_EXPIRES_IN }
+            { expiresIn: ACCESS_TOKEN_EXPIRES_IN }
         );
 
-        // Сохраняем сессию в базе
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 7); // 7 дней
-        await sessionQueries.create(user.id, token, expiresAt.toISOString());
+        const refreshToken = generateRefreshToken();
+        const rtExpiresAt = new Date();
+        rtExpiresAt.setDate(rtExpiresAt.getDate() + REFRESH_TOKEN_EXPIRES_DAYS);
+        await refreshTokenQueries.create(user.id, refreshToken, rtExpiresAt.toISOString());
 
         // Устанавливаем статус онлайн
         await userQueries.updateOnlineStatus(user.id, true);
@@ -258,7 +249,8 @@ router.post('/login', loginValidation, async (req, res) => {
                 losses: user.losses,
                 draws: user.draws
             },
-            token
+            accessToken,
+            refreshToken
         });
 
     } catch (error) {
@@ -273,11 +265,10 @@ router.post('/login', loginValidation, async (req, res) => {
 // Выход
 router.post('/logout', authenticateToken, async (req, res) => {
     try {
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
-
-        // Удаляем сессию из базы
-        await sessionQueries.delete(token);
+        const { refreshToken } = req.body;
+        if (refreshToken) {
+            await refreshTokenQueries.revoke(refreshToken);
+        }
         
         // Устанавливаем статус оффлайн
         await userQueries.updateOnlineStatus(req.user.id, false);
@@ -340,7 +331,8 @@ router.get('/verify', authenticateToken, (req, res) => {
     });
 });
 
-// ВРЕМЕННЫЙ МАРШРУТ ДЛЯ ОТЛАДКИ - удалить позже
+// ВРЕМЕННЫЙ МАРШРУТ ДЛЯ ОТЛАДКИ - удалить позже (оставляем, но под условием ENV)
+if (process.env.NODE_ENV !== 'production') {
 router.post('/debug-login', async (req, res) => {
     try {
         const { login, password } = req.body;
@@ -388,6 +380,39 @@ router.post('/debug-login', async (req, res) => {
     } catch (error) {
         console.error('🐛 DEBUG ERROR:', error);
         res.json({ success: false, error: error.message, debug: true });
+    }
+});
+}
+
+// Endpoint для обновления access токена
+router.post('/refresh', async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+        if (!refreshToken) {
+            return res.status(400).json({ success: false, message: 'Refresh токен не предоставлен' });
+        }
+
+        const stored = await refreshTokenQueries.findByToken(refreshToken);
+        if (!stored) {
+            return res.status(403).json({ success: false, message: 'Недействительный токен' });
+        }
+
+        const user = await userQueries.findById(stored.user_id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Пользователь не найден' });
+        }
+
+        // Генерируем новый access токен
+        const newAccess = jwt.sign(
+            { userId: user.id, username: user.username },
+            JWT_SECRET,
+            { expiresIn: ACCESS_TOKEN_EXPIRES_IN }
+        );
+
+        res.json({ success: true, accessToken: newAccess });
+    } catch (err) {
+        console.error('Ошибка refresh:', err);
+        res.status(500).json({ success: false, message: 'Внутренняя ошибка сервера' });
     }
 });
 

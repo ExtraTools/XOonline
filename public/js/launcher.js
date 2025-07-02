@@ -4,6 +4,7 @@ class ModernLauncher {
     constructor() {
         this.currentUser = null;
         this.token = localStorage.getItem('authToken');
+        this.refreshToken = localStorage.getItem('refreshToken');
         this.downloadLinks = {
             windows: '',
             mac: '',
@@ -265,9 +266,11 @@ class ModernLauncher {
             const data = await response.json();
 
             if (data.success) {
-                this.token = data.token;
+                this.token = data.accessToken;
+                this.refreshToken = data.refreshToken;
                 this.currentUser = data.user;
                 localStorage.setItem('authToken', this.token);
+                localStorage.setItem('refreshToken', this.refreshToken);
                 
                 this.closeModal('loginModal');
                 this.showNotification('Успешный вход в систему!', 'success');
@@ -306,9 +309,11 @@ class ModernLauncher {
             const data = await response.json();
 
             if (data.success) {
-                this.token = data.token;
+                this.token = data.accessToken;
+                this.refreshToken = data.refreshToken;
                 this.currentUser = data.user;
                 localStorage.setItem('authToken', this.token);
+                localStorage.setItem('refreshToken', this.refreshToken);
                 
                 this.closeModal('registerModal');
                 this.showNotification('Аккаунт успешно создан!', 'success');
@@ -330,16 +335,28 @@ class ModernLauncher {
     }
 
     async checkAuthState() {
+        if (!this.token && this.refreshToken) {
+            // Попробуем обновить access токен
+            try {
+                const refreshResp = await fetch('/api/auth/refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refreshToken: this.refreshToken })
+                });
+                const rData = await refreshResp.json();
+                if (rData.success) {
+                    this.token = rData.accessToken;
+                    localStorage.setItem('authToken', this.token);
+                }
+            } catch (e) { console.error('Refresh error:', e); }
+        }
+
         if (this.token) {
             try {
                 const response = await fetch('/api/auth/verify', {
-                    headers: {
-                        'Authorization': `Bearer ${this.token}`,
-                    },
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-
                 const data = await response.json();
-                
                 if (data.success) {
                     this.currentUser = data.user;
                     this.updateAuthState(true);
@@ -382,10 +399,26 @@ class ModernLauncher {
         }
     }
 
-    logout() {
+    async logout() {
+        try {
+            if (this.refreshToken) {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ refreshToken: this.refreshToken })
+                });
+            }
+        } catch (e) {
+            console.error('Logout error:', e);
+        }
         this.token = null;
+        this.refreshToken = null;
         this.currentUser = null;
         localStorage.removeItem('authToken');
+        localStorage.removeItem('refreshToken');
         this.updateAuthState(false);
         this.showNotification('Вы вышли из системы', 'info');
     }

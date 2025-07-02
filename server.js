@@ -13,7 +13,7 @@ import session from 'express-session';
 import rateLimit from 'express-rate-limit';
 
 // Импорт модулей базы данных и роутов
-import { initDatabase, sessionQueries } from './server/database/database.js';
+import { initDatabase, refreshTokenQueries } from './server/database/database.js';
 import authRoutes from './server/routes/auth.js';
 import lobbyRoutes from './server/routes/lobby.js';
 
@@ -171,7 +171,7 @@ httpServer.listen(PORT, '0.0.0.0', () => {
         .then(() => {
             console.log('🟢 База данных SQLite готова');
             // Очистка истекших сессий при запуске
-            sessionQueries.cleanup()
+            refreshTokenQueries.cleanup()
                 .then(() => console.log('🧹 Очищены истекшие сессии'))
                 .catch(err => console.error('⚠️ Ошибка очистки сессий:', err));
         })

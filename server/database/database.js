@@ -2,6 +2,7 @@ import sqlite3 from 'sqlite3';
 import bcrypt from 'bcrypt';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -63,22 +64,24 @@ export const initDatabase = () => {
                 }
             });
 
-            // Таблица сессий
+            // Таблица refresh_tokens (обновленные токены)
             db.run(`
-                CREATE TABLE IF NOT EXISTS sessions (
+                CREATE TABLE IF NOT EXISTS refresh_tokens (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_id INTEGER NOT NULL,
-                    token VARCHAR(255) UNIQUE NOT NULL,
+                    token_hash VARCHAR(255) UNIQUE NOT NULL,
                     expires_at DATETIME NOT NULL,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    revoked BOOLEAN DEFAULT 0,
                     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
                 )
             `, (err) => {
                 if (err) {
-                    console.error('Ошибка создания таблицы sessions:', err);
+                    console.error('Ошибка создания таблицы refresh_tokens:', err);
                     reject(err);
                     return;
                 }
+                // refresh_tokens таблица создана
             });
 
             // Таблица комнат
@@ -235,31 +238,33 @@ export const userQueries = {
     }
 };
 
-// Утилиты для работы с сессиями
-export const sessionQueries = {
-    // Создание сессии
-    create: (userId, token, expiresAt) => {
+// Утилиты для работы с refresh токенами вместо старых сессий
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+export const refreshTokenQueries = {
+    // Сохранение refresh токена
+    create: (userId, rawToken, expiresAt) => {
         return new Promise((resolve, reject) => {
+            const tokenHash = hashToken(rawToken);
             const stmt = db.prepare(`
-                INSERT INTO sessions (user_id, token, expires_at) 
+                INSERT INTO refresh_tokens (user_id, token_hash, expires_at) 
                 VALUES (?, ?, ?)
             `);
-            
-            stmt.run([userId, token, expiresAt], function(err) {
+            stmt.run([userId, tokenHash, expiresAt], function(err) {
                 if (err) reject(err);
-                else resolve({ id: this.lastID, user_id: userId, token });
+                else resolve({ id: this.lastID, user_id: userId });
             });
-            
             stmt.finalize();
         });
     },
 
-    // Поиск сессии по токену
-    findByToken: (token) => {
+    // Поиск refresh токена
+    findByToken: (rawToken) => {
         return new Promise((resolve, reject) => {
+            const tokenHash = hashToken(rawToken);
             db.get(
-                'SELECT * FROM sessions WHERE token = ? AND expires_at > CURRENT_TIMESTAMP',
-                [token],
+                'SELECT * FROM refresh_tokens WHERE token_hash = ? AND expires_at > CURRENT_TIMESTAMP AND revoked = 0',
+                [tokenHash],
                 (err, row) => {
                     if (err) reject(err);
                     else resolve(row);
@@ -268,12 +273,13 @@ export const sessionQueries = {
         });
     },
 
-    // Удаление сессии
-    delete: (token) => {
+    // Удаление/отзыв токена
+    revoke: (rawToken) => {
         return new Promise((resolve, reject) => {
+            const tokenHash = hashToken(rawToken);
             db.run(
-                'DELETE FROM sessions WHERE token = ?',
-                [token],
+                'UPDATE refresh_tokens SET revoked = 1 WHERE token_hash = ?',
+                [tokenHash],
                 (err) => {
                     if (err) reject(err);
                     else resolve();
@@ -282,11 +288,11 @@ export const sessionQueries = {
         });
     },
 
-    // Очистка истекших сессий
+    // Очистка истекших токенов
     cleanup: () => {
         return new Promise((resolve, reject) => {
             db.run(
-                'DELETE FROM sessions WHERE expires_at <= CURRENT_TIMESTAMP',
+                'DELETE FROM refresh_tokens WHERE expires_at <= CURRENT_TIMESTAMP OR revoked = 1',
                 [],
                 (err) => {
                     if (err) reject(err);
