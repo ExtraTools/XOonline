@@ -1,143 +1,232 @@
-// DiLauncher - Основной серверный файл
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const helmet = require('helmet');
-require('dotenv').config();
+// DiLauncher Server - Railway Compatible Version
+import express from 'express';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
 
+// Инициализация
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Безопасность
+// Middleware
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
-            imgSrc: ["'self'", "data:", "https:", "https://mc-heads.net"],
-            fontSrc: ["'self'"],
-            connectSrc: ["'self'"]
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "ws:", "wss:"]
         }
     }
 }));
 
-// CORS
-app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-        ? ['https://xoonline-production.up.railway.app'] 
-        : ['http://localhost:3000'],
-    credentials: true
-}));
-
-// Статические файлы
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/fonts', express.static(path.join(__dirname, 'FRONTS')));
-app.use('/icons', express.static(path.join(__dirname, 'icons')));
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-
-// Парсинг JSON
-app.use(express.json());
+app.use(cors());
+app.use(compression());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Основной маршрут
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Статические файлы
+app.use(express.static(join(__dirname, 'public')));
+
+// Логирование запросов
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    next();
 });
 
 // API маршруты
-app.get('/api/stats', (req, res) => {
-    // Возвращаем актуальную статистику DiLauncher
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        timestamp: new Date(),
+        version: '2.0.0',
+        uptime: process.uptime()
+    });
+});
+
+app.get('/api/status', (req, res) => {
     res.json({
-        users_online: Math.floor(Math.random() * 1000) + 2000,
-        downloads: 125439 + Math.floor(Math.random() * 100),
-        servers: 89,
-        minecraft_versions: 47,
-        active_players: [
+        status: 'ok',
+        message: 'DiLauncher сервер работает на Railway',
+        version: '2.0.0',
+        features: [
+            'Railway деплой',
+            'Статический контент',
+            'API endpoints',
+            'Кроссплатформенность'
+        ],
+        supportedVersions: [
+            '1.21.6', '1.21.5', '1.21.4', '1.21.3',
+            '1.20.4', '1.20.2', '1.20.1',
+            '1.19.4', '1.19.2'
+        ]
+    });
+});
+
+// Простая авторизация (mock данные)
+app.post('/api/auth/login', (req, res) => {
+    const { login, password } = req.body;
+    
+    // Тестовые аккаунты
+    const testUsers = {
+        'steve': 'password123',
+        'alex': 'password123',
+        'admin': 'admin123'
+    };
+
+    if (testUsers[login] && testUsers[login] === password) {
+        res.json({
+            success: true,
+            message: 'Успешная авторизация',
+            user: {
+                id: Math.floor(Math.random() * 1000),
+                username: login,
+                displayName: login.charAt(0).toUpperCase() + login.slice(1)
+            },
+            token: 'test-jwt-token-' + Date.now()
+        });
+    } else {
+        res.status(401).json({
+            success: false,
+            message: 'Неверный логин или пароль'
+        });
+    }
+});
+
+app.post('/api/auth/register', (req, res) => {
+    const { username, email, password } = req.body;
+    
+    if (!username || !email || !password) {
+        return res.status(400).json({
+            success: false,
+            message: 'Все поля обязательны'
+        });
+    }
+
+    res.json({
+        success: true,
+        message: 'Регистрация успешна',
+        user: {
+            id: Math.floor(Math.random() * 1000),
+            username,
+            email,
+            displayName: username
+        }
+    });
+});
+
+// Профили лаунчера
+app.get('/api/launcher/profiles', (req, res) => {
+    res.json({
+        success: true,
+        profiles: [
             {
-                name: "CraftMaster",
-                status: "Играет в 1.20.4",
-                avatar: "https://mc-heads.net/avatar/Steve/32"
+                id: 1,
+                name: 'Основной профиль',
+                minecraftVersion: '1.21.6',
+                modLoader: 'vanilla',
+                memoryAllocation: 4096,
+                lastPlayed: new Date().toISOString(),
+                playtime: 0
             },
             {
-                name: "BuilderPro", 
-                status: "Модифицирует мир",
-                avatar: "https://mc-heads.net/avatar/Alex/32"
-            },
-            {
-                name: "RedstoneKing",
-                status: "Создает схемы",
-                avatar: "https://mc-heads.net/avatar/Notch/32"
+                id: 2,
+                name: 'Модовый профиль',
+                minecraftVersion: '1.20.4',
+                modLoader: 'forge',
+                memoryAllocation: 6144,
+                lastPlayed: null,
+                playtime: 0
             }
         ]
     });
 });
 
-// API для скачивания
-app.get('/api/download/:platform', (req, res) => {
-    const { platform } = req.params;
+app.post('/api/launcher/profiles', (req, res) => {
+    const { name, minecraftVersion, modLoader, memoryAllocation } = req.body;
     
-    console.log(`Запрос на скачивание DiLauncher для ${platform}`);
-    
-    if (platform === 'windows') {
-        // Здесь будет ссылка на реальный файл лаунчера
-        res.json({
-            success: true,
-            download_url: '/downloads/DiLauncher-2.1.0-Windows.exe',
-            version: '2.1.0',
-            size: '45.2 MB'
-        });
-    } else {
-        res.json({
-            success: false,
-            message: 'Платформа пока не поддерживается'
-        });
-    }
+    res.json({
+        success: true,
+        message: 'Профиль создан',
+        profile: {
+            id: Math.floor(Math.random() * 1000),
+            name: name || 'Новый профиль',
+            minecraftVersion: minecraftVersion || '1.21.6',
+            modLoader: modLoader || 'vanilla',
+            memoryAllocation: memoryAllocation || 4096,
+            createdAt: new Date().toISOString()
+        }
+    });
 });
 
-// API для получения информации о версиях Minecraft
-app.get('/api/minecraft-versions', (req, res) => {
+// Серверы
+app.get('/api/launcher/servers', (req, res) => {
     res.json({
-        latest_release: "1.20.4",
-        latest_snapshot: "24w04a",
-        supported_versions: [
-            "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
-            "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19",
-            "1.18.2", "1.18.1", "1.18",
-            "1.17.1", "1.17",
-            "1.16.5", "1.16.4", "1.16.3", "1.16.2", "1.16.1", "1.16",
-            "1.15.2", "1.15.1", "1.15",
-            "1.14.4", "1.14.3", "1.14.2", "1.14.1", "1.14",
-            "1.13.2", "1.13.1", "1.13",
-            "1.12.2", "1.12.1", "1.12",
-            "1.11.2", "1.11.1", "1.11",
-            "1.10.2", "1.10.1", "1.10",
-            "1.9.4", "1.9.3", "1.9.2", "1.9.1", "1.9",
-            "1.8.9", "1.8.8", "1.8.7", "1.8.6", "1.8.5", "1.8.4", "1.8.3", "1.8.2", "1.8.1", "1.8",
-            "1.7.10", "1.7.9", "1.7.8", "1.7.7", "1.7.6", "1.7.5", "1.7.4", "1.7.2"
+        success: true,
+        servers: [
+            {
+                id: 1,
+                name: 'Hypixel',
+                address: 'mc.hypixel.net',
+                port: 25565,
+                isOnline: true,
+                playerCount: 45678,
+                maxPlayers: 100000,
+                ping: 25
+            },
+            {
+                id: 2,
+                name: 'Mineplex',
+                address: 'us.mineplex.com',
+                port: 25565,
+                isOnline: true,
+                playerCount: 12345,
+                maxPlayers: 50000,
+                ping: 42
+            }
         ]
     });
 });
 
-// Обработка 404
-app.use((req, res) => {
-    res.status(404).sendFile(path.join(__dirname, 'public', 'index.html'));
+// Главная страница
+app.get('/', (req, res) => {
+    res.sendFile(join(__dirname, 'public', 'index.html'));
 });
 
 // Обработка ошибок
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    console.error('Ошибка сервера:', err);
     res.status(500).json({
         error: 'Внутренняя ошибка сервера',
-        message: process.env.NODE_ENV === 'development' ? err.message : 'Что-то пошло не так'
+        message: 'Что-то пошло не так'
     });
 });
 
-// Запуск сервера
-app.listen(PORT, () => {
-    console.log(`DiLauncher сервер запущен на порту ${PORT}`);
-    console.log(`Откройте http://localhost:${PORT} для просмотра`);
-    console.log(`Среда: ${process.env.NODE_ENV || 'development'}`);
+// 404 для API
+app.use('/api/*', (req, res) => {
+    res.status(404).json({
+        success: false,
+        message: 'API endpoint не найден'
+    });
 });
 
-module.exports = app; 
+// SPA fallback
+app.get('*', (req, res) => {
+    res.sendFile(join(__dirname, 'public', 'index.html'));
+});
+
+// Запуск сервера
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 DiLauncher сервер запущен на порту ${PORT}`);
+    console.log(`🌐 URL: http://0.0.0.0:${PORT}`);
+    console.log(`⏰ Время запуска: ${new Date().toISOString()}`);
+    console.log(`📊 Node.js версия: ${process.version}`);
+    console.log(`🔧 Окружение: ${process.env.NODE_ENV || 'production'}`);
+});
+
+export default app; 
