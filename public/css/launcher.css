@@ -9,7 +9,12 @@
 
 body {
     font-family: 'Benzin', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #000000 100%);
+    background: linear-gradient(135deg, 
+        #0a0a0a 0%, 
+        #050505 20%, 
+        #1a1a1a 50%, 
+        #050505 80%, 
+        #000000 100%);
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
@@ -297,6 +302,23 @@ body {
     margin-top: 80px;
 }
 
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 300px;
+    background: linear-gradient(to top, 
+        transparent 0%, 
+        rgba(0, 0, 0, 0.1) 20%, 
+        rgba(0, 0, 0, 0.3) 50%, 
+        rgba(0, 0, 0, 0.6) 80%, 
+        rgba(0, 0, 0, 0.9) 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
 .hero-background {
     position: absolute;
     top: 0;
@@ -369,6 +391,8 @@ body {
     gap: 4rem;
     align-items: center;
     min-height: 80vh;
+    position: relative;
+    z-index: 2;
 }
 
 .hero-content {
@@ -570,7 +594,12 @@ body {
 /* Платформы секция */
 .platforms {
     padding: 6rem 0;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+    background: linear-gradient(135deg, 
+        #0a0a0a 0%, 
+        #0f0f0f 25%, 
+        #1a1a1a 50%, 
+        #0f0f0f 75%, 
+        #0a0a0a 100%);
     position: relative;
 }
 
@@ -580,8 +609,12 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    height: 100px;
-    background: linear-gradient(to bottom, #000000, transparent);
+    height: 200px;
+    background: linear-gradient(to bottom, 
+        #000000 0%, 
+        rgba(0, 0, 0, 0.8) 20%, 
+        rgba(0, 0, 0, 0.4) 60%, 
+        transparent 100%);
     z-index: 1;
 }
 
@@ -591,8 +624,12 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 100px;
-    background: linear-gradient(to top, #000000, transparent);
+    height: 200px;
+    background: linear-gradient(to top, 
+        #000000 0%, 
+        rgba(0, 0, 0, 0.8) 20%, 
+        rgba(0, 0, 0, 0.4) 60%, 
+        transparent 100%);
     z-index: 1;
 }
 
@@ -690,7 +727,12 @@ body {
 /* Особенности секция */
 .features {
     padding: 8rem 0;
-    background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #111111 100%);
+    background: linear-gradient(135deg, 
+        #000000 0%, 
+        #0a0a0a 25%, 
+        #111111 50%, 
+        #0a0a0a 75%, 
+        #000000 100%);
     position: relative;
 }
 
@@ -700,8 +742,13 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    height: 150px;
-    background: linear-gradient(to bottom, #0f0f0f, transparent);
+    height: 250px;
+    background: linear-gradient(to bottom, 
+        #0f0f0f 0%, 
+        rgba(15, 15, 15, 0.9) 15%, 
+        rgba(15, 15, 15, 0.6) 40%, 
+        rgba(15, 15, 15, 0.3) 70%, 
+        transparent 100%);
     z-index: 1;
 }
 
@@ -711,8 +758,13 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 150px;
-    background: linear-gradient(to top, #0a0a0a, transparent);
+    height: 250px;
+    background: linear-gradient(to top, 
+        #0a0a0a 0%, 
+        rgba(10, 10, 10, 0.9) 15%, 
+        rgba(10, 10, 10, 0.6) 40%, 
+        rgba(10, 10, 10, 0.3) 70%, 
+        transparent 100%);
     z-index: 1;
 }
 
@@ -822,7 +874,12 @@ body {
 /* Скачивание секция */
 .download-section {
     padding: 8rem 0;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    background: linear-gradient(135deg, 
+        #0a0a0a 0%, 
+        #111111 25%, 
+        #1a1a1a 50%, 
+        #111111 75%, 
+        #0a0a0a 100%);
     position: relative;
 }
 
@@ -844,8 +901,13 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 150px;
-    background: linear-gradient(to top, #000000, transparent);
+    height: 250px;
+    background: linear-gradient(to top, 
+        #000000 0%, 
+        rgba(0, 0, 0, 0.9) 15%, 
+        rgba(0, 0, 0, 0.6) 40%, 
+        rgba(0, 0, 0, 0.3) 70%, 
+        transparent 100%);
     z-index: 1;
 }
 
@@ -939,7 +1001,12 @@ body {
 /* Сообщество секция */
 .community {
     padding: 8rem 0;
-    background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #111111 100%);
+    background: linear-gradient(135deg, 
+        #000000 0%, 
+        #0a0a0a 25%, 
+        #111111 50%, 
+        #0a0a0a 75%, 
+        #000000 100%);
     position: relative;
 }
 
@@ -949,8 +1016,13 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    height: 150px;
-    background: linear-gradient(to bottom, #0a0a0a, transparent);
+    height: 250px;
+    background: linear-gradient(to bottom, 
+        #0a0a0a 0%, 
+        rgba(10, 10, 10, 0.9) 15%, 
+        rgba(10, 10, 10, 0.6) 40%, 
+        rgba(10, 10, 10, 0.3) 70%, 
+        transparent 100%);
     z-index: 1;
 }
 
@@ -1082,9 +1154,31 @@ body {
 
 /* Footer */
 .footer {
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    background: linear-gradient(135deg, 
+        #0a0a0a 0%, 
+        #111111 25%, 
+        #1a1a1a 50%, 
+        #111111 75%, 
+        #0a0a0a 100%);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding: 4rem 0 2rem;
+    position: relative;
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(to bottom, 
+        rgba(0, 0, 0, 0.9) 0%, 
+        rgba(0, 0, 0, 0.6) 30%, 
+        rgba(0, 0, 0, 0.3) 70%, 
+        transparent 100%);
+    z-index: 1;
+    pointer-events: none;
 }
 
 .footer-content {
@@ -1092,6 +1186,8 @@ body {
     grid-template-columns: 1fr 2fr;
     gap: 4rem;
     margin-bottom: 2rem;
+    position: relative;
+    z-index: 2;
 }
 
 .footer-brand {
@@ -1174,6 +1270,8 @@ body {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 2rem;
     text-align: center;
+    position: relative;
+    z-index: 2;
 }
 
 .footer-bottom p {
