@@ -1,4 +1,4 @@
-// Lobby App - DinosGames
+// Lobby App - CraftLauncher
 class LobbyApp {
     constructor() {
         this.currentUser = null;
@@ -51,6 +51,14 @@ class LobbyApp {
         document.getElementById('logoutBtnSuccess').addEventListener('click', () => {
             this.handleLogout();
         });
+
+        // Кнопка скачивания лаунчера
+        const downloadBtn = document.getElementById('downloadBtn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => {
+                this.handleDownload();
+            });
+        }
     }
 
     switchAuthTab(tab) {
@@ -393,8 +401,8 @@ class LobbyApp {
             console.log('Discord API недоступен, используем fallback данные');
             // Используем статичные данные как fallback
             this.updateDiscordWidgets({
-                name: '49 Battalion',
-                presence_count: 33,
+                name: 'CraftLauncher Community',
+                presence_count: 156,
                 instant_invite: 'https://discord.com/invite/49bt',
                 members: []
             });
@@ -438,6 +446,14 @@ class LobbyApp {
             clearInterval(this.discordUpdateInterval);
             this.discordUpdateInterval = null;
         }
+    }
+
+    handleDownload() {
+        // Временно показываем уведомление
+        alert('Ссылка на скачивание будет добавлена позже. Пожалуйста, подождите!');
+        
+        // TODO: Заменить на реальную ссылку для скачивания
+        // window.open('DOWNLOAD_LINK_HERE', '_blank');
     }
 }
 

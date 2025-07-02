@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DinosGames - Игровое лобби</title>
+    <title>CraftLauncher - Майнкрафт лаунчер</title>
     
     <!-- CSS Modules -->
     <link rel="stylesheet" href="/css/variables.css">
@@ -20,7 +20,7 @@
     <!-- Контейнер авторизации -->
     <div id="authContainer" class="auth-container">
         <div class="auth-card">
-            <h1 class="auth-logo neon-glow">DinosGames</h1>
+            <h1 class="auth-logo neon-glow">CraftLauncher</h1>
             
             <div class="auth-tabs">
                 <button class="auth-tab active" data-tab="login">Вход</button>
@@ -80,7 +80,7 @@
                 <div class="success-icon"><img src="/icons/gameIcons/PNG/White/1x/star.png" alt="Успех" style="width: 4rem; height: 4rem;"></div>
                 <h1 class="success-title glow-text">Добро пожаловать!</h1>
                 <p class="success-message">
-                    Вы успешно зарегистрировались на нашей игровой платформе <strong>DinosGames</strong>!
+                    Вы успешно зарегистрировались в <strong>CraftLauncher</strong>! Теперь вы можете скачать лаунчер и начать играть в Minecraft.
                 </p>
                 
                 <div class="user-welcome">
@@ -102,10 +102,10 @@
                         <div class="discord-logo">Discord</div>
                     </div>
                     <h3 class="discord-title">Присоединяйтесь к нам!</h3>
-                    <div class="discord-server-name">49 Battalion</div>
+                    <div class="discord-server-name">CraftLauncher Community</div>
                     <p class="discord-text">
                         Присоединяйтесь к нашему Discord серверу!<br>
-                        Общайтесь с игроками, находите команду и следите за новостями.
+                        Получайте помощь, делитесь мирами и следите за обновлениями Minecraft.
                     </p>
                     <div class="online-status">
                         <span class="status-indicator-online"></span>
@@ -113,8 +113,8 @@
                     </div>
                     <div class="discord-stats">
                         <div class="discord-stat">
-                            <span class="discord-stat-value" id="discordOnlineCount">33</span>
-                            <span class="discord-stat-label">Онлайн</span>
+                            <span class="discord-stat-value" id="discordOnlineCount">156</span>
+                            <span class="discord-stat-label">Крафтеров</span>
                         </div>
                         <div class="discord-stat">
                             <span class="discord-stat-value"><img src="/icons/gameIcons/PNG/White/1x/medal1.png" alt="Любовь" style="width: 1.2rem; height: 1.2rem;"></span>
@@ -134,7 +134,7 @@
     <div id="lobbyContainer" class="lobby-container">
         <!-- Шапка лобби -->
         <header class="lobby-header">
-            <div class="lobby-logo neon-glow">DinosGames</div>
+            <div class="lobby-logo neon-glow">CraftLauncher</div>
             <div class="user-info">
                 <div class="user-avatar" id="userAvatar"></div>
                 <div class="user-details">
@@ -147,24 +147,76 @@
 
         <!-- Основной контент -->
         <div class="lobby-content">
-            <!-- Секция игр -->
-            <main class="games-section">
-                <h2 class="section-title">Доступные игры</h2>
-                <div class="games-grid">
-                    <div class="game-card wave-effect" data-game="tictactoe">
-                        <div class="game-icon"><img src="/icons/gameIcons/PNG/White/1x/target.png" alt="Крестики-нолики" style="width: 3rem; height: 3rem;"></div>
-                        <div class="game-title">Крестики-нолики</div>
-                        <div class="game-description">Классическая игра 3×3</div>
+            <!-- Секция лаунчера -->
+            <main class="launcher-section">
+                <h2 class="section-title">CraftLauncher - Лучший лаунчер для Minecraft</h2>
+                
+                <!-- Главная карточка скачивания -->
+                <div class="download-card main-download">
+                    <div class="download-icon">
+                        <img src="/icons/gameIcons/PNG/White/1x/download.png" alt="Скачать" style="width: 4rem; height: 4rem;">
                     </div>
-                    <div class="game-card wave-effect" data-game="battleship">
-                        <div class="game-icon"><img src="/icons/gameIcons/PNG/White/1x/gamepad.png" alt="Морской бой" style="width: 3rem; height: 3rem;"></div>
-                        <div class="game-title">Морской бой</div>
-                        <div class="game-description">Онлайн битва флотов</div>
+                    <div class="download-content">
+                        <h3 class="download-title">Скачать CraftLauncher</h3>
+                        <p class="download-description">Современный лаунчер с поддержкой всех версий Minecraft, модов и текстур-паков</p>
+                        <button class="download-btn btn-cyber" id="downloadBtn">
+                            <img src="/icons/gameIcons/PNG/White/1x/download.png" alt="Download" style="width: 1.2rem; height: 1.2rem; margin-right: 0.5rem;">
+                            Скачать лаунчер
+                        </button>
+                        <div class="download-info">
+                            <span>Версия 2.1.0 • Windows/Mac/Linux • Бесплатно</span>
+                        </div>
                     </div>
-                    <div class="game-card coming-soon breathe">
-                        <div class="game-icon"><img src="/icons/gameIcons/PNG/White/1x/target.png" alt="Новые игры" style="width: 3rem; height: 3rem;"></div>
-                        <div class="game-title">Новые игры</div>
-                        <div class="game-description">Скоро появятся...</div>
+                </div>
+
+                <!-- Сетка особенностей -->
+                <div class="features-grid">
+                    <div class="feature-card wave-effect">
+                        <div class="feature-icon">
+                            <img src="/icons/gameIcons/PNG/White/1x/gear.png" alt="Все версии" style="width: 3rem; height: 3rem;">
+                        </div>
+                        <div class="feature-title">Все версии Minecraft</div>
+                        <div class="feature-description">От Alpha до последних снапшотов. Forge, Fabric, Quilt поддержка</div>
+                    </div>
+                    
+                    <div class="feature-card wave-effect">
+                        <div class="feature-icon">
+                            <img src="/icons/gameIcons/PNG/White/1x/power.png" alt="Быстрый запуск" style="width: 3rem; height: 3rem;">
+                        </div>
+                        <div class="feature-title">Быстрый запуск</div>
+                        <div class="feature-description">Оптимизированный код для мгновенного запуска игры</div>
+                    </div>
+                    
+                    <div class="feature-card wave-effect">
+                        <div class="feature-icon">
+                            <img src="/icons/gameIcons/PNG/White/1x/wrench.png" alt="Моды" style="width: 3rem; height: 3rem;">
+                        </div>
+                        <div class="feature-title">Менеджер модов</div>
+                        <div class="feature-description">Легкая установка и управление модами из популярных источников</div>
+                    </div>
+                    
+                    <div class="feature-card wave-effect">
+                        <div class="feature-icon">
+                            <img src="/icons/gameIcons/PNG/White/1x/userRobot.png" alt="Профили" style="width: 3rem; height: 3rem;">
+                        </div>
+                        <div class="feature-title">Множество профилей</div>
+                        <div class="feature-description">Создавайте отдельные профили для разных версий и сборок</div>
+                    </div>
+                    
+                    <div class="feature-card wave-effect">
+                        <div class="feature-icon">
+                            <img src="/icons/gameIcons/PNG/White/1x/cloud.png" alt="Синхронизация" style="width: 3rem; height: 3rem;">
+                        </div>
+                        <div class="feature-title">Облачная синхронизация</div>
+                        <div class="feature-description">Сохраняйте настройки и миры в облаке</div>
+                    </div>
+                    
+                    <div class="feature-card wave-effect">
+                        <div class="feature-icon">
+                            <img src="/icons/gameIcons/PNG/White/1x/locked.png" alt="Безопасность" style="width: 3rem; height: 3rem;">
+                        </div>
+                        <div class="feature-title">Полная безопасность</div>
+                        <div class="feature-description">Все файлы проверяются на вирусы и безопасность</div>
                     </div>
                 </div>
             </main>
@@ -178,10 +230,10 @@
                         <div class="discord-sidebar-title">Discord</div>
                     </div>
                     <div class="discord-sidebar-content">
-                        <div class="discord-sidebar-server">49 Battalion</div>
+                        <div class="discord-sidebar-server">CraftLauncher Community</div>
                         <div class="discord-sidebar-count">
                             <span class="discord-online-dot"></span>
-                            <span id="discordSidebarCount">33</span> игроков с нами <img src="/icons/gameIcons/PNG/White/1x/medal1.png" alt="❤" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;">
+                            <span id="discordSidebarCount">156</span> крафтеров онлайн <img src="/icons/gameIcons/PNG/White/1x/medal1.png" alt="❤" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;">
                         </div>
                         <a href="https://discord.com/invite/49bt" target="_blank" class="discord-sidebar-btn">
                             Присоединиться
@@ -189,28 +241,52 @@
                     </div>
                 </div>
 
-                <!-- Пользователи онлайн -->
+                <!-- Активные пользователи -->
                 <div class="sidebar-card">
-                    <h3 class="section-title">Онлайн (<span id="onlineCount">0</span>)</h3>
+                    <h3 class="section-title">Пользователи онлайн (<span id="onlineCount">24</span>)</h3>
                     <div id="userList" class="user-list">
-                        <div class="loading">Загружаем список...</div>
+                        <div class="user-item">
+                            <div class="user-item-avatar">S</div>
+                            <div class="user-item-info">
+                                <div class="user-item-name">Steve_Miner</div>
+                                <div class="user-item-status">Играет в 1.20.4</div>
+                            </div>
+                        </div>
+                        <div class="user-item">
+                            <div class="user-item-avatar">A</div>
+                            <div class="user-item-info">
+                                <div class="user-item-name">Alex_Builder</div>
+                                <div class="user-item-status">Модифицирует мир</div>
+                            </div>
+                        </div>
+                        <div class="user-item">
+                            <div class="user-item-avatar">C</div>
+                            <div class="user-item-info">
+                                <div class="user-item-name">CraftMaster</div>
+                                <div class="user-item-status">В главном меню</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Статистика -->
+                <!-- Статистика лаунчера -->
                 <div class="sidebar-card">
                     <h3 class="section-title">Статистика</h3>
                     <div class="stat-item">
-                        <span>Игроков онлайн:</span>
-                        <span class="stat-value" id="statsOnline">0</span>
+                        <span>Пользователей онлайн:</span>
+                        <span class="stat-value" id="statsOnline">1,247</span>
                     </div>
                     <div class="stat-item">
-                        <span>Активных комнат:</span>
-                        <span class="stat-value" id="statsRooms">0</span>
+                        <span>Скачиваний:</span>
+                        <span class="stat-value" id="statsDownloads">89,432</span>
                     </div>
                     <div class="stat-item">
-                        <span>Игр в процессе:</span>
-                        <span class="stat-value" id="statsGames">0</span>
+                        <span>Активных серверов:</span>
+                        <span class="stat-value" id="statsServers">156</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Версий Minecraft:</span>
+                        <span class="stat-value" id="statsVersions">847</span>
                     </div>
                 </div>
             </aside>

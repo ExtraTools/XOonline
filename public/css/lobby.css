@@ -105,8 +105,8 @@
     width: 100%;
 }
 
-/* Секция игр */
-.games-section {
+/* Секция лаунчера */
+.launcher-section {
     flex: 2;
 }
 
@@ -119,15 +119,73 @@
     filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.1));
 }
 
-/* Сетка игр */
-.games-grid {
+/* Карточка скачивания */
+.download-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    backdrop-filter: blur(20px);
+    box-shadow: 
+        var(--shadow-lg),
+        0 0 30px rgba(255, 255, 255, 0.2);
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.download-card.main-download {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.download-icon {
+    flex-shrink: 0;
+}
+
+.download-content {
+    flex: 1;
+}
+
+.download-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.download-description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.download-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.download-info {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+/* Сетка особенностей */
+.features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
 }
 
-/* Карточка игры */
-.game-card {
+/* Карточка особенности */
+.feature-card {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
@@ -141,7 +199,7 @@
     box-shadow: var(--shadow-md);
 }
 
-.game-card::before {
+.feature-card::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -153,7 +211,7 @@
     transition: var(--transition);
 }
 
-.game-card:hover {
+.feature-card:hover {
     transform: translateY(-8px);
     border-color: var(--border-accent);
     box-shadow: 
@@ -162,51 +220,51 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.game-card:hover::before {
+.feature-card:hover::before {
     transform: translateX(0%) translateY(0%) rotate(180deg);
 }
 
-.game-card.coming-soon {
+.feature-card.coming-soon {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.game-card.coming-soon:hover {
+.feature-card.coming-soon:hover {
     transform: none;
     border-color: var(--border-subtle);
     box-shadow: var(--shadow-md);
 }
 
-/* Иконка игры */
-.game-icon {
+/* Иконка особенности */
+.feature-icon {
     margin-bottom: 1.5rem;
     position: relative;
     z-index: 1;
 }
 
-.game-icon img {
+.feature-icon img {
     filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
     transition: var(--transition);
 }
 
-.game-card:hover .game-icon img {
+.feature-card:hover .feature-icon img {
     filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4));
     transform: scale(1.1);
 }
 
-/* Заголовок игры */
-.game-title {
+/* Заголовок особенности */
+.feature-title {
     font-size: 1.3rem;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
     position: relative;
     z-index: 1;
 }
 
-/* Описание игры */
-.game-description {
+/* Описание особенности */
+.feature-description {
     font-size: 0.9rem;
     color: var(--text-secondary);
     position: relative;
@@ -287,6 +345,30 @@
     color: var(--text-muted);
 }
 
+.user-item-status {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Статистика */
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
 /* Адаптивность */
 @media (max-width: 1024px) {
     .lobby-content {
@@ -315,14 +397,28 @@
         padding: 1rem;
     }
     
-    .games-grid {
+    .features-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .download-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
     }
 }
 
 @media (max-width: 480px) {
-    .game-card {
+    .feature-card {
         padding: 1.5rem;
+    }
+    
+    .download-card {
+        padding: 2rem;
+    }
+    
+    .download-title {
+        font-size: 1.5rem;
     }
     
     .section-title {
