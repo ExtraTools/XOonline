@@ -39,16 +39,24 @@ class ModernLauncher {
 
     setupNavigation() {
         const navLinks = document.querySelectorAll('.navbar-link');
+        let isScrolling = false;
         
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 
-                // Удаляем активный класс со всех ссылок
-                navLinks.forEach(nl => nl.classList.remove('active'));
+                // Устанавливаем флаг прокрутки
+                isScrolling = true;
                 
-                // Добавляем активный класс к текущей ссылке
-                link.classList.add('active');
+                // Плавно удаляем активный класс со всех ссылок
+                navLinks.forEach(nl => {
+                    nl.classList.remove('active');
+                });
+                
+                // Добавляем активный класс к текущей ссылке с задержкой
+                setTimeout(() => {
+                    link.classList.add('active');
+                }, 50);
                 
                 // Прокручиваем к секции
                 const targetId = link.getAttribute('href');
@@ -60,14 +68,25 @@ class ModernLauncher {
                             top: offsetTop,
                             behavior: 'smooth'
                         });
+                        
+                        // Сбрасываем флаг после завершения прокрутки
+                        setTimeout(() => {
+                            isScrolling = false;
+                        }, 1000);
                     }
                 }
             });
         });
 
-        // Обновляем активную ссылку при прокрутке
+        // Обновляем активную ссылку при прокрутке (только если не используется навигация)
+        let scrollTimeout;
         window.addEventListener('scroll', () => {
-            this.updateActiveNavLink();
+            if (!isScrolling) {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    this.updateActiveNavLink();
+                }, 100);
+            }
         });
     }
 
@@ -420,12 +439,31 @@ class ModernLauncher {
     animateParticles() {
         const particles = document.querySelector('.hero-particles');
         if (particles) {
-            // Случайные позиции частиц
-            setInterval(() => {
-                const x = Math.random() * 100;
-                const y = Math.random() * 100;
-                particles.style.backgroundPosition = `${x}% ${y}%`;
-            }, 3000);
+            // Более плавная анимация частиц
+            let time = 0;
+            const animateStars = () => {
+                time += 0.01;
+                
+                // Создаем эффект мерцания звезд
+                const x1 = 50 + Math.sin(time) * 30;
+                const y1 = 50 + Math.cos(time * 0.7) * 20;
+                const x2 = 20 + Math.cos(time * 0.5) * 40;
+                const y2 = 80 + Math.sin(time * 0.3) * 15;
+                const x3 = 80 + Math.sin(time * 0.8) * 25;
+                const y3 = 30 + Math.cos(time * 0.6) * 35;
+                
+                // Применяем позиции с плавными переходами
+                particles.style.backgroundPosition = 
+                    `${x1}% ${y1}%, ${x2}% ${y2}%, ${x3}% ${y3}%, ${50 + Math.cos(time * 0.4) * 20}% ${70 + Math.sin(time * 0.9) * 10}%`;
+                
+                // Добавляем эффект появления/исчезновения
+                const opacity = 0.3 + Math.sin(time * 2) * 0.4;
+                particles.style.opacity = Math.max(0.1, opacity);
+                
+                requestAnimationFrame(animateStars);
+            };
+            
+            animateStars();
         }
     }
 
