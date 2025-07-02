@@ -195,11 +195,16 @@ router.post('/login', loginValidation, async (req, res) => {
         console.log('🔑 Password hash from DB:', user.password_hash ? 'exists' : 'missing');
 
         // Проверяем пароль
+        console.log('🔍 Input password length:', password.length);
+        console.log('🔍 Stored hash length:', user.password_hash ? user.password_hash.length : 'null');
+        
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
         console.log('🔐 Password validation result:', isPasswordValid);
         
         if (!isPasswordValid) {
             console.log('❌ Password validation failed for user:', user.username);
+            console.log('❌ Input password:', password);
+            console.log('❌ Hash from DB:', user.password_hash);
             return res.status(400).json({
                 success: false,
                 message: 'Неверный логин или пароль'

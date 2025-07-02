@@ -11,13 +11,14 @@ let dbPath;
 let db;
 
 if (process.env.NODE_ENV === 'production') {
-    // В production используем базу в памяти (Railway)
-    console.log('🐘 Использую SQLite в памяти для production');
-    db = new sqlite3.Database(':memory:', (err) => {
+    // В production используем временный файл базы данных (Railway)
+    dbPath = '/tmp/dinosgames.db';
+    console.log('🐘 Использую SQLite файл для production:', dbPath);
+    db = new sqlite3.Database(dbPath, (err) => {
         if (err) {
-            console.error('❌ Ошибка создания базы в памяти:', err);
+            console.error('❌ Ошибка создания базы в production:', err);
         } else {
-            console.log('🟢 База данных в памяти готова');
+            console.log('🟢 База данных production готова');
         }
     });
 } else {
