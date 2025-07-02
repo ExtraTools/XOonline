@@ -37,18 +37,19 @@
 .auth-logo {
     font-size: 2.5rem;
     font-weight: 500;
-    background: linear-gradient(135deg, #00d4aa, #00f5ff, #00d4aa);
+    background: linear-gradient(135deg, #ffffff, #f0f0f0, #ffffff);
     background-size: 200% 200%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-align: center;
     margin-bottom: 2rem;
-    text-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 255, 255, 0.4);
     letter-spacing: 0.5px;
     animation: gradientShift 3s ease-in-out infinite;
     position: relative;
     z-index: 1;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
 }
 
 @keyframes gradientShift {
@@ -87,7 +88,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
     transition: var(--transition);
 }
 
@@ -96,10 +97,11 @@
 }
 
 .auth-tab.active {
-    background: linear-gradient(135deg, #00d4aa, #00b894);
-    color: #0f0f23;
+    background: linear-gradient(135deg, #ffffff, #f0f0f0);
+    color: #000000;
     font-weight: 600;
-    box-shadow: 0 2px 10px rgba(0, 212, 170, 0.3);
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 .form-group {
@@ -109,18 +111,19 @@
 .form-label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #e2e8f0;
+    color: #ffffff;
     font-size: 0.875rem;
     font-weight: 500;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 .form-input {
     width: 100%;
     padding: 0.875rem 1rem;
-    background: rgba(26, 26, 46, 0.8);
-    border: 1px solid rgba(0, 212, 170, 0.2);
+    background: rgba(17, 17, 17, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: var(--radius-sm);
-    color: #e2e8f0;
+    color: #ffffff;
     font-family: 'Benzin', sans-serif;
     font-size: 0.9rem;
     transition: var(--transition);
@@ -129,20 +132,21 @@
 
 .form-input:focus {
     outline: none;
-    border-color: #00d4aa;
-    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.15), 0 0 20px rgba(0, 212, 170, 0.2);
-    background: rgba(26, 26, 46, 0.95);
+    border-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15), 0 0 20px rgba(255, 255, 255, 0.3);
+    background: rgba(17, 17, 17, 0.95);
     transform: translateY(-1px);
+    color: #ffffff;
 }
 
 .form-button {
     width: 100%;
     padding: 0.875rem;
-    background: linear-gradient(135deg, #00d4aa, #00b894, #00f5ff);
+    background: linear-gradient(135deg, #ffffff, #f0f0f0, #ffffff);
     background-size: 200% 200%;
     border: none;
     border-radius: var(--radius-sm);
-    color: #0f0f23;
+    color: #000000;
     font-weight: 600;
     font-family: 'Benzin', sans-serif;
     cursor: pointer;
@@ -151,6 +155,8 @@
     position: relative;
     overflow: hidden;
     animation: buttonGradient 3s ease-in-out infinite;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 .form-button::before {
@@ -166,7 +172,7 @@
 
 .form-button:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 212, 170, 0.4), 0 0 0 1px rgba(0, 245, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4), 0 0 30px rgba(255, 255, 255, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .form-button:hover:not(:disabled)::before {
@@ -272,9 +278,9 @@
 }
 
 .strength-segment:nth-child(4).active {
-    --segment-color: #00d4aa;
-    --segment-color-light: #00f5ff;
-    --segment-glow: rgba(0, 212, 170, 0.5);
+    --segment-color: #ffffff;
+    --segment-color-light: #f0f0f0;
+    --segment-glow: rgba(255, 255, 255, 0.5);
 }
 
 .strength-text {
@@ -312,8 +318,8 @@
 }
 
 .strength-text.strong {
-    color: #00d4aa;
-    text-shadow: 0 0 8px rgba(0, 212, 170, 0.3);
+    color: #ffffff;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.4);
 }
 
 .strength-text.strong::before {
@@ -338,7 +344,8 @@
 }
 
 .criteria-item.met {
-    color: #00d4aa;
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
 .criteria-icon {
@@ -354,9 +361,10 @@
 }
 
 .criteria-item.met .criteria-icon {
-    background: #00d4aa;
-    border-color: #00d4aa;
-    color: #0f0f23;
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 /* Responsive */

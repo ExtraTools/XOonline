@@ -1,23 +1,23 @@
 /* CSS Variables - Переменные дизайн-системы */
 :root {
-    /* Цветовая палитра */
-    --bg-primary: #0f0f23;
-    --bg-secondary: #1a1a2e;
-    --bg-card: #16213e;
-    --bg-elevated: #1e2749;
+    /* Цветовая палитра - Черная тема */
+    --bg-primary: #000000;
+    --bg-secondary: #111111;
+    --bg-card: #1a1a1a;
+    --bg-elevated: #222222;
     
-    /* Акцентные цвета */
-    --accent-primary: #00d4aa;
-    --accent-secondary: #00b894;
+    /* Акцентные цвета - Белые */
+    --accent-primary: #ffffff;
+    --accent-secondary: #f0f0f0;
     
-    /* Текстовые цвета */
-    --text-primary: #e2e8f0;
-    --text-secondary: #a0aec0;
-    --text-muted: #718096;
+    /* Текстовые цвета - Белые */
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --text-muted: #888888;
     
-    /* Границы */
-    --border-subtle: rgba(0, 212, 170, 0.15);
-    --border-accent: rgba(0, 212, 170, 0.4);
+    /* Границы - Белые */
+    --border-subtle: rgba(255, 255, 255, 0.15);
+    --border-accent: rgba(255, 255, 255, 0.4);
     
     /* Статусные цвета */
     --error: #ff6b6b;
@@ -30,11 +30,11 @@
     --radius-lg: 16px;
     --radius-xl: 20px;
     
-    /* Тени */
-    --shadow-sm: 0 2px 8px rgba(15, 15, 35, 0.4);
-    --shadow-md: 0 4px 16px rgba(15, 15, 35, 0.5);
-    --shadow-lg: 0 8px 32px rgba(15, 15, 35, 0.6);
-    --shadow-accent: 0 4px 20px rgba(0, 212, 170, 0.25);
+    /* Тени - Черные */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.8);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.9);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.95);
+    --shadow-accent: 0 4px 20px rgba(255, 255, 255, 0.25);
     
     /* Переходы */
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
