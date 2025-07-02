@@ -46,7 +46,7 @@
     "url": "https://github.com/waitdino/DiLauncher/issues"
   },
   "dependencies": {
-    "express": "^4.19.2",
+    "express": "^4.21.2",
     "express-session": "^1.18.1",
     "express-rate-limit": "^7.4.1",
     "express-validator": "^7.2.1",
@@ -105,6 +105,7 @@
   "files": [
     "server.js",
     "server/",
+    "scripts/",
     "public/",
     "package.json",
     "README.md"
