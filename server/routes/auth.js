@@ -2,9 +2,9 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import passport from 'passport';
-import GoogleStrategy from 'passport-google-oauth20';
-import DiscordStrategy from 'passport-discord';
-import JwtStrategy from 'passport-jwt';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as DiscordStrategy } from 'passport-discord';
+import { Strategy as JwtStrategy } from 'passport-jwt';
 import User from '../models/User.js';
 import rateLimit from 'express-rate-limit';
 

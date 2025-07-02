@@ -1,0 +1,89 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Node.js
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Logs
+logs
+*.log
+
+# Database
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Coverage
+coverage/
+.nyc_output
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+docs/
+
+# Tests
+tests/
+*.test.js
+*.spec.js
+jest.config.js
+
+# Linting
+.eslintrc*
+.prettierrc*
+
+# Build artifacts
+dist/
+build/
+
+# Minecraft files (если есть)
+*.jar
+mods/
+resourcepacks/
+shaderpacks/
+
+# Certificates
+*.pem
+*.key
+*.crt
