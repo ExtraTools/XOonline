@@ -5,6 +5,12 @@ import { dirname, join } from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import pool from './db.js';
+
+dotenv.config();
 
 // Инициализация
 const __filename = fileURLToPath(import.meta.url);
@@ -68,58 +74,108 @@ app.get('/api/status', (req, res) => {
     });
 });
 
-// Простая авторизация (mock данные)
-app.post('/api/auth/login', (req, res) => {
-    const { login, password } = req.body;
+// ===== Database initialisation =====
+(async () => {
+  try {
+    await pool.query(`CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      username VARCHAR(50) UNIQUE NOT NULL,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      password_hash VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
+    console.log('📚 PostgreSQL connected & users table ensured');
+  } catch (err) {
+    console.error('Database init error:', err);
+  }
+})();
 
-    // Тестовые аккаунты
-    const testUsers = {
-        'steve': 'password123',
-        'alex': 'password123',
-        'admin': 'admin123'
-    };
+// ===== JWT helper =====
+const signToken = (userId) => jwt.sign({ id: userId }, process.env.JWT_SECRET || 'development_secret', { expiresIn: '7d' });
 
-    if (testUsers[login] && testUsers[login] === password) {
-        res.json({
-            success: true,
-            message: 'Успешная авторизация',
-            user: {
-                id: Math.floor(Math.random() * 1000),
-                username: login,
-                displayName: login.charAt(0).toUpperCase() + login.slice(1)
-            },
-            token: 'test-jwt-token-' + Date.now()
-        });
-    } else {
-        res.status(401).json({
-            success: false,
-            message: 'Неверный логин или пароль'
-        });
+const authMiddleware = async (req, res, next) => {
+  const auth = req.headers.authorization || '';
+  if (!auth.startsWith('Bearer ')) return res.status(401).json({ success: false, message: 'Требуется авторизация' });
+  const token = auth.split(' ')[1];
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET || 'development_secret');
+    req.userId = payload.id;
+    next();
+  } catch {
+    return res.status(401).json({ success: false, message: 'Неверный токен' });
+  }
+};
+
+// ===== Auth routes (PostgreSQL) =====
+app.post('/api/auth/register', async (req, res) => {
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(400).json({ success: false, message: 'Все поля обязательны' });
+  }
+  try {
+    const hashed = await bcrypt.hash(password, 12);
+    const { rows } = await pool.query(
+      'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email, created_at',
+      [username.trim(), email.trim().toLowerCase(), hashed]
+    );
+    const user = rows[0];
+    const token = signToken(user.id);
+    res.json({ success: true, message: 'Регистрация успешна', user, token });
+  } catch (err) {
+    if (err.code === '23505') { // unique_violation
+      return res.status(409).json({ success: false, message: 'Пользователь с таким именем или email уже существует' });
     }
+    console.error('Register error:', err);
+    res.status(500).json({ success: false, message: 'Ошибка сервера' });
+  }
 });
 
-app.post('/api/auth/register', (req, res) => {
-    const { username, email, password } = req.body;
-    
-    if (!username || !email || !password) {
-        return res.status(400).json({
-            success: false,
-            message: 'Все поля обязательны'
-        });
+app.post('/api/auth/login', async (req, res) => {
+  const { login, password } = req.body;
+  if (!login || !password) {
+    return res.status(400).json({ success: false, message: 'Все поля обязательны' });
+  }
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, username, email, password_hash FROM users WHERE username=$1 OR email=$1 LIMIT 1',
+      [login]
+    );
+    if (!rows.length) {
+      return res.status(401).json({ success: false, message: 'Неверный логин или пароль' });
     }
-
-    res.json({
-        success: true,
-        message: 'Регистрация успешна',
-        user: {
-            id: Math.floor(Math.random() * 1000),
-            username,
-            email,
-            displayName: username
-        }
-    });
+    const user = rows[0];
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Неверный логин или пароль' });
+    }
+    delete user.password_hash;
+    const token = signToken(user.id);
+    res.json({ success: true, message: 'Успешная авторизация', user, token });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ success: false, message: 'Ошибка сервера' });
+  }
 });
-    
+
+app.get('/api/auth/verify', async (req, res) => {
+  const authHeader = req.headers.authorization || '';
+  if (!authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ success: false, message: 'Требуется авторизация' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET || 'development_secret');
+    const { rows } = await pool.query('SELECT id, username, email, created_at FROM users WHERE id=$1', [payload.id]);
+    if (!rows.length) {
+      return res.status(401).json({ success: false, message: 'Пользователь не найден' });
+    }
+    res.json({ success: true, user: rows[0] });
+  } catch (err) {
+    console.error('Verify error:', err);
+    res.status(401).json({ success: false, message: 'Неверный или просроченный токен' });
+  }
+});
+
 // Профили лаунчера
 app.get('/api/launcher/profiles', (req, res) => {
     res.json({
