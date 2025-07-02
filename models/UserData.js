@@ -126,7 +126,7 @@ class UserDataManager {
             },
 
             // Аватар
-            avatar: '/icons/gameIcons/PNG/Black/1x/button1.png',
+            avatar: '/icons/gameIcons/PNG/Black/2x/button1.png',
             
             // Временные данные
             totalPlayTime: 0, // в секундах

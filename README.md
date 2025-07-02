@@ -1,4 +1,4 @@
-# <img src="/icons/gameIcons/PNG/White/1x/download.png" alt="CraftLauncher" style="width: 2rem; height: 2rem; display: inline-block; vertical-align: middle;"> CraftLauncher - Майнкрафт лаунчер
+# <img src="/icons/gameIcons/PNG/White/2x/download.png" alt="DiLauncher" style="width: 2rem; height: 2rem; display: inline-block; vertical-align: middle;"> DiLauncher - Майнкрафт лаунчер
 
 Современный лаунчер для Minecraft с поддержкой всех версий, модов и красивым черно-белым дизайном.
 
