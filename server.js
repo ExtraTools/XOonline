@@ -106,6 +106,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.static(join(__dirname, 'public')));
 app.use('/socket.io', express.static(join(__dirname, 'node_modules/socket.io/client-dist')));
 app.use('/FRONTS', express.static(join(__dirname, 'FRONTS')));
+app.use('/icons', express.static(join(__dirname, 'icons')));
 
 // API маршруты
 app.use('/api/auth', authRoutes);
