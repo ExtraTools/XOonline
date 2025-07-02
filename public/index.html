@@ -5,13 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiLauncher - Лучший лаунчер для Minecraft</title>
     
-    <!-- CSS Modules -->
-    <link rel="stylesheet" href="/css/variables.css">
-    <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/fonts.css">
-    <link rel="stylesheet" href="/css/auth.css">
-    <link rel="stylesheet" href="/css/launcher.css">
-    <link rel="stylesheet" href="/css/effects.css">
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/FRONTS/Benzin-Bold.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="/FRONTS/Benzin-Regular.ttf" as="font" type="font/ttf" crossorigin>
+    
+    <!-- CSS with cache busting -->
+    <link rel="stylesheet" href="/css/variables.css?v=6.2">
+    <link rel="stylesheet" href="/css/fonts.css?v=6.2">
+    <link rel="stylesheet" href="/css/base.css?v=6.2">
+    <link rel="stylesheet" href="/css/effects.css?v=6.2">
+    <link rel="stylesheet" href="/css/launcher.css?v=6.2">
+    <link rel="stylesheet" href="/css/auth.css?v=6.2">
+    <link rel="stylesheet" href="/css/success.css?v=6.2">
+    
+    <!-- Modern CSS features meta -->
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Container query support -->
+    <style>
+        .container {
+            container-type: inline-size;
+            container-name: main-container;
+        }
+    </style>
     
     <!-- Favicon -->
     <link rel="icon" href="/logo.png" type="image/png">
@@ -21,7 +38,7 @@
     <nav class="navbar">
         <div class="navbar-container">
             <div class="navbar-brand">
-                <img src="/icons/gameIcons/PNG/White/2x/gamepad.png" alt="DiLauncher" class="navbar-logo">
+                <img src="/icons/gameIcons/PNG/White/2x/star.png" alt="DiLauncher" class="navbar-logo">
                 <span class="navbar-title">DiLauncher</span>
             </div>
             
@@ -33,11 +50,21 @@
             </div>
             
             <div class="navbar-auth">
-                <button class="btn btn-outline" id="loginBtn">Войти</button>
-                <button class="btn btn-primary" id="registerBtn">Регистрация</button>
+                <div class="btn btn-coming-soon" disabled>Регистрация<span class="coming-soon-label">Скоро</span></div>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
             </div>
         </div>
     </nav>
+
+    <!-- Мобильное меню -->
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-close" id="mobileMenuClose">×</button>
+        <a href="#home" class="mobile-menu-link">Главная</a>
+        <a href="#features" class="mobile-menu-link">Возможности</a>
+        <a href="#download" class="mobile-menu-link">Скачать</a>
+        <a href="#community" class="mobile-menu-link">Сообщество</a>
+        <div class="btn btn-coming-soon" disabled>Регистрация<span class="coming-soon-label">Скоро</span></div>
+    </div>
 
     <!-- Hero секция -->
     <section class="hero" id="home">
@@ -58,7 +85,7 @@
                 
                 <div class="hero-actions">
                     <button class="btn btn-hero" id="heroDownloadBtn">
-                        <img src="/icons/gameIcons/PNG/White/2x/download.png" alt="" class="btn-icon">
+                        <img src="/icons/gameIcons/PNG/Black/2x/download.png" alt="" class="btn-icon">
                         Скачать DiLauncher
                     </button>
                     <button class="btn btn-secondary" id="watchDemoBtn">
@@ -69,11 +96,11 @@
                 
                 <div class="hero-stats">
                     <div class="stat-item">
-                        <span class="stat-number">1.2M+</span>
+                        <span class="stat-number">0</span>
                         <span class="stat-label">Загрузок</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">847</span>
+                        <span class="stat-number">15+</span>
                         <span class="stat-label">Версий MC</span>
                     </div>
                     <div class="stat-item">
@@ -92,25 +119,109 @@
                                 <span class="control"></span>
                                 <span class="control"></span>
                             </div>
-                            <span class="window-title">DiLauncher v2.1</span>
+                            <span class="window-title">DiLauncher dev.build</span>
                         </div>
                         <div class="launcher-body">
                             <div class="launcher-sidebar">
                                 <div class="launcher-menu">
-                                    <div class="menu-item active">🏠 Главная</div>
-                                    <div class="menu-item">📦 Модпаки</div>
-                                    <div class="menu-item">🔧 Настройки</div>
+                                    <div class="menu-item active" data-tab="home">🏠 Главная</div>
+                                    <div class="menu-item" data-tab="mods">📦 Модпаки</div>
+                                    <div class="menu-item" data-tab="profile">👤 Профиль</div>
+                                    <div class="menu-item" data-tab="settings">🔧 Настройки</div>
                                 </div>
                             </div>
                             <div class="launcher-main">
-                                <div class="version-selector">
-                                    <select>
-                                        <option>Minecraft 1.21.6</option>
-                                        <option>Minecraft 1.20.4</option>
-                                        <option>Minecraft 1.19.4</option>
-                                    </select>
+                                <!-- Главная вкладка -->
+                                <div class="launcher-tab active" id="home-tab">
+                                    <div class="version-selector">
+                                        <select id="versionSelect">
+                                            <option selected>Minecraft 1.21.6</option>
+                                            <option>Minecraft 1.21.4</option>
+                                            <option>Minecraft 1.20.4</option>
+                                            <option>Minecraft 1.20.1</option>
+                                            <option>Minecraft 1.19.4</option>
+                                            <option>Minecraft 1.19.2</option>
+                                            <option>Minecraft 1.18.2</option>
+                                            <option>Minecraft 1.17.1</option>
+                                            <option>Minecraft 1.16.5</option>
+                                            <option>Minecraft 1.12.2</option>
+                                            <option>Minecraft 1.8.9</option>
+                                        </select>
+                                    </div>
+                                    <button class="play-button" id="playButton">▶ ИГРАТЬ</button>
+                                    <div class="game-info">
+                                        <div class="info-item">
+                                            <span class="info-label">RAM:</span>
+                                            <span class="info-value">4GB</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Моды:</span>
+                                            <span class="info-value">0</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <button class="play-button">▶ ИГРАТЬ</button>
+
+                                <!-- Модпаки вкладка -->
+                                <div class="launcher-tab" id="mods-tab">
+                                    <div class="tab-title">Модпаки</div>
+                                    <div class="mod-list">
+                                        <div class="mod-item">
+                                            <span class="mod-name">Vanilla+</span>
+                                            <span class="mod-status">Активен</span>
+                                        </div>
+                                        <div class="mod-item">
+                                            <span class="mod-name">OptiFine</span>
+                                            <span class="mod-status">Доступен</span>
+                                        </div>
+                                        <div class="mod-item">
+                                            <span class="mod-name">JEI</span>
+                                            <span class="mod-status">Доступен</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Профиль вкладка -->
+                                <div class="launcher-tab" id="profile-tab">
+                                    <div class="tab-title">Профиль</div>
+                                    <div class="profile-info">
+                                        <div class="profile-avatar" id="profileAvatar">
+                                            <img src="" alt="WaitDinoS" id="avatarImage">
+                                        </div>
+                                        <div class="profile-details">
+                                            <div class="profile-name">WaitDinoS</div>
+                                            <div class="profile-stats">
+                                                <div class="stat">Часов игры: 347</div>
+                                                <div class="stat">Миров: 23</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Настройки вкладка -->
+                                <div class="launcher-tab" id="settings-tab">
+                                    <div class="tab-title">Настройки</div>
+                                    <div class="settings-list">
+                                        <div class="setting-item">
+                                            <span class="setting-label">🚀 Автозапуск</span>
+                                            <input type="checkbox" class="setting-toggle" checked>
+                                        </div>
+                                        <div class="setting-item ram-setting">
+                                            <span class="setting-label">💾 RAM</span>
+                                            <select class="setting-select">
+                                                <option value="2">2 GB</option>
+                                                <option value="4" selected>4 GB</option>
+                                                <option value="6">6 GB</option>
+                                                <option value="8">8 GB</option>
+                                                <option value="12">12 GB</option>
+                                                <option value="16">16 GB</option>
+                                            </select>
+                                        </div>
+                                        <div class="setting-item">
+                                            <span class="setting-label">🖥️ Полный экран</span>
+                                            <input type="checkbox" class="setting-toggle">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -182,14 +293,14 @@
                 
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <img src="/icons/gameIcons/PNG/White/2x/cloud.png" alt="Облачная синхронизация">
+                        <img src="/icons/gameIcons/PNG/White/2x/download.png" alt="Автоматические обновления">
                     </div>
-                    <h3>Облачная синхронизация</h3>
-                    <p>Ваши настройки, миры и моды синхронизируются между устройствами.</p>
+                    <h3>Автоматические обновления</h3>
+                    <p>Лаунчер и игра всегда актуальны благодаря автоматическим обновлениям.</p>
                     <ul class="feature-list">
-                        <li>Резервное копирование миров</li>
-                        <li>Синхронизация настроек</li>
-                        <li>Список модов в облаке</li>
+                        <li>Обновление Minecraft</li>
+                        <li>Обновление модов</li>
+                        <li>Обновление лаунчера</li>
                     </ul>
                 </div>
                 
@@ -252,64 +363,65 @@
     <section class="download-section" id="download">
         <div class="container">
             <div class="download-content">
-                <h2 class="section-title">Скачать DiLauncher</h2>
+                <h2 class="section-title">DiLauncher в разработке</h2>
                 <p class="section-description">
-                    Начните играть в Minecraft с лучшим лаунчером уже сегодня!
+                    Мы работаем над улучшением лаунчера. Скоро будет доступна новая версия!
                 </p>
                 
                 <div class="download-platforms">
-                    <div class="platform-download">
+                    <div class="platform-download platform-maintenance">
                         <div class="platform-info">
-                            <img src="/icons/gameIcons/PNG/White/2x/download.png" alt="Windows" class="platform-logo">
-                            <div>
+                            <div class="platform-text">
                                 <h3>Windows</h3>
                                 <p>Windows 10/11 • 64-bit</p>
                             </div>
+                            <img src="/icons/gameIcons/PNG/White/2x/wrench.png" alt="Windows" class="platform-logo">
                         </div>
-                        <button class="btn btn-download" data-platform="windows">
-                            Скачать для Windows
-                        </button>
+                        <div class="maintenance-status">
+                            <span class="maintenance-text">Ведутся работы</span>
+                            <span class="maintenance-subtitle">над лаунчером</span>
+                        </div>
                     </div>
                     
-                    <div class="platform-download platform-unavailable">
+                    <div class="platform-download platform-unavailable platform-coming-soon">
                         <div class="platform-info">
-                            <img src="/icons/gameIcons/PNG/White/2x/download.png" alt="macOS" class="platform-logo">
-                            <div>
+                            <div class="platform-text">
                                 <h3>macOS</h3>
                                 <p>macOS 10.15+ • Intel/Apple Silicon</p>
                             </div>
+                            <img src="/icons/gameIcons/PNG/White/2x/download.png" alt="macOS" class="platform-logo">
                         </div>
-                        <div class="btn btn-unavailable">
-                            В будущем будет
+                        <div class="coming-soon-text">
+                            Скоро...
                         </div>
                     </div>
                     
-                    <div class="platform-download platform-unavailable">
+                    <div class="platform-download platform-unavailable platform-coming-soon">
                         <div class="platform-info">
-                            <img src="/icons/gameIcons/PNG/White/2x/download.png" alt="Linux" class="platform-logo">
-                            <div>
+                            <div class="platform-text">
                                 <h3>Linux</h3>
                                 <p>Ubuntu 18.04+ • AppImage/Flatpak</p>
                             </div>
+                            <img src="/icons/gameIcons/PNG/White/2x/download.png" alt="Linux" class="platform-logo">
                         </div>
-                        <div class="btn btn-unavailable">
-                            В будущем будет
+                        <div class="coming-soon-text">
+                            Скоро...
                         </div>
                     </div>
                 </div>
                 
                 <div class="download-info">
                     <div class="info-item">
-                        <img src="/icons/gameIcons/PNG/White/2x/checkmark.png" alt="Бесплатно">
-                        <span>Полностью бесплатно</span>
+                        <img src="/icons/gameIcons/PNG/White/2x/wrench.png" alt="В разработке">
+                        <span>Активная разработка</span>
                     </div>
                     <div class="info-item">
-                        <img src="/icons/gameIcons/PNG/White/2x/locked.png" alt="Безопасно">
-                        <span>Без вирусов и рекламы</span>
+                        <img src="/icons/gameIcons/PNG/White/2x/star.png" alt="Улучшения">
+                        <span>Новые возможности</span>
                     </div>
                     <div class="info-item">
-                        <img src="/icons/gameIcons/PNG/White/2x/cloud.png" alt="Автообновление">
-                        <span>Автоматические обновления</span>
+                        <img src="/icons/gameIcons/PNG/White/2x/time.png" alt="Скоро">
+                        <span>Скоро в доступе</span>
                     </div>
                 </div>
             </div>
@@ -323,34 +435,34 @@
                 <div class="community-info">
                     <h2 class="section-title">Присоединяйтесь к сообществу</h2>
                     <p class="section-description">
-                        Более 100,000 игроков уже используют DiLauncher. 
-                        Присоединяйтесь к нашему активному сообществу!
+                        DiLauncher находится в активной разработке. 
+                        Присоединяйтесь к нашему сообществу и следите за обновлениями!
                     </p>
                     
                     <div class="community-stats">
                         <div class="stat-card">
-                            <span class="stat-number">100K+</span>
-                            <span class="stat-label">Активных пользователей</span>
+                            <span class="stat-number">0</span>
+                            <span class="stat-label">Участников сообщества</span>
                         </div>
                         <div class="stat-card">
-                            <span class="stat-number">25K+</span>
+                            <span class="stat-number">80+</span>
                             <span class="stat-label">В Discord сервере</span>
                         </div>
                         <div class="stat-card">
-                            <span class="stat-number">1.2M+</span>
+                            <span class="stat-number">0</span>
                             <span class="stat-label">Скачиваний</span>
                         </div>
                     </div>
                     
                     <div class="community-actions">
-                        <a href="https://discord.com/invite/49bt" class="btn btn-discord" target="_blank">
+                        <a href="https://discord.gg/49bt" class="btn btn-discord" target="_blank">
                             <img src="/icons/gameIcons/PNG/White/2x/multiplayer.png" alt="Discord" class="btn-icon">
                             Присоединиться к Discord
                         </a>
-                        <a href="https://github.com/ExtraTools/XOonline" class="btn btn-github" target="_blank">
+                        <div class="btn btn-coming-soon" disabled>
                             <img src="/icons/gameIcons/PNG/White/2x/gear.png" alt="GitHub" class="btn-icon">
-                            GitHub
-                        </a>
+                            GitHub<span class="coming-soon-label">Скоро</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -358,23 +470,23 @@
                     <div class="widget-header">
                         <img src="/icons/gameIcons/PNG/White/2x/multiplayer.png" alt="Discord" class="widget-icon">
                         <div>
-                            <h3>DiLauncher Community</h3>
-                            <p>Онлайн: <span class="online-count">2,147</span> участников</p>
+                            <h3>49 Battalion</h3>
+                            <p>Онлайн: <span class="online-count">28</span> участников</p>
                         </div>
                     </div>
                     
                     <div class="widget-channels">
                         <div class="channel">
                             <span class="channel-name"># общий</span>
-                            <span class="channel-count">342 онлайн</span>
+                            <span class="channel-count">12 онлайн</span>
                         </div>
                         <div class="channel">
-                            <span class="channel-name"># помощь</span>
-                            <span class="channel-count">89 онлайн</span>
+                            <span class="channel-name"># разработка</span>
+                            <span class="channel-count">8 онлайн</span>
                         </div>
                         <div class="channel">
-                            <span class="channel-name"># моды</span>
-                            <span class="channel-count">156 онлайн</span>
+                            <span class="channel-name"># игры</span>
+                            <span class="channel-count">8 онлайн</span>
                         </div>
                     </div>
                 </div>
@@ -388,7 +500,7 @@
             <div class="footer-content">
                 <div class="footer-brand">
                     <div class="brand-info">
-                        <img src="/icons/gameIcons/PNG/White/2x/gamepad.png" alt="DiLauncher" class="footer-logo">
+                        <img src="/icons/gameIcons/PNG/White/2x/star.png" alt="DiLauncher" class="footer-logo">
                         <span class="footer-title">DiLauncher</span>
                     </div>
                     <p class="footer-description">
@@ -429,8 +541,16 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2025 DiLauncher. Все права защищены.</p>
-                <p>Не является официальным продуктом Minecraft. Не одобрено и не связано с Mojang.</p>
+                <div class="footer-bottom-content">
+                    <div class="footer-left">
+                        <p>&copy; 2025 DiLauncher. Все права защищены.</p>
+                        <p>Не является официальным продуктом Minecraft. Не одобрено и не связано с Mojang.</p>
+                    </div>
+                    <div class="footer-right">
+                        <p><strong>В разработке</strong></p>
+                        <p>Сайт: WaitDino • Лаунчер: Igr0m</p>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
@@ -441,57 +561,23 @@
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Вход в аккаунт</h2>
+                <h2>Вход в DiLauncher</h2>
                 <button class="modal-close" data-modal="loginModal">&times;</button>
             </div>
             <form class="auth-form" id="loginForm">
                 <div class="form-group">
-                    <label for="loginEmail">Email или username</label>
-                    <input type="text" id="loginEmail" name="login" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Пароль</label>
-                    <input type="password" id="loginPassword" name="password" required>
+                    <label for="loginUsername">Введите ваш никнейм</label>
+                    <input type="text" id="loginUsername" name="username" required placeholder="Например, Steve">
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Войти</button>
-                    <a href="#" class="forgot-link">Забыли пароль?</a>
                 </div>
                 <div class="form-error" id="loginError"></div>
             </form>
         </div>
     </div>
 
-    <!-- Модальное окно регистрации -->
-    <div class="modal" id="registerModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Создать аккаунт</h2>
-                <button class="modal-close" data-modal="registerModal">&times;</button>
-            </div>
-            <form class="auth-form" id="registerForm">
-                <div class="form-group">
-                    <label for="registerUsername">Имя пользователя</label>
-                    <input type="text" id="registerUsername" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerEmail">Email</label>
-                    <input type="email" id="registerEmail" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerPassword">Пароль</label>
-                    <input type="password" id="registerPassword" name="password" required>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Создать аккаунт</button>
-                </div>
-                <div class="form-error" id="registerError"></div>
-            </form>
-        </div>
-    </div>
-
     <!-- JavaScript -->
-    <script src="/js/launcher.js"></script>
-    <script src="/js/passwordStrength.js"></script>
+    <script src="/js/launcher.js?v=6.2"></script>
 </body>
 </html> 

@@ -32,6 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Статические файлы
 app.use(express.static(join(__dirname, 'public')));
+app.use('/FRONTS', express.static(join(__dirname, 'FRONTS')));
 
 // Логирование запросов
 app.use((req, res, next) => {

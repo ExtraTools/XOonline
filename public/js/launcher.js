@@ -18,11 +18,15 @@ class ModernLauncher {
         this.setupScrollAnimations();
         this.checkAuthState();
         this.startAnimations();
+        this.setupLauncherDemo();
     }
 
     setupEventListeners() {
         // Навигация
         this.setupNavigation();
+        
+        // Мобильное меню
+        this.setupMobileMenu();
         
         // Модальные окна
         this.setupModals();
@@ -39,6 +43,7 @@ class ModernLauncher {
 
     setupNavigation() {
         const navLinks = document.querySelectorAll('.navbar-link');
+        const navbar = document.querySelector('.navbar');
         let isScrolling = false;
         
         navLinks.forEach(link => {
@@ -48,31 +53,45 @@ class ModernLauncher {
                 // Устанавливаем флаг прокрутки
                 isScrolling = true;
                 
-                // Плавно удаляем активный класс со всех ссылок
+                // Убеждаемся что навбар остается видимым
+                if (navbar) {
+                    navbar.style.opacity = '1';
+                    navbar.style.visibility = 'visible';
+                    navbar.style.transform = 'none';
+                }
+                
+                // Мгновенно обновляем активную ссылку
                 navLinks.forEach(nl => {
                     nl.classList.remove('active');
                 });
-                
-                // Добавляем активный класс к текущей ссылке с задержкой
-                setTimeout(() => {
-                    link.classList.add('active');
-                }, 50);
+                link.classList.add('active');
                 
                 // Прокручиваем к секции
                 const targetId = link.getAttribute('href');
                 if (targetId.startsWith('#')) {
                     const targetSection = document.querySelector(targetId);
                     if (targetSection) {
-                        const offsetTop = targetSection.offsetTop - 100;
-                        window.scrollTo({
-                            top: offsetTop,
-                            behavior: 'smooth'
-                        });
+                        const offsetTop = targetSection.offsetTop - 80;
                         
-                        // Сбрасываем флаг после завершения прокрутки
+                        // Отключаем View Transitions для навигации
+                        if (document.startViewTransition) {
+                            // Простая прокрутка без view transitions
+                            window.scrollTo({
+                                top: offsetTop,
+                                behavior: 'smooth'
+                            });
+                        } else {
+                            // Обычная прокрутка для браузеров без поддержки
+                            window.scrollTo({
+                                top: offsetTop,
+                                behavior: 'smooth'
+                            });
+                        }
+                        
+                        // Сбрасываем флаг через короткое время
                         setTimeout(() => {
                             isScrolling = false;
-                        }, 1000);
+                        }, 300);
                     }
                 }
             });
@@ -85,9 +104,102 @@ class ModernLauncher {
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
                     this.updateActiveNavLink();
-                }, 100);
+                }, 50);
             }
         });
+    }
+
+    setupMobileMenu() {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+        const mobileMenuLinks = document.querySelectorAll('.mobile-menu-link');
+        
+        // Открытие мобильного меню
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+                this.openMobileMenu();
+            });
+        }
+        
+        // Закрытие мобильного меню
+        if (mobileMenuClose) {
+            mobileMenuClose.addEventListener('click', () => {
+                this.closeMobileMenu();
+            });
+        }
+        
+        // Закрытие при клике на ссылку
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                
+                // Закрываем меню
+                this.closeMobileMenu();
+                
+                // Ждем закрытия анимации и переходим к секции
+                setTimeout(() => {
+                    if (targetId.startsWith('#')) {
+                        const targetSection = document.querySelector(targetId);
+                        if (targetSection) {
+                            const offsetTop = targetSection.offsetTop - 80;
+                            window.scrollTo({
+                                top: offsetTop,
+                                behavior: 'smooth'
+                            });
+                            
+                            // Обновляем активную ссылку в основной навигации
+                            document.querySelectorAll('.navbar-link').forEach(nl => {
+                                nl.classList.remove('active');
+                                if (nl.getAttribute('href') === targetId) {
+                                    nl.classList.add('active');
+                                }
+                            });
+                        }
+                    }
+                }, 300);
+            });
+        });
+        
+        // Закрытие при клике на фон
+        if (mobileMenu) {
+            mobileMenu.addEventListener('click', (e) => {
+                if (e.target === mobileMenu) {
+                    this.closeMobileMenu();
+                }
+            });
+        }
+        
+        // Закрытие при изменении размера экрана
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                this.closeMobileMenu();
+            }
+        });
+        
+        // Закрытие по ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileMenu && mobileMenu.classList.contains('active')) {
+                this.closeMobileMenu();
+            }
+        });
+    }
+    
+    openMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenu) {
+            mobileMenu.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    closeMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenu) {
+            mobileMenu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     }
 
     updateActiveNavLink() {
@@ -391,13 +503,13 @@ class ModernLauncher {
     }
 
     setupSmoothScroll() {
-        // Плавная прокрутка для всех якорных ссылок
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        // Плавная прокрутка для всех якорных ссылок (кроме навигации)
+        document.querySelectorAll('a[href^="#"]:not(.navbar-link)').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    const offsetTop = target.offsetTop - 100;
+                    const offsetTop = target.offsetTop - 80;
                     window.scrollTo({
                         top: offsetTop,
                         behavior: 'smooth'
@@ -439,31 +551,8 @@ class ModernLauncher {
     animateParticles() {
         const particles = document.querySelector('.hero-particles');
         if (particles) {
-            // Более плавная анимация частиц
-            let time = 0;
-            const animateStars = () => {
-                time += 0.01;
-                
-                // Создаем эффект мерцания звезд
-                const x1 = 50 + Math.sin(time) * 30;
-                const y1 = 50 + Math.cos(time * 0.7) * 20;
-                const x2 = 20 + Math.cos(time * 0.5) * 40;
-                const y2 = 80 + Math.sin(time * 0.3) * 15;
-                const x3 = 80 + Math.sin(time * 0.8) * 25;
-                const y3 = 30 + Math.cos(time * 0.6) * 35;
-                
-                // Применяем позиции с плавными переходами
-                particles.style.backgroundPosition = 
-                    `${x1}% ${y1}%, ${x2}% ${y2}%, ${x3}% ${y3}%, ${50 + Math.cos(time * 0.4) * 20}% ${70 + Math.sin(time * 0.9) * 10}%`;
-                
-                // Добавляем эффект появления/исчезновения
-                const opacity = 0.3 + Math.sin(time * 2) * 0.4;
-                particles.style.opacity = Math.max(0.1, opacity);
-                
-                requestAnimationFrame(animateStars);
-            };
-            
-            animateStars();
+            // Убираем JavaScript анимацию - используем только CSS
+            // CSS анимации более плавные и не конфликтуют с transition
         }
     }
 
@@ -471,7 +560,14 @@ class ModernLauncher {
         const counters = document.querySelectorAll('.stat-number');
         
         counters.forEach(counter => {
-            const target = parseInt(counter.textContent.replace(/[^\d]/g, ''));
+            const originalText = counter.textContent.trim();
+            
+            // Пропускаем анимацию для "24/7" - оставляем как есть
+            if (originalText === '24/7') {
+                return;
+            }
+            
+            const target = parseInt(originalText.replace(/[^\d]/g, ''));
             const duration = 2000;
             const step = target / (duration / 50);
             let current = 0;
@@ -603,6 +699,143 @@ class ModernLauncher {
     showComingSoon(message) {
         this.showNotification(message, 'info');
     }
+
+    setupLauncherDemo() {
+        // Демо интерактивности лаунчера
+        const versionSelect = document.getElementById('versionSelect');
+        const playButton = document.getElementById('playButton');
+        const menuItems = document.querySelectorAll('.menu-item[data-tab]');
+        const launcherTabs = document.querySelectorAll('.launcher-tab');
+        
+        // Переключение вкладок
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const tabId = item.getAttribute('data-tab');
+                
+                // Убираем активный класс у всех пунктов меню
+                menuItems.forEach(mi => mi.classList.remove('active'));
+                // Добавляем активный класс к нажатому пункту
+                item.classList.add('active');
+                
+                // Скрываем все вкладки
+                launcherTabs.forEach(tab => tab.classList.remove('active'));
+                // Показываем нужную вкладку
+                const targetTab = document.getElementById(`${tabId}-tab`);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                }
+            });
+        });
+        
+        // Выбор версии
+        if (versionSelect) {
+            versionSelect.addEventListener('change', (e) => {
+                const selectedVersion = e.target.value;
+                console.log(`Выбрана версия: ${selectedVersion}`);
+                
+                // Обновляем информацию о модах
+                const modCount = Math.floor(Math.random() * 5);
+                const modCountElements = document.querySelectorAll('.info-value');
+                modCountElements.forEach(element => {
+                    if (element.textContent !== '4GB' && !element.textContent.includes('GB')) {
+                        element.textContent = modCount;
+                    }
+                });
+                
+                // Анимация при выборе версии
+                versionSelect.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    versionSelect.style.transform = 'scale(1)';
+                }, 150);
+            });
+        }
+        
+        // Кнопка запуска
+        if (playButton) {
+            playButton.addEventListener('click', () => {
+                const selectedVersion = versionSelect ? versionSelect.value : 'Minecraft 1.21.6';
+                playButton.innerHTML = '⏳ Запуск...';
+                playButton.disabled = true;
+                playButton.style.cursor = 'not-allowed';
+                
+                setTimeout(() => {
+                    playButton.innerHTML = '▶ ИГРАТЬ';
+                    playButton.disabled = false;
+                    playButton.style.cursor = 'pointer';
+                }, 2000);
+            });
+        }
+        
+        // Интерактивность модов
+        const modItems = document.querySelectorAll('.mod-item');
+        modItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const modName = item.querySelector('.mod-name').textContent;
+                const statusElement = item.querySelector('.mod-status');
+                
+                if (statusElement.textContent === 'Доступен') {
+                    statusElement.textContent = 'Установлен';
+                    statusElement.style.color = '#00ff88';
+                } else if (statusElement.textContent === 'Установлен') {
+                    statusElement.textContent = 'Доступен';
+                    statusElement.style.color = '#ffaa00';
+                }
+            });
+        });
+        
+        // Настройки
+        const settingToggles = document.querySelectorAll('.setting-toggle');
+        settingToggles.forEach(toggle => {
+            toggle.addEventListener('change', (e) => {
+                // Просто переключаем без уведомлений
+            });
+        });
+        
+        const settingSelects = document.querySelectorAll('.setting-select');
+        settingSelects.forEach(select => {
+            select.addEventListener('change', (e) => {
+                const settingLabel = e.target.parentElement.querySelector('.setting-label').textContent;
+                
+                // Обновляем отображение RAM в игровой информации
+                if (settingLabel === 'RAM (GB)') {
+                    const ramValueElements = document.querySelectorAll('.info-value');
+                    ramValueElements.forEach(element => {
+                        if (element.textContent.includes('GB')) {
+                            element.textContent = `${e.target.value}GB`;
+                        }
+                    });
+                }
+            });
+        });
+        
+        // Рандомная аватарка и анимация профиля
+        this.loadRandomAvatar();
+        
+        const profileAvatar = document.querySelector('.profile-avatar');
+        if (profileAvatar) {
+            profileAvatar.addEventListener('click', () => {
+                // Анимация поворота при клике
+                profileAvatar.style.transform = 'scale(1.1) rotate(360deg)';
+                profileAvatar.style.transition = 'transform 0.5s ease';
+                setTimeout(() => {
+                    profileAvatar.style.transform = 'scale(1) rotate(0deg)';
+                }, 500);
+            });
+        }
+    }
+    
+    loadRandomAvatar() {
+        // Используем только одну аватарку
+        const selectedAvatar = 'photo_2025-07-03_02-50-33 (2).jpg';
+        
+        const avatarImage = document.getElementById('avatarImage');
+        
+        if (avatarImage) {
+            // Устанавливаем аватарку напрямую
+            avatarImage.src = `/avatars/${selectedAvatar}`;
+            avatarImage.style.opacity = '1';
+        }
+    }
 }
 
 // Инициализация лаунчера
@@ -641,7 +874,154 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     `;
     document.head.appendChild(animationStyles);
+
+    const loginModal = document.getElementById('loginModal');
+    const loginBtn = document.getElementById('loginBtn');
+    const closeModalBtns = document.querySelectorAll('.modal-close');
+    const loginForm = document.getElementById('loginForm');
+
+    // Открыть модальное окно входа
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            loginModal.classList.add('active');
+        });
+    }
+
+    // Закрыть модальные окна
+    closeModalBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const modalId = btn.getAttribute('data-modal');
+            document.getElementById(modalId).classList.remove('active');
+        });
+    });
+
+    // Вход по никнейму
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = loginForm.username.value;
+
+            // Здесь будет логика входа, пока просто закрываем окно
+            console.log(`Попытка входа с ником: ${username}`);
+            
+            // Имитация успешного входа
+            loginModal.classList.remove('active');
+            
+            // Меняем кнопку "Войти" на никнейм
+            const authContainer = document.querySelector('.navbar-auth');
+            authContainer.innerHTML = `<span class="navbar-username">${username}</span>`;
+        });
+    }
 });
+
+// ===============================================
+// VIEW TRANSITIONS API - 2025 CUTTING EDGE
+// ===============================================
+
+/**
+ * Modern View Transitions API implementation
+ */
+class ViewTransitionManager {
+    constructor() {
+        this.isSupported = 'startViewTransition' in document;
+        this.init();
+    }
+
+    init() {
+        if (!this.isSupported) {
+            console.log('View Transitions API not supported, using fallback');
+            return;
+        }
+
+        this.setupSmoothNavigation();
+        this.setupSectionObserver();
+    }
+
+    setupSmoothNavigation() {
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a[href^="#"]');
+            if (!link) return;
+
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+
+            if (targetElement) {
+                this.transitionToSection(targetElement);
+            }
+        });
+    }
+
+    transitionToSection(targetElement) {
+        if (!this.isSupported) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+            return;
+        }
+
+        document.startViewTransition(() => {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+        });
+    }
+
+    setupSectionObserver() {
+        const sections = document.querySelectorAll('.hero, .stats, .features, .download, .discord');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('section-active');
+                } else {
+                    entry.target.classList.remove('section-active');
+                }
+            });
+        }, {
+            threshold: 0.3,
+            rootMargin: '0px 0px -20% 0px'
+        });
+
+        sections.forEach(section => observer.observe(section));
+    }
+}
+
+// ===============================================
+// PROGRESSIVE ENHANCEMENT - 2025
+// ===============================================
+
+class ProgressiveEnhancement {
+    constructor() {
+        this.features = {
+            viewTransitions: 'startViewTransition' in document,
+            containerQueries: CSS.supports('container-type', 'inline-size'),
+            backdropFilter: CSS.supports('backdrop-filter', 'blur(10px)'),
+            scrollSnap: CSS.supports('scroll-snap-type', 'y mandatory'),
+            linearEasing: CSS.supports('animation-timing-function', 'linear(0, 1)')
+        };
+        
+        this.init();
+    }
+
+    init() {
+        Object.entries(this.features).forEach(([feature, supported]) => {
+            document.body.classList.toggle(`supports-${feature}`, supported);
+        });
+
+        console.log('🚀 Supported modern CSS features:', this.features);
+    }
+}
+
+// Initialize modern features
+document.addEventListener('DOMContentLoaded', () => {
+    new ProgressiveEnhancement();
+    new ViewTransitionManager();
+    
+    console.log('🚀 DiLauncher with 2025 modern web features loaded!');
+});
+
+// Handle reduced motion preferences
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.body.classList.add('reduce-motion');
+    console.log('⚡ Reduced motion mode enabled');
+}
 
 // Обработка закрытия страницы
 window.addEventListener('beforeunload', () => {
