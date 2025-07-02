@@ -1,8 +1,8 @@
-# <img src="/icons/gameIcons/PNG/Black/1x/gamepad.png" alt="DinosGames" style="width: 2rem; height: 2rem; display: inline-block; vertical-align: middle;"> DinosGames - Игровая площадка
+# <img src="/icons/gameIcons/PNG/White/1x/gamepad.png" alt="DinosGames" style="width: 2rem; height: 2rem; display: inline-block; vertical-align: middle;"> DinosGames - Игровая площадка
 
 Современная игровая площадка с множеством игр и системой аккаунтов.
 
-## <img src="/icons/gameIcons/PNG/Black/1x/joystick.png" alt="Игры" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Доступные игры
+## <img src="/icons/gameIcons/PNG/White/1x/joystick.png" alt="Игры" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Доступные игры
 
 ### <img src="/icons/gameIcons/PNG/Black/1x/checkmark.png" alt="Готово" style="width: 1.2rem; height: 1.2rem; display: inline-block; vertical-align: middle;"> Крестики-нолики
 - **Статус**: Готово
