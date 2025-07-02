@@ -3,297 +3,495 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CraftLauncher - Майнкрафт лаунчер</title>
+    <title>CraftLauncher - Лучший лаунчер для Minecraft</title>
     
     <!-- CSS Modules -->
     <link rel="stylesheet" href="/css/variables.css">
-    <link rel="stylesheet" href="/css/fonts.css">
     <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/fonts.css">
     <link rel="stylesheet" href="/css/auth.css">
-    <link rel="stylesheet" href="/css/success.css">
-    <link rel="stylesheet" href="/css/lobby.css">
+    <link rel="stylesheet" href="/css/launcher.css">
     <link rel="stylesheet" href="/css/effects.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/logo.png" type="image/png">
 </head>
 <body>
-    <div class="background"></div>
-
-    <!-- Контейнер авторизации -->
-    <div id="authContainer" class="auth-container">
-        <div class="auth-card">
-            <h1 class="auth-logo neon-glow">CraftLauncher</h1>
-            
-            <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Вход</button>
-                <button class="auth-tab" data-tab="register">Регистрация</button>
+    <!-- Навигационная панель -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <img src="/icons/gameIcons/PNG/White/1x/gamepad.png" alt="CraftLauncher" class="navbar-logo">
+                <span class="navbar-title">CraftLauncher</span>
             </div>
-
-            <!-- Форма входа -->
-            <form id="loginForm" class="auth-form">
-                <div class="form-group">
-                    <label class="form-label">Email или никнейм</label>
-                    <input type="text" class="form-input" name="login" required autocomplete="username">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Пароль</label>
-                    <input type="password" class="form-input" name="password" required autocomplete="current-password">
-                </div>
-                <button type="submit" class="form-button">Войти</button>
-                <div id="loginError" class="error-message"></div>
-            </form>
-
-            <!-- Форма регистрации -->
-            <form id="registerForm" class="auth-form hidden">
-                <div class="form-group">
-                    <label class="form-label">Имя пользователя</label>
-                    <input type="text" class="form-input" name="username" required autocomplete="username">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" name="email" required autocomplete="email">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Пароль</label>
-                    <input type="password" class="form-input" name="password" id="registerPassword" required autocomplete="new-password">
-                    <div class="password-strength" id="passwordStrength">
-                        <div class="strength-bar">
-                            <div class="strength-segments">
-                                <div class="strength-segment" id="segment1"></div>
-                                <div class="strength-segment" id="segment2"></div>
-                                <div class="strength-segment" id="segment3"></div>
-                                <div class="strength-segment" id="segment4"></div>
-                            </div>
-                        </div>
-                        <div class="strength-text" id="strengthText">Введите пароль</div>
-                    </div>
-                </div>
-                <button type="submit" class="form-button">Зарегистрироваться</button>
-                <div id="registerError" class="error-message"></div>
-            </form>
+            
+            <div class="navbar-menu">
+                <a href="#home" class="navbar-link active">Главная</a>
+                <a href="#features" class="navbar-link">Возможности</a>
+                <a href="#download" class="navbar-link">Скачать</a>
+                <a href="#community" class="navbar-link">Сообщество</a>
+            </div>
+            
+            <div class="navbar-auth">
+                <button class="btn btn-outline" id="loginBtn">Войти</button>
+                <button class="btn btn-primary" id="registerBtn">Регистрация</button>
+            </div>
         </div>
-    </div>
+    </nav>
 
-        <!-- Страница успешной регистрации -->
-    <div id="successContainer" class="success-container">
-        <div class="success-card">
-            <!-- Левая часть - приветствие -->
-            <div class="success-left">
-                <div class="success-icon"><img src="/icons/gameIcons/PNG/White/1x/star.png" alt="Успех" style="width: 4rem; height: 4rem;"></div>
-                <h1 class="success-title glow-text">Добро пожаловать!</h1>
-                <p class="success-message">
-                    Вы успешно зарегистрировались в <strong>CraftLauncher</strong>! Теперь вы можете скачать лаунчер и начать играть в Minecraft.
+    <!-- Hero секция -->
+    <section class="hero" id="home">
+        <div class="hero-background">
+            <div class="hero-particles"></div>
+        </div>
+        
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Новое поколение <br>
+                    <span class="hero-highlight">Minecraft лаунчера</span>
+                </h1>
+                <p class="hero-description">
+                    Современный, быстрый и безопасный лаунчер с поддержкой всех версий Minecraft, 
+                    автоматической установкой модов и интеграцией с CurseForge и Modrinth.
                 </p>
                 
-                <div class="user-welcome">
-                    <div class="welcome-avatar" id="welcomeAvatar"></div>
-                    <div class="welcome-info">
-                        <h2 class="welcome-username" id="welcomeUsername">Ваш никнейм</h2>
-                        <p class="welcome-email" id="welcomeEmail">email@example.com</p>
+                <div class="hero-actions">
+                    <button class="btn btn-hero" id="heroDownloadBtn">
+                        <img src="/icons/gameIcons/PNG/White/1x/download.png" alt="" class="btn-icon">
+                        Скачать CraftLauncher
+                    </button>
+                    <button class="btn btn-secondary" id="watchDemoBtn">
+                        <img src="/icons/gameIcons/PNG/White/1x/video.png" alt="" class="btn-icon">
+                        Смотреть демо
+                    </button>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">1.2M+</span>
+                        <span class="stat-label">Загрузок</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">847</span>
+                        <span class="stat-label">Версий MC</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Поддержка</span>
                     </div>
                 </div>
-
-                <button class="logout-btn-success" id="logoutBtnSuccess">Выйти из аккаунта</button>
             </div>
-
-            <!-- Правая часть - Discord сервер -->
-            <div class="success-right">
-                <div class="discord-widget">
-                    <div class="discord-header">
-                        <div class="discord-icon"><img src="/icons/gameIcons/PNG/White/1x/multiplayer.png" alt="Чат" style="width: 1.5rem; height: 1.5rem;"></div>
-                        <div class="discord-logo">Discord</div>
-                    </div>
-                    <h3 class="discord-title">Присоединяйтесь к нам!</h3>
-                    <div class="discord-server-name">CraftLauncher Community</div>
-                    <p class="discord-text">
-                        Присоединяйтесь к нашему Discord серверу!<br>
-                        Получайте помощь, делитесь мирами и следите за обновлениями Minecraft.
-                    </p>
-                    <div class="online-status">
-                        <span class="status-indicator-online"></span>
-                        <span>Сервер работает стабильно</span>
-                    </div>
-                    <div class="discord-stats">
-                        <div class="discord-stat">
-                            <span class="discord-stat-value" id="discordOnlineCount">156</span>
-                            <span class="discord-stat-label">Крафтеров</span>
+            
+            <div class="hero-visual">
+                <div class="launcher-preview">
+                    <div class="launcher-window">
+                        <div class="launcher-header">
+                            <div class="window-controls">
+                                <span class="control"></span>
+                                <span class="control"></span>
+                                <span class="control"></span>
+                            </div>
+                            <span class="window-title">CraftLauncher v2.1</span>
                         </div>
-                        <div class="discord-stat">
-                            <span class="discord-stat-value"><img src="/icons/gameIcons/PNG/White/1x/medal1.png" alt="Любовь" style="width: 1.2rem; height: 1.2rem;"></span>
-                            <span class="discord-stat-label">Любим вас</span>
+                        <div class="launcher-body">
+                            <div class="launcher-sidebar">
+                                <div class="launcher-menu">
+                                    <div class="menu-item active">🏠 Главная</div>
+                                    <div class="menu-item">📦 Модпаки</div>
+                                    <div class="menu-item">🔧 Настройки</div>
+                                </div>
+                            </div>
+                            <div class="launcher-main">
+                                <div class="version-selector">
+                                    <select>
+                                        <option>Minecraft 1.21.6</option>
+                                        <option>Minecraft 1.20.4</option>
+                                        <option>Minecraft 1.19.4</option>
+                                    </select>
+                                </div>
+                                <button class="play-button">▶ ИГРАТЬ</button>
+                            </div>
                         </div>
                     </div>
-                    <a href="https://discord.com/invite/49bt" target="_blank" class="discord-invite-btn">
-                        <span class="discord-online-dot"></span>
-                        Присоединиться к серверу
-                    </a>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Контейнер лобби (скрыт) -->
-    <div id="lobbyContainer" class="lobby-container">
-        <!-- Шапка лобби -->
-        <header class="lobby-header">
-            <div class="lobby-logo neon-glow">CraftLauncher</div>
-            <div class="user-info">
-                <div class="user-avatar" id="userAvatar"></div>
-                <div class="user-details">
-                    <div class="username" id="username"></div>
-                    <div class="user-rating" id="userRating"></div>
+    <!-- Платформы секция -->
+    <section class="platforms">
+        <div class="container">
+            <h2 class="section-title">Поддерживаемые платформы</h2>
+            <div class="platforms-grid">
+                <div class="platform-card">
+                    <img src="/icons/gameIcons/PNG/White/1x/gear.png" alt="CurseForge" class="platform-icon">
+                    <h3>CurseForge</h3>
+                    <p>Тысячи модов и модпаков</p>
+                    <span class="platform-badge">40K+ модов</span>
                 </div>
-                <button class="logout-btn" id="logoutBtn">Выход</button>
-            </div>
-        </header>
-
-        <!-- Основной контент -->
-        <div class="lobby-content">
-            <!-- Секция лаунчера -->
-            <main class="launcher-section">
-                <h2 class="section-title">CraftLauncher - Лучший лаунчер для Minecraft</h2>
                 
-                <!-- Главная карточка скачивания -->
-                <div class="download-card main-download">
-                    <div class="download-icon">
-                        <img src="/icons/gameIcons/PNG/White/1x/download.png" alt="Скачать" style="width: 4rem; height: 4rem;">
+                <div class="platform-card">
+                    <img src="/icons/gameIcons/PNG/White/1x/star.png" alt="Modrinth" class="platform-icon">
+                    <h3>Modrinth</h3>
+                    <p>Современная платформа модов</p>
+                    <span class="platform-badge">15K+ модов</span>
+                </div>
+                
+                <div class="platform-card">
+                    <img src="/icons/gameIcons/PNG/White/1x/wrench.png" alt="Forge" class="platform-icon">
+                    <h3>Forge</h3>
+                    <p>Классический модлоадер</p>
+                    <span class="platform-badge">Все версии</span>
+                </div>
+                
+                <div class="platform-card">
+                    <img src="/icons/gameIcons/PNG/White/1x/cpu.png" alt="Fabric" class="platform-icon">
+                    <h3>Fabric</h3>
+                    <p>Легкий и быстрый</p>
+                    <span class="platform-badge">Оптимизация</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Особенности секция -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="features-header">
+                <h2 class="section-title">Почему CraftLauncher?</h2>
+                <p class="section-description">
+                    Мы создали самый продвинутый лаунчер для Minecraft с функциями, 
+                    которых нет ни в одном другом лаунчере.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="/icons/gameIcons/PNG/White/1x/power.png" alt="Быстрый запуск">
                     </div>
-                    <div class="download-content">
-                        <h3 class="download-title">Скачать CraftLauncher</h3>
-                        <p class="download-description">Современный лаунчер с поддержкой всех версий Minecraft, модов и текстур-паков</p>
-                        <button class="download-btn btn-cyber" id="downloadBtn">
-                            <img src="/icons/gameIcons/PNG/White/1x/download.png" alt="Download" style="width: 1.2rem; height: 1.2rem; margin-right: 0.5rem;">
-                            Скачать лаунчер
+                    <h3>Мгновенный запуск</h3>
+                    <p>Запуск игры за секунды благодаря оптимизированному коду и кэшированию.</p>
+                    <ul class="feature-list">
+                        <li>Автоматическая настройка RAM</li>
+                        <li>Предзагрузка ресурсов</li>
+                        <li>Оптимизация JVM</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="/icons/gameIcons/PNG/White/1x/cloud.png" alt="Облачная синхронизация">
+                    </div>
+                    <h3>Облачная синхронизация</h3>
+                    <p>Ваши настройки, миры и моды синхронизируются между устройствами.</p>
+                    <ul class="feature-list">
+                        <li>Резервное копирование миров</li>
+                        <li>Синхронизация настроек</li>
+                        <li>Список модов в облаке</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="/icons/gameIcons/PNG/White/1x/wrench.png" alt="Умный менеджер модов">
+                    </div>
+                    <h3>Умный менеджер модов</h3>
+                    <p>ИИ-помощник для установки совместимых модов и решения конфликтов.</p>
+                    <ul class="feature-list">
+                        <li>Автоматическое разрешение зависимостей</li>
+                        <li>Обнаружение конфликтов</li>
+                        <li>Рекомендации модов</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="/icons/gameIcons/PNG/White/1x/locked.png" alt="Безопасность">
+                    </div>
+                    <h3>Максимальная безопасность</h3>
+                    <p>Проверка модов на вирусы и вредоносный код в реальном времени.</p>
+                    <ul class="feature-list">
+                        <li>Антивирусное сканирование</li>
+                        <li>Цифровые подписи</li>
+                        <li>Изолированные профили</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="/icons/gameIcons/PNG/White/1x/userRobot.png" alt="Профили">
+                    </div>
+                    <h3>Безграничные профили</h3>
+                    <p>Создавайте неограниченное количество профилей для разных серверов.</p>
+                    <ul class="feature-list">
+                        <li>Отдельные настройки</li>
+                        <li>Изолированные моды</li>
+                        <li>Быстрое переключение</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="/icons/gameIcons/PNG/White/1x/multiplayer.png" alt="Сообщество">
+                    </div>
+                    <h3>Интеграция с сообществом</h3>
+                    <p>Подключайтесь к серверам и друзьям прямо из лаунчера.</p>
+                    <ul class="feature-list">
+                        <li>Список друзей</li>
+                        <li>Браузер серверов</li>
+                        <li>Встроенный чат</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Скачивание секция -->
+    <section class="download-section" id="download">
+        <div class="container">
+            <div class="download-content">
+                <h2 class="section-title">Скачать CraftLauncher</h2>
+                <p class="section-description">
+                    Начните играть в Minecraft с лучшим лаунчером уже сегодня!
+                </p>
+                
+                <div class="download-platforms">
+                    <div class="platform-download">
+                        <div class="platform-info">
+                            <img src="/icons/gameIcons/PNG/White/1x/download.png" alt="Windows" class="platform-logo">
+                            <div>
+                                <h3>Windows</h3>
+                                <p>Windows 10/11 • 64-bit</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-download" data-platform="windows">
+                            Скачать для Windows
                         </button>
-                        <div class="download-info">
-                            <span>Версия 2.1.0 • Windows/Mac/Linux • Бесплатно</span>
+                    </div>
+                    
+                    <div class="platform-download">
+                        <div class="platform-info">
+                            <img src="/icons/gameIcons/PNG/White/1x/download.png" alt="macOS" class="platform-logo">
+                            <div>
+                                <h3>macOS</h3>
+                                <p>macOS 10.15+ • Intel/Apple Silicon</p>
+                            </div>
                         </div>
+                        <button class="btn btn-download" data-platform="mac">
+                            Скачать для macOS
+                        </button>
+                    </div>
+                    
+                    <div class="platform-download">
+                        <div class="platform-info">
+                            <img src="/icons/gameIcons/PNG/White/1x/download.png" alt="Linux" class="platform-logo">
+                            <div>
+                                <h3>Linux</h3>
+                                <p>Ubuntu 18.04+ • AppImage/Flatpak</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-download" data-platform="linux">
+                            Скачать для Linux
+                        </button>
                     </div>
                 </div>
-
-                <!-- Сетка особенностей -->
-                <div class="features-grid">
-                    <div class="feature-card wave-effect">
-                        <div class="feature-icon">
-                            <img src="/icons/gameIcons/PNG/White/1x/gear.png" alt="Все версии" style="width: 3rem; height: 3rem;">
-                        </div>
-                        <div class="feature-title">Все версии Minecraft</div>
-                        <div class="feature-description">От Alpha до последних снапшотов. Forge, Fabric, Quilt поддержка</div>
+                
+                <div class="download-info">
+                    <div class="info-item">
+                        <img src="/icons/gameIcons/PNG/White/1x/checkmark.png" alt="Бесплатно">
+                        <span>Полностью бесплатно</span>
                     </div>
-                    
-                    <div class="feature-card wave-effect">
-                        <div class="feature-icon">
-                            <img src="/icons/gameIcons/PNG/White/1x/power.png" alt="Быстрый запуск" style="width: 3rem; height: 3rem;">
-                        </div>
-                        <div class="feature-title">Быстрый запуск</div>
-                        <div class="feature-description">Оптимизированный код для мгновенного запуска игры</div>
+                    <div class="info-item">
+                        <img src="/icons/gameIcons/PNG/White/1x/locked.png" alt="Безопасно">
+                        <span>Без вирусов и рекламы</span>
                     </div>
-                    
-                    <div class="feature-card wave-effect">
-                        <div class="feature-icon">
-                            <img src="/icons/gameIcons/PNG/White/1x/wrench.png" alt="Моды" style="width: 3rem; height: 3rem;">
-                        </div>
-                        <div class="feature-title">Менеджер модов</div>
-                        <div class="feature-description">Легкая установка и управление модами из популярных источников</div>
-                    </div>
-                    
-                    <div class="feature-card wave-effect">
-                        <div class="feature-icon">
-                            <img src="/icons/gameIcons/PNG/White/1x/userRobot.png" alt="Профили" style="width: 3rem; height: 3rem;">
-                        </div>
-                        <div class="feature-title">Множество профилей</div>
-                        <div class="feature-description">Создавайте отдельные профили для разных версий и сборок</div>
-                    </div>
-                    
-                    <div class="feature-card wave-effect">
-                        <div class="feature-icon">
-                            <img src="/icons/gameIcons/PNG/White/1x/cloud.png" alt="Синхронизация" style="width: 3rem; height: 3rem;">
-                        </div>
-                        <div class="feature-title">Облачная синхронизация</div>
-                        <div class="feature-description">Сохраняйте настройки и миры в облаке</div>
-                    </div>
-                    
-                    <div class="feature-card wave-effect">
-                        <div class="feature-icon">
-                            <img src="/icons/gameIcons/PNG/White/1x/locked.png" alt="Безопасность" style="width: 3rem; height: 3rem;">
-                        </div>
-                        <div class="feature-title">Полная безопасность</div>
-                        <div class="feature-description">Все файлы проверяются на вирусы и безопасность</div>
+                    <div class="info-item">
+                        <img src="/icons/gameIcons/PNG/White/1x/cloud.png" alt="Автообновление">
+                        <span>Автоматические обновления</span>
                     </div>
                 </div>
-            </main>
+            </div>
+        </div>
+    </section>
 
-            <!-- Боковая панель -->
-            <aside class="sidebar">
-                <!-- Discord сервер -->
-                <div class="discord-sidebar-widget">
-                    <div class="discord-sidebar-header">
-                        <div class="discord-sidebar-icon"><img src="/icons/gameIcons/PNG/White/1x/multiplayer.png" alt="Discord" style="width: 1.5rem; height: 1.5rem;"></div>
-                        <div class="discord-sidebar-title">Discord</div>
-                    </div>
-                    <div class="discord-sidebar-content">
-                        <div class="discord-sidebar-server">CraftLauncher Community</div>
-                        <div class="discord-sidebar-count">
-                            <span class="discord-online-dot"></span>
-                            <span id="discordSidebarCount">156</span> крафтеров онлайн <img src="/icons/gameIcons/PNG/White/1x/medal1.png" alt="❤" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;">
+    <!-- Сообщество секция -->
+    <section class="community" id="community">
+        <div class="container">
+            <div class="community-content">
+                <div class="community-info">
+                    <h2 class="section-title">Присоединяйтесь к сообществу</h2>
+                    <p class="section-description">
+                        Более 100,000 игроков уже используют CraftLauncher. 
+                        Присоединяйтесь к нашему активному сообществу!
+                    </p>
+                    
+                    <div class="community-stats">
+                        <div class="stat-card">
+                            <span class="stat-number">100K+</span>
+                            <span class="stat-label">Активных пользователей</span>
                         </div>
-                        <a href="https://discord.com/invite/49bt" target="_blank" class="discord-sidebar-btn">
-                            Присоединиться
+                        <div class="stat-card">
+                            <span class="stat-number">25K+</span>
+                            <span class="stat-label">В Discord сервере</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">1.2M+</span>
+                            <span class="stat-label">Скачиваний</span>
+                        </div>
+                    </div>
+                    
+                    <div class="community-actions">
+                        <a href="https://discord.com/invite/49bt" class="btn btn-discord" target="_blank">
+                            <img src="/icons/gameIcons/PNG/White/1x/multiplayer.png" alt="Discord" class="btn-icon">
+                            Присоединиться к Discord
+                        </a>
+                        <a href="https://github.com/ExtraTools/XOonline" class="btn btn-github" target="_blank">
+                            <img src="/icons/gameIcons/PNG/White/1x/gear.png" alt="GitHub" class="btn-icon">
+                            GitHub
                         </a>
                     </div>
                 </div>
-
-                <!-- Активные пользователи -->
-                <div class="sidebar-card">
-                    <h3 class="section-title">Пользователи онлайн (<span id="onlineCount">24</span>)</h3>
-                    <div id="userList" class="user-list">
-                        <div class="user-item">
-                            <div class="user-item-avatar">S</div>
-                            <div class="user-item-info">
-                                <div class="user-item-name">Steve_Miner</div>
-                                <div class="user-item-status">Играет в 1.20.4</div>
-                            </div>
+                
+                <div class="discord-widget">
+                    <div class="widget-header">
+                        <img src="/icons/gameIcons/PNG/White/1x/multiplayer.png" alt="Discord" class="widget-icon">
+                        <div>
+                            <h3>CraftLauncher Community</h3>
+                            <p>Онлайн: <span class="online-count">2,147</span> участников</p>
                         </div>
-                        <div class="user-item">
-                            <div class="user-item-avatar">A</div>
-                            <div class="user-item-info">
-                                <div class="user-item-name">Alex_Builder</div>
-                                <div class="user-item-status">Модифицирует мир</div>
-                            </div>
+                    </div>
+                    
+                    <div class="widget-channels">
+                        <div class="channel">
+                            <span class="channel-name"># общий</span>
+                            <span class="channel-count">342 онлайн</span>
                         </div>
-                        <div class="user-item">
-                            <div class="user-item-avatar">C</div>
-                            <div class="user-item-info">
-                                <div class="user-item-name">CraftMaster</div>
-                                <div class="user-item-status">В главном меню</div>
-                            </div>
+                        <div class="channel">
+                            <span class="channel-name"># помощь</span>
+                            <span class="channel-count">89 онлайн</span>
+                        </div>
+                        <div class="channel">
+                            <span class="channel-name"># моды</span>
+                            <span class="channel-count">156 онлайн</span>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
 
-                <!-- Статистика лаунчера -->
-                <div class="sidebar-card">
-                    <h3 class="section-title">Статистика</h3>
-                    <div class="stat-item">
-                        <span>Пользователей онлайн:</span>
-                        <span class="stat-value" id="statsOnline">1,247</span>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="brand-info">
+                        <img src="/icons/gameIcons/PNG/White/1x/gamepad.png" alt="CraftLauncher" class="footer-logo">
+                        <span class="footer-title">CraftLauncher</span>
                     </div>
-                    <div class="stat-item">
-                        <span>Скачиваний:</span>
-                        <span class="stat-value" id="statsDownloads">89,432</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>Активных серверов:</span>
-                        <span class="stat-value" id="statsServers">156</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>Версий Minecraft:</span>
-                        <span class="stat-value" id="statsVersions">847</span>
+                    <p class="footer-description">
+                        Новое поколение Minecraft лаунчера. Быстро, безопасно, удобно.
+                    </p>
+                    <div class="footer-socials">
+                        <a href="#" class="social-link">Discord</a>
+                        <a href="#" class="social-link">Twitter</a>
+                        <a href="#" class="social-link">GitHub</a>
                     </div>
                 </div>
-            </aside>
+                
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Продукт</h4>
+                        <a href="#features">Возможности</a>
+                        <a href="#download">Скачать</a>
+                        <a href="#">Обновления</a>
+                        <a href="#">Changelog</a>
+                    </div>
+                    
+                    <div class="link-group">
+                        <h4>Поддержка</h4>
+                        <a href="#">Документация</a>
+                        <a href="#">FAQ</a>
+                        <a href="#">Техподдержка</a>
+                        <a href="#">Сообщить об ошибке</a>
+                    </div>
+                    
+                    <div class="link-group">
+                        <h4>Сообщество</h4>
+                        <a href="#">Discord</a>
+                        <a href="#">Reddit</a>
+                        <a href="#">Twitter</a>
+                        <a href="#">YouTube</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 CraftLauncher. Все права защищены.</p>
+                <p>Не является официальным продуктом Minecraft. Не одобрено и не связано с Mojang.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальные окна -->
+    
+    <!-- Модальное окно входа -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Вход в аккаунт</h2>
+                <button class="modal-close" data-modal="loginModal">&times;</button>
+            </div>
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email или username</label>
+                    <input type="text" id="loginEmail" name="login" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Войти</button>
+                    <a href="#" class="forgot-link">Забыли пароль?</a>
+                </div>
+                <div class="form-error" id="loginError"></div>
+            </form>
         </div>
     </div>
 
+    <!-- Модальное окно регистрации -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Создать аккаунт</h2>
+                <button class="modal-close" data-modal="registerModal">&times;</button>
+            </div>
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label for="registerUsername">Имя пользователя</label>
+                    <input type="text" id="registerUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Пароль</label>
+                    <input type="password" id="registerPassword" name="password" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Создать аккаунт</button>
+                </div>
+                <div class="form-error" id="registerError"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/js/launcher.js"></script>
     <script src="/js/passwordStrength.js"></script>
-    <script src="/js/lobby.js"></script>
 </body>
 </html> 
