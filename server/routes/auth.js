@@ -176,6 +176,7 @@ router.post('/login', loginValidation, async (req, res) => {
 
         const { login, password } = req.body;
         console.log('🔍 Looking for user:', login);
+        console.log('🔍 Input password:', password);
 
         // Находим пользователя по email или username
         let user = await userQueries.findByEmail(login);
@@ -193,7 +194,12 @@ router.post('/login', loginValidation, async (req, res) => {
         
         console.log('🟢 User found:', user.username);
         console.log('🔑 Password hash from DB:', user.password_hash ? 'exists' : 'missing');
+        console.log('🔍 Hash length:', user.password_hash ? user.password_hash.length : 'null');
 
+        // ВРЕМЕННАЯ ДИАГНОСТИКА - создаем тестовый хеш
+        const testHash = await bcrypt.hash(password, 12);
+        console.log('🧪 Test hash for current password:', testHash);
+        
         // Проверяем пароль
         console.log('🔍 Input password length:', password.length);
         console.log('🔍 Stored hash length:', user.password_hash ? user.password_hash.length : 'null');
@@ -201,14 +207,27 @@ router.post('/login', loginValidation, async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
         console.log('🔐 Password validation result:', isPasswordValid);
         
+        // ВРЕМЕННАЯ ДИАГНОСТИКА - проверяем прямое сравнение
         if (!isPasswordValid) {
             console.log('❌ Password validation failed for user:', user.username);
             console.log('❌ Input password:', password);
             console.log('❌ Hash from DB:', user.password_hash);
-            return res.status(400).json({
-                success: false,
-                message: 'Неверный логин или пароль'
-            });
+            
+            // ВРЕМЕННОЕ РЕШЕНИЕ: если пароль равен простому тексту
+            if (password === user.password_hash) {
+                console.log('🚨 FOUND ISSUE: Password stored as plain text!');
+                console.log('🔧 Fixing by updating hash...');
+                
+                // Обновляем пароль с правильным хешем
+                const newHash = await bcrypt.hash(password, 12);
+                await userQueries.updatePassword(user.id, newHash);
+                console.log('✅ Password hash updated');
+            } else {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Неверный логин или пароль'
+                });
+            }
         }
 
         // Создаем JWT токен
@@ -319,6 +338,57 @@ router.get('/verify', authenticateToken, (req, res) => {
             email: req.user.email
         }
     });
+});
+
+// ВРЕМЕННЫЙ МАРШРУТ ДЛЯ ОТЛАДКИ - удалить позже
+router.post('/debug-login', async (req, res) => {
+    try {
+        const { login, password } = req.body;
+        console.log('🐛 DEBUG LOGIN:', { login, password });
+        
+        // Находим пользователя
+        let user = await userQueries.findByEmail(login);
+        if (!user) {
+            user = await userQueries.findByUsername(login);
+        }
+        
+        if (!user) {
+            return res.json({ success: false, message: 'Пользователь не найден', debug: true });
+        }
+        
+        console.log('🐛 DEBUG USER:', {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            hasHash: !!user.password_hash,
+            hashLength: user.password_hash?.length,
+            hashStart: user.password_hash?.substring(0, 10) + '...'
+        });
+        
+        // Проверяем разные варианты
+        const directMatch = password === user.password_hash;
+        const bcryptMatch = await bcrypt.compare(password, user.password_hash);
+        
+        console.log('🐛 DEBUG CHECKS:', { directMatch, bcryptMatch });
+        
+        res.json({
+            success: false,
+            debug: true,
+            info: {
+                userFound: true,
+                username: user.username,
+                hasHash: !!user.password_hash,
+                hashLength: user.password_hash?.length,
+                directMatch,
+                bcryptMatch,
+                inputLength: password.length
+            }
+        });
+        
+    } catch (error) {
+        console.error('🐛 DEBUG ERROR:', error);
+        res.json({ success: false, error: error.message, debug: true });
+    }
 });
 
 export default router; 

@@ -218,6 +218,20 @@ export const userQueries = {
                 }
             );
         });
+    },
+
+    // Обновление пароля пользователя
+    updatePassword: (userId, newPasswordHash) => {
+        return new Promise((resolve, reject) => {
+            db.run(
+                'UPDATE users SET password_hash = ? WHERE id = ?',
+                [newPasswordHash, userId],
+                (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                }
+            );
+        });
     }
 };
 
