@@ -191,7 +191,7 @@ router.post('/login', loginValidation, async (req, res) => {
             });
         }
         
-        console.log('✅ User found:', user.username);
+        console.log('🟢 User found:', user.username);
         console.log('🔑 Password hash from DB:', user.password_hash ? 'exists' : 'missing');
 
         // Проверяем пароль

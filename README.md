@@ -1,20 +1,20 @@
-# 🦕 DinosGames - Игровая площадка
+# <img src="/icons/gameIcons/PNG/Black/1x/gamepad.png" alt="DinosGames" style="width: 2rem; height: 2rem; display: inline-block; vertical-align: middle;"> DinosGames - Игровая площадка
 
 Современная игровая площадка с множеством игр и системой аккаунтов.
 
-## 🎮 Доступные игры
+## <img src="/icons/gameIcons/PNG/Black/1x/joystick.png" alt="Игры" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Доступные игры
 
-### ✅ Крестики-нолики
+### <img src="/icons/gameIcons/PNG/Black/1x/checkmark.png" alt="Готово" style="width: 1.2rem; height: 1.2rem; display: inline-block; vertical-align: middle;"> Крестики-нолики
 - **Статус**: Готово
 - **Режимы**: Против ИИ, против игрока, локальная игра
 - **Особенности**: 4 уровня сложности ИИ, рейтинговая система, красивый интерфейс
 
-### 🔄 В разработке
+### <img src="/icons/gameIcons/PNG/Black/1x/gear.png" alt="В разработке" style="width: 1.2rem; height: 1.2rem; display: inline-block; vertical-align: middle;"> В разработке
 - **Змейка**: Классическая змейка с современным дизайном
 - **Тетрис**: Легендарная головоломка с падающими блоками
 - **Больше игр**: Следите за обновлениями!
 
-## 🚀 Технологии
+## <img src="/icons/gameIcons/PNG/Black/1x/power.png" alt="Технологии" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Технологии
 
 ### Frontend
 - **HTML5**: Современная семантическая разметка
@@ -33,7 +33,7 @@
 - **Railway**: Автоматический деплой
 - **GitHub**: Система контроля версий
 
-## 📁 Структура проекта
+## <img src="/icons/gameIcons/PNG/Black/1x/menuList.png" alt="Структура" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Структура проекта
 
 ```
 DinosGames/
@@ -105,7 +105,7 @@ http://localhost:6666
 
 **Живой сайт**: https://xoonline-production-63d1.up.railway.app
 
-## 👤 Система аккаунтов
+## <img src="/icons/gameIcons/PNG/Black/1x/userRobot.png" alt="Аккаунты" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Система аккаунтов
 
 ### Регистрация и вход
 - **Email + пароль**: Полная регистрация с сохранением прогресса
@@ -117,7 +117,7 @@ http://localhost:6666
 - **Достижения**: Награды за различные достижения
 - **История игр**: Последние матчи с детализацией
 
-## 🎯 Особенности крестиков-ноликов
+## <img src="/icons/gameIcons/PNG/Black/1x/target.png" alt="Особенности" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Особенности крестиков-ноликов
 
 ### Режимы игры
 1. **Против ИИ**: 4 уровня сложности
@@ -140,7 +140,7 @@ http://localhost:6666
 - **Система рейтинга**: ELO-подобная система
 - **Статистика**: Детальная аналитика игр
 
-## 👑 Админ панель
+## <img src="/icons/gameIcons/PNG/Black/1x/trophy.png" alt="Админ панель" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Админ панель
 
 Доступ по коду `admin-start` в левом верхнем углу.
 
@@ -151,7 +151,7 @@ http://localhost:6666
 - **Сервер**: Статистика, перезагрузка, режим обслуживания
 - **Логи**: Мониторинг активности
 
-## 🎨 Дизайн
+## <img src="/icons/gameIcons/PNG/Black/1x/toolBrush.png" alt="Дизайн" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Дизайн
 
 ### Стилевые особенности
 - **Glass Morphism**: Полупрозрачные элементы с размытием
@@ -167,7 +167,7 @@ http://localhost:6666
 - **Предупреждение**: #F9CA24 (желтый)
 - **Опасность**: #F0932B (красный)
 
-## 🔧 API
+## <img src="/icons/gameIcons/PNG/Black/1x/wrench.png" alt="API" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> API
 
 ### Авторизация
 - `POST /api/guest/login` - Гостевой вход
@@ -185,7 +185,7 @@ http://localhost:6666
 - `game-finished` - Завершение игры
 - `admin-action` - Админские действия
 
-## 📊 Мониторинг
+## <img src="/icons/gameIcons/PNG/Black/1x/leaderboardsSimple.png" alt="Мониторинг" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Мониторинг
 
 ### Метрики
 - **Онлайн пользователи**: Текущее количество
@@ -199,7 +199,7 @@ http://localhost:6666
 - **Ошибки**: Отслеживание проблем
 - **Админ действия**: Журнал администрирования
 
-## 🔒 Безопасность
+## <img src="/icons/gameIcons/PNG/Black/1x/locked.png" alt="Безопасность" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Безопасность
 
 ### Защита
 - **Валидация данных**: Проверка всех входных данных
@@ -212,7 +212,7 @@ http://localhost:6666
 - **Система жалоб**: Возможность пожаловаться
 - **Админ панель**: Инструменты модерации
 
-## 🚀 Производительность
+## <img src="/icons/gameIcons/PNG/Black/1x/power.png" alt="Производительность" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Производительность
 
 ### Оптимизации
 - **Сжатие**: Минификация CSS/JS
@@ -225,7 +225,7 @@ http://localhost:6666
 - **MongoDB**: Масштабируемая база данных
 - **Railway**: Автоматическое масштабирование
 
-## 🐛 Известные проблемы
+## <img src="/icons/gameIcons/PNG/Black/1x/exclamation.png" alt="Проблемы" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Известные проблемы
 
 ### В работе
 - Иногда соединение может прерываться на слабом интернете
@@ -236,33 +236,33 @@ http://localhost:6666
 - Оптимизация для мобильных устройств
 - Добавление PWA функций
 
-## 🎯 Roadmap
+## <img src="/icons/gameIcons/PNG/Black/1x/target.png" alt="Roadmap" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Roadmap
 
 ### v1.0.0 (Текущая)
-- ✅ Система аккаунтов
-- ✅ Крестики-нолики с ИИ
-- ✅ Админ панель
-- ✅ Рейтинговая система
+- <img src="/icons/gameIcons/PNG/Black/1x/checkmark.png" alt="✅" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Система аккаунтов
+- <img src="/icons/gameIcons/PNG/Black/1x/checkmark.png" alt="✅" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Крестики-нолики с ИИ
+- <img src="/icons/gameIcons/PNG/Black/1x/checkmark.png" alt="✅" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Админ панель
+- <img src="/icons/gameIcons/PNG/Black/1x/checkmark.png" alt="✅" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Рейтинговая система
 
 ### v1.1.0 (Ближайшие планы)
-- 🔄 Игра "Змейка"
-- 🔄 Система друзей
-- 🔄 Чат в играх
-- 🔄 Турниры
+- <img src="/icons/gameIcons/PNG/Black/1x/gear.png" alt="🔄" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Игра "Змейка"
+- <img src="/icons/gameIcons/PNG/Black/1x/gear.png" alt="🔄" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Система друзей
+- <img src="/icons/gameIcons/PNG/Black/1x/gear.png" alt="🔄" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Чат в играх
+- <img src="/icons/gameIcons/PNG/Black/1x/gear.png" alt="🔄" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Турниры
 
 ### v1.2.0 (Будущие планы)
-- 📋 Игра "Тетрис"
-- 📋 Система кланов
-- 📋 Магазин скинов
-- 📋 Ежедневные квесты
+- <img src="/icons/gameIcons/PNG/Black/1x/menuList.png" alt="📋" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Игра "Тетрис"
+- <img src="/icons/gameIcons/PNG/Black/1x/menuList.png" alt="📋" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Система кланов
+- <img src="/icons/gameIcons/PNG/Black/1x/menuList.png" alt="📋" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Магазин скинов
+- <img src="/icons/gameIcons/PNG/Black/1x/menuList.png" alt="📋" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Ежедневные квесты
 
 ### v2.0.0 (Долгосрочные планы)
-- 📋 Мобильное приложение
-- 📋 Больше игр (шахматы, шашки)
-- 📋 Система донатов
-- 📋 Международная локализация
+- <img src="/icons/gameIcons/PNG/Black/1x/menuList.png" alt="📋" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Мобильное приложение
+- <img src="/icons/gameIcons/PNG/Black/1x/menuList.png" alt="📋" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Больше игр (шахматы, шашки)
+- <img src="/icons/gameIcons/PNG/Black/1x/menuList.png" alt="📋" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Система донатов
+- <img src="/icons/gameIcons/PNG/Black/1x/menuList.png" alt="📋" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle;"> Международная локализация
 
-## 🤝 Вклад в проект
+## <img src="/icons/gameIcons/PNG/Black/1x/multiplayer.png" alt="Вклад" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: middle;"> Вклад в проект
 
 ### Как помочь
 1. **Тестирование**: Ищите баги и сообщайте о них
@@ -290,4 +290,4 @@ http://localhost:6666
 
 **Сделано с ❤️ командой DinosGames**
 
-*Играйте честно, веселитесь и побеждайте!* 🏆 
+*Играйте честно, веселитесь и побеждайте!* <img src="/icons/gameIcons/PNG/Black/1x/trophy.png" alt="🏆" style="width: 1.2rem; height: 1.2rem; display: inline-block; vertical-align: middle;"> 

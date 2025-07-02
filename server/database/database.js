@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'production') {
         if (err) {
             console.error('❌ Ошибка создания базы в памяти:', err);
         } else {
-            console.log('✅ База данных в памяти готова');
+            console.log('🟢 База данных в памяти готова');
         }
     });
 } else {
@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === 'production') {
         if (err) {
             console.error('❌ Ошибка открытия файла базы:', err);
         } else {
-            console.log('✅ База данных файл готова');
+            console.log('🟢 База данных файл готова');
         }
     });
 }
@@ -101,7 +101,7 @@ export const initDatabase = () => {
                     reject(err);
                     return;
                 }
-                console.log('✅ База данных инициализирована');
+                console.log('🟢 База данных инициализирована');
                 resolve();
             });
         });
@@ -149,7 +149,7 @@ export const userQueries = {
                         console.log('❌ DB error in findByEmail:', err);
                         reject(err);
                     } else {
-                        console.log('📊 DB result:', row ? 'found' : 'not found');
+                        console.log('💾 DB result:', row ? 'found' : 'not found');
                         resolve(row);
                     }
                 }
@@ -183,7 +183,7 @@ export const userQueries = {
                         console.log('❌ DB error in findByUsername:', err);
                         reject(err);
                     } else {
-                        console.log('📊 DB result:', row ? 'found' : 'not found');
+                        console.log('💾 DB result:', row ? 'found' : 'not found');
                         resolve(row);
                     }
                 }

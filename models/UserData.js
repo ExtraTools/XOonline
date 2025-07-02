@@ -30,10 +30,10 @@ class UserDataManager {
                 lastUpdate: null
             };
 
-            console.log(`📊 Загружено ${Object.keys(this.users).length} пользователей`);
+            console.log(`💾 Загружено ${Object.keys(this.users).length} пользователей`);
         } catch (error) {
             if (error.code === 'ENOENT') {
-                console.log('📁 Файл данных не найден, создаю новый...');
+                console.log('📄 Файл данных не найден, создаю новый...');
                 await this.saveData();
             } else {
                 console.error('❌ Ошибка загрузки данных пользователей:', error);
@@ -63,7 +63,7 @@ class UserDataManager {
         const normalizedNick = nickname.toLowerCase().trim();
         
         if (this.users[normalizedNick]) {
-            console.log(`👤 Загружен пользователь: ${nickname}`);
+            console.log(`🟢 Загружен пользователь: ${nickname}`);
             return {
                 ...this.users[normalizedNick],
                 nickname: nickname, // Оригинальное написание
@@ -212,7 +212,7 @@ class UserDataManager {
         user.rating = Math.max(0, Math.min(3000, user.rating));
 
         await this.saveData();
-        console.log(`📊 Обновлена статистика ${nickname}: Рейтинг ${user.rating}, Уровень ${user.level}`);
+        console.log(`💾 Обновлена статистика ${nickname}: Рейтинг ${user.rating}, Уровень ${user.level}`);
     }
 
     // Расчет изменения рейтинга
@@ -273,7 +273,7 @@ class UserDataManager {
         achievements.forEach(achievement => {
             if (!user.achievements.includes(achievement)) {
                 user.achievements.push(achievement);
-                console.log(`🏆 ${user.nickname} получил достижение: ${achievement}`);
+                console.log(`🎖️ ${user.nickname} получил достижение: ${achievement}`);
             }
         });
     }
