@@ -1,4 +1,4 @@
-// Modern Launcher App для CraftLauncher
+// Modern Launcher App для DiLauncher
 
 class ModernLauncher {
     constructor() {
