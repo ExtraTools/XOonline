@@ -50,8 +50,8 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/api/status', (req, res) => {
-    res.json({
-        status: 'ok',
+        res.json({
+        status: 'ok', 
         message: 'DiLauncher сервер работает на Railway',
         version: '2.0.0',
         features: [
@@ -71,7 +71,7 @@ app.get('/api/status', (req, res) => {
 // Простая авторизация (mock данные)
 app.post('/api/auth/login', (req, res) => {
     const { login, password } = req.body;
-    
+
     // Тестовые аккаунты
     const testUsers = {
         'steve': 'password123',
@@ -119,7 +119,7 @@ app.post('/api/auth/register', (req, res) => {
         }
     });
 });
-
+    
 // Профили лаунчера
 app.get('/api/launcher/profiles', (req, res) => {
     res.json({
@@ -161,7 +161,7 @@ app.post('/api/launcher/profiles', (req, res) => {
             memoryAllocation: memoryAllocation || 4096,
             createdAt: new Date().toISOString()
         }
-    });
+        });
 });
 
 // Серверы
@@ -213,7 +213,7 @@ app.use('/api/*', (req, res) => {
         success: false,
         message: 'API endpoint не найден'
     });
-});
+}); 
 
 // SPA fallback
 app.get('*', (req, res) => {
