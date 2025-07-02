@@ -58,8 +58,8 @@
     font-weight: 700;
     color: var(--accent-primary);
     margin-bottom: 1rem;
-    text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 255, 255, 0.4);
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 25px rgba(255, 255, 255, 0.2);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
 }
 
 .success-message {
@@ -325,16 +325,29 @@
     z-index: 1;
 }
 
-.discord-widget .maintenance-status {
+.discord-widget .online-status {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
     font-size: 0.9rem;
-    color: #f59e0b;
+    color: #10b981;
     margin-bottom: 1.5rem;
     position: relative;
     z-index: 1;
+}
+
+.status-indicator-online {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
 }
 
 .discord-stats {

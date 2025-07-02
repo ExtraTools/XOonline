@@ -44,7 +44,7 @@
     background-clip: text;
     text-align: center;
     margin-bottom: 2rem;
-    text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 255, 255, 0.4);
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 25px rgba(255, 255, 255, 0.2);
     letter-spacing: 0.5px;
     animation: gradientShift 3s ease-in-out infinite;
     position: relative;
@@ -100,8 +100,8 @@
     background: linear-gradient(135deg, #ffffff, #f0f0f0);
     color: #000000;
     font-weight: 600;
-    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2);
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.2), 0 0 15px rgba(255, 255, 255, 0.1);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
 .form-group {
@@ -114,7 +114,7 @@
     color: #ffffff;
     font-size: 0.875rem;
     font-weight: 500;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
 }
 
 .form-input {
@@ -133,7 +133,7 @@
 .form-input:focus {
     outline: none;
     border-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15), 0 0 20px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), 0 0 15px rgba(255, 255, 255, 0.2);
     background: rgba(17, 17, 17, 0.95);
     transform: translateY(-1px);
     color: #ffffff;
@@ -155,8 +155,8 @@
     position: relative;
     overflow: hidden;
     animation: buttonGradient 3s ease-in-out infinite;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
 
 .form-button::before {
@@ -172,7 +172,7 @@
 
 .form-button:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4), 0 0 30px rgba(255, 255, 255, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .form-button:hover:not(:disabled)::before {
@@ -319,7 +319,7 @@
 
 .strength-text.strong {
     color: #ffffff;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.4);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4), 0 0 15px rgba(255, 255, 255, 0.2);
 }
 
 .strength-text.strong::before {
@@ -345,7 +345,7 @@
 
 .criteria-item.met {
     color: #ffffff;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
 .criteria-icon {
@@ -364,7 +364,7 @@
     background: #ffffff;
     border-color: #ffffff;
     color: #000000;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
 /* Responsive */
