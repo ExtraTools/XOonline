@@ -1,0 +1,335 @@
+/* Effects - Дополнительные эффекты и анимации */
+
+/* Глобальные эффекты свечения */
+.glow-text {
+    text-shadow: 
+        0 0 5px rgba(255, 255, 255, 0.4),
+        0 0 10px rgba(255, 255, 255, 0.3),
+        0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.glow-border {
+    box-shadow: 
+        0 0 20px rgba(255, 255, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Пульсирующее свечение */
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+    50% {
+        box-shadow: 
+            0 0 30px rgba(255, 255, 255, 0.6),
+            0 0 40px rgba(255, 255, 255, 0.4);
+    }
+}
+
+.pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Анимация появления с свечением */
+@keyframes fadeInGlow {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+        filter: blur(5px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+.fade-in-glow {
+    animation: fadeInGlow 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Эффект движущегося света */
+@keyframes light-sweep {
+    0% {
+        transform: translateX(-100%) skewX(-15deg);
+    }
+    100% {
+        transform: translateX(200%) skewX(-15deg);
+    }
+}
+
+.light-sweep {
+    position: relative;
+    overflow: hidden;
+}
+
+.light-sweep::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: light-sweep 3s ease-in-out infinite;
+}
+
+/* Эффект частиц */
+.particles {
+    position: relative;
+    overflow: hidden;
+}
+
+.particles::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.2), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.4), transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(2px 2px at 160px 30px, rgba(255, 255, 255, 0.2), transparent);
+    background-size: 200px 100px;
+    animation: particles-float 20s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes particles-float {
+    0% {
+        transform: translateY(100px);
+    }
+    100% {
+        transform: translateY(-100px);
+    }
+}
+
+/* Эффект голограммы */
+.hologram {
+    position: relative;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 70%
+    );
+    background-size: 20px 20px;
+    animation: hologram-scan 2s linear infinite;
+}
+
+@keyframes hologram-scan {
+    0% { background-position: 0 0; }
+    100% { background-position: 20px 20px; }
+}
+
+/* Неоновое свечение */
+.neon-glow {
+    color: #ffffff;
+    text-shadow:
+        0 0 3px rgba(255, 255, 255, 0.8),
+        0 0 6px rgba(255, 255, 255, 0.6),
+        0 0 10px rgba(255, 255, 255, 0.4),
+        0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+/* Мерцающий эффект */
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+    75% { opacity: 0.9; }
+    85% { opacity: 0.7; }
+}
+
+.flicker {
+    animation: flicker 1.5s ease-in-out infinite alternate;
+}
+
+/* Волновой эффект при наведении */
+.wave-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.wave-effect::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.wave-effect:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Эффект растворения */
+@keyframes dissolve {
+    0% {
+        opacity: 1;
+        filter: blur(0);
+    }
+    100% {
+        opacity: 0;
+        filter: blur(10px);
+    }
+}
+
+.dissolve {
+    animation: dissolve 2s ease-out forwards;
+}
+
+/* Эффект кристаллизации */
+.crystalline {
+    background: 
+        linear-gradient(135deg, transparent 25%, rgba(255, 255, 255, 0.1) 25%),
+        linear-gradient(225deg, transparent 25%, rgba(255, 255, 255, 0.1) 25%),
+        linear-gradient(315deg, transparent 25%, rgba(255, 255, 255, 0.1) 25%),
+        linear-gradient(45deg, transparent 25%, rgba(255, 255, 255, 0.1) 25%);
+    background-size: 30px 30px;
+    background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
+}
+
+/* Электрический эффект */
+@keyframes electric {
+    0%, 100% {
+        text-shadow: 
+            0 0 5px rgba(255, 255, 255, 0.8),
+            0 0 10px rgba(255, 255, 255, 0.6);
+    }
+    50% {
+        text-shadow: 
+            0 0 2px rgba(255, 255, 255, 1),
+            0 0 8px rgba(255, 255, 255, 0.8),
+            0 0 15px rgba(255, 255, 255, 0.6),
+            0 0 20px rgba(255, 255, 255, 0.4);
+    }
+}
+
+.electric {
+    animation: electric 0.1s ease-in-out infinite alternate;
+}
+
+/* Матричный эффект */
+.matrix {
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(255, 255, 255, 0.03) 2px,
+            rgba(255, 255, 255, 0.03) 4px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 2px,
+            rgba(255, 255, 255, 0.03) 2px,
+            rgba(255, 255, 255, 0.03) 4px
+        );
+}
+
+/* Эффект раздробленного стекла */
+.shattered {
+    position: relative;
+}
+
+.shattered::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(23deg, transparent 74%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05) 76%, transparent 77%, transparent),
+        linear-gradient(169deg, transparent 74%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05) 76%, transparent 77%, transparent),
+        linear-gradient(13deg, transparent 74%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05) 76%, transparent 77%, transparent);
+}
+
+/* Эффект дыхания */
+@keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+}
+
+.breathe {
+    animation: breathe 4s ease-in-out infinite;
+}
+
+/* Эффект левитации */
+@keyframes levitate {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.levitate {
+    animation: levitate 3s ease-in-out infinite;
+}
+
+/* Утилитарные классы для быстрого применения */
+.glow-white { 
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); 
+}
+
+.glow-white-strong { 
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8); 
+}
+
+.text-glow-white { 
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); 
+}
+
+.border-glow-white { 
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+/* Специальный эффект для кнопок */
+.btn-cyber {
+    position: relative;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.btn-cyber::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-cyber:hover {
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 
+        0 0 20px rgba(255, 255, 255, 0.4),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+}
+
+.btn-cyber:hover::before {
+    left: 100%;
+} 

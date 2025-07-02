@@ -1,0 +1,553 @@
+/* Success Page Styles - Страница успешной регистрации */
+
+.success-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+/* Desktop layout - горизонтальная карточка */
+.success-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    gap: 2rem;
+    align-items: stretch;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(20px);
+    animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Левая часть - приветствие */
+.success-left {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Правая часть - техобслуживание */
+.success-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.success-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    animation: bounce 1s ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.success-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+    margin-bottom: 1rem;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 25px rgba(255, 255, 255, 0.2);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+}
+
+.success-message {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.user-welcome {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.welcome-avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--bg-primary);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.welcome-info {
+    flex: 1;
+}
+
+.welcome-username {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.welcome-email {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.maintenance-notice {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 0;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.maintenance-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.maintenance-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #f59e0b;
+    margin-bottom: 1rem;
+}
+
+.maintenance-text {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.maintenance-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    background: #f59e0b;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.logout-btn-success {
+    width: 100%;
+    padding: 1rem;
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: 'Benzin', sans-serif;
+    font-weight: 500;
+    margin-top: 2rem;
+}
+
+.logout-btn-success:hover {
+    border-color: var(--error);
+    color: var(--error);
+    background: rgba(255, 107, 107, 0.1);
+}
+
+/* Mobile layout - вертикальная карточка */
+@media (max-width: 768px) {
+    .success-card {
+        flex-direction: column;
+        max-width: 500px;
+        padding: 3rem;
+        gap: 2rem;
+    }
+
+    .success-left,
+    .success-right {
+        flex: none;
+    }
+
+    .success-left {
+        text-align: center;
+    }
+
+    .maintenance-notice {
+        margin-bottom: 2rem;
+        height: auto;
+    }
+
+    .logout-btn-success {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .success-card {
+        padding: 2rem 1.5rem;
+        margin: 0.5rem;
+    }
+
+    .success-title {
+        font-size: 2rem;
+    }
+
+    .user-welcome {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .welcome-info {
+        text-align: center;
+    }
+}
+
+/* Discord Widget Styles - Стили Discord виджета */
+.discord-widget {
+    background: rgba(88, 101, 242, 0.1);
+    border: 1px solid rgba(88, 101, 242, 0.3);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 0;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.discord-widget::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(88, 101, 242, 0.05), transparent);
+    animation: discordGlow 3s ease-in-out infinite;
+}
+
+@keyframes discordGlow {
+    0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(0deg); }
+    50% { transform: translateX(0%) translateY(0%) rotate(180deg); }
+}
+
+.discord-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.discord-icon {
+    font-size: 2rem;
+    color: #5865f2;
+    animation: discordBounce 2s ease-in-out infinite;
+}
+
+@keyframes discordBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.discord-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #5865f2;
+}
+
+.discord-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #5865f2;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.discord-server-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.discord-text {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.discord-widget .online-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #10b981;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.status-indicator-online {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.discord-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.discord-stat {
+    text-align: center;
+}
+
+.discord-stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #5865f2;
+    margin-bottom: 0.25rem;
+}
+
+.discord-stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.discord-invite-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, #5865f2, #4752c4);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-weight: 600;
+    font-family: 'Benzin', sans-serif;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.discord-invite-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: var(--transition);
+}
+
+.discord-invite-btn:hover::before {
+    left: 100%;
+}
+
+.discord-invite-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(88, 101, 242, 0.4);
+}
+
+.discord-online-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #23a55a;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    animation: onlinePulse 2s infinite;
+}
+
+@keyframes onlinePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.2); }
+}
+
+/* Lobby Discord Widget - для боковой панели */
+.discord-sidebar-widget {
+    background: rgba(88, 101, 242, 0.1);
+    border: 1px solid rgba(88, 101, 242, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.discord-sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.discord-sidebar-icon {
+    font-size: 1.5rem;
+    color: #5865f2;
+}
+
+.discord-sidebar-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #5865f2;
+}
+
+.discord-sidebar-content {
+    text-align: center;
+}
+
+.discord-sidebar-server {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.discord-sidebar-count {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.discord-sidebar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #5865f2, #4752c4);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    font-weight: 500;
+    font-family: 'Benzin', sans-serif;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    font-size: 0.8rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.discord-sidebar-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+}
+
+/* Адаптивные стили для Discord виджетов */
+@media (max-width: 768px) {
+    .discord-stats {
+        gap: 1rem;
+    }
+    
+    .discord-stat-value {
+        font-size: 1.3rem;
+    }
+    
+    .discord-text {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .discord-invite-btn {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .discord-widget {
+        padding: 1.5rem;
+    }
+    
+    .discord-stats {
+        flex-direction: row;
+        gap: 1.5rem;
+    }
+    
+    .discord-header {
+        margin-bottom: 0.75rem;
+    }
+    
+    .discord-icon {
+        font-size: 1.5rem;
+    }
+    
+    .discord-logo {
+        font-size: 1.3rem;
+    }
+    
+    .discord-title {
+        font-size: 1.1rem;
+    }
+    
+    .discord-server-name {
+        font-size: 1rem;
+    }
+} 
