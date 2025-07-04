@@ -9,36 +9,29 @@ import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 
-// Загружаем переменные окружения
 dotenv.config();
 
-// Инициализация
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Gemini API конфигурация
 const GEMINI_API_KEY = 'AIzaSyDivBxbfDHZA7VqGmV21bCzWZ5PnLIDpBI';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
-// Discord OAuth конфигурация
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const DISCORD_REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Проверяем наличие обязательных переменных окружения
 if (!DISCORD_CLIENT_ID || !DISCORD_CLIENT_SECRET || !DISCORD_REDIRECT_URI || !JWT_SECRET) {
     console.error('❌ Отсутствуют обязательные переменные окружения для Discord OAuth');
     console.error('Необходимо установить: DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI, JWT_SECRET');
     process.exit(1);
 }
 
-// Хранилище активных сессий (в продакшене используйте Redis)
 const activeSessions = new Map();
 
-// Middleware
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -62,17 +55,14 @@ app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Статические файлы
 app.use(express.static(join(__dirname, 'public')));
 app.use('/FRONTS', express.static(join(__dirname, 'FRONTS')));
 
-// Логирование запросов
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
 });
 
-// Утилиты для работы с JWT
 function generateJWT(payload) {
     const header = { alg: 'HS256', typ: 'JWT' };
     const encodedHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
@@ -101,7 +91,6 @@ function verifyJWT(token) {
     }
 }
 
-// Middleware для проверки авторизации
 function authenticate(req, res, next) {
     const token = req.cookies.authToken || req.headers.authorization?.replace('Bearer ', '');
     
@@ -124,7 +113,6 @@ function authenticate(req, res, next) {
     next();
 }
 
-// API маршруты
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'ok', 
@@ -154,7 +142,6 @@ app.get('/api/status', (req, res) => {
     });
 });
 
-// ИИ-помощник по Minecraft
 app.post('/api/ai/chat', async (req, res) => {
     try {
         const { message, context } = req.body;
@@ -166,7 +153,6 @@ app.post('/api/ai/chat', async (req, res) => {
             });
         }
 
-        // Системный промпт для универсального помощника по Minecraft
         const systemPrompt = `Ты - ИИ-помощник для DiLauncher, универсальный эксперт по Minecraft. Помогаешь игрокам со всеми аспектами игры.
 
 Основные области твоей экспертизы:
@@ -240,7 +226,6 @@ app.post('/api/ai/chat', async (req, res) => {
     }
 });
 
-// Discord OAuth авторизация
 app.get('/api/auth/discord', (req, res) => {
     const state = crypto.randomBytes(32).toString('hex');
     const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&response_type=code&scope=identify&state=${state}`;

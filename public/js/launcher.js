@@ -1,5 +1,3 @@
-// Modern Launcher App для DiLauncher
-
 class ModernLauncher {
     constructor() {
         this.currentUser = null;
@@ -27,22 +25,11 @@ class ModernLauncher {
     }
 
     setupEventListeners() {
-        // Навигация
         this.setupNavigation();
-        
-        // Мобильное меню
         this.setupMobileMenu();
-        
-        // Модальные окна
         this.setupModals();
-        
-        // Кнопки скачивания
         this.setupDownloadButtons();
-        
-        // Форма авторизации
         this.setupAuthForms();
-        
-        // Плавная прокрутка
         this.setupSmoothScroll();
     }
 

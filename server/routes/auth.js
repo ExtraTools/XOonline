@@ -6,12 +6,10 @@ import { userQueries, sessionQueries } from '../database/database.js';
 
 const router = express.Router();
 
-// Константы
 const JWT_SECRET = process.env.JWT_SECRET || 'dino-secret-key';
 const SALT_ROUNDS = 12;
 const TOKEN_EXPIRES_IN = '7d';
 
-// Middleware для проверки авторизации
 export const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
@@ -252,11 +250,7 @@ router.post('/login', loginValidation, async (req, res) => {
                 id: user.id,
                 username: user.username,
                 email: user.email,
-                rating: user.rating,
-                total_games: user.total_games,
-                wins: user.wins,
-                losses: user.losses,
-                draws: user.draws
+
             },
             token
         });
@@ -309,11 +303,7 @@ router.get('/profile', authenticateToken, async (req, res) => {
                 avatar_url: user.avatar_url,
                 created_at: user.created_at,
                 last_login: user.last_login,
-                total_games: user.total_games,
-                wins: user.wins,
-                losses: user.losses,
-                draws: user.draws,
-                rating: user.rating
+
             }
         });
 
@@ -339,55 +329,6 @@ router.get('/verify', authenticateToken, (req, res) => {
     });
 });
 
-// ВРЕМЕННЫЙ МАРШРУТ ДЛЯ ОТЛАДКИ - удалить позже
-router.post('/debug-login', async (req, res) => {
-    try {
-        const { login, password } = req.body;
-        console.log('🐛 DEBUG LOGIN:', { login, password });
-        
-        // Находим пользователя
-        let user = await userQueries.findByEmail(login);
-        if (!user) {
-            user = await userQueries.findByUsername(login);
-        }
-        
-        if (!user) {
-            return res.json({ success: false, message: 'Пользователь не найден', debug: true });
-        }
-        
-        console.log('🐛 DEBUG USER:', {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            hasHash: !!user.password_hash,
-            hashLength: user.password_hash?.length,
-            hashStart: user.password_hash?.substring(0, 10) + '...'
-        });
-        
-        // Проверяем разные варианты
-        const directMatch = password === user.password_hash;
-        const bcryptMatch = await bcrypt.compare(password, user.password_hash);
-        
-        console.log('🐛 DEBUG CHECKS:', { directMatch, bcryptMatch });
-        
-        res.json({
-            success: false,
-            debug: true,
-            info: {
-                userFound: true,
-                username: user.username,
-                hasHash: !!user.password_hash,
-                hashLength: user.password_hash?.length,
-                directMatch,
-                bcryptMatch,
-                inputLength: password.length
-            }
-        });
-        
-    } catch (error) {
-        console.error('🐛 DEBUG ERROR:', error);
-        res.json({ success: false, error: error.message, debug: true });
-    }
-});
+
 
 export default router; 

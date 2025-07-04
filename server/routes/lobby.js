@@ -30,9 +30,7 @@ router.get('/stats', authenticateToken, async (req, res) => {
         res.json({
             success: true,
             stats: {
-                online_users: onlineUsers.length,
-                total_rooms: 0, // TODO: добавить когда будут комнаты
-                active_games: 0 // TODO: добавить когда будут игры
+                online_users: onlineUsers.length
             }
         });
 

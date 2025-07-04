@@ -6,12 +6,10 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Создаем базу данных
 let dbPath;
 let db;
 
 if (process.env.NODE_ENV === 'production') {
-    // В production используем временный файл базы данных (Railway)
     dbPath = '/tmp/dinosgames.db';
     console.log('🐘 Использую SQLite файл для production:', dbPath);
     db = new sqlite3.Database(dbPath, (err) => {
@@ -22,7 +20,6 @@ if (process.env.NODE_ENV === 'production') {
         }
     });
 } else {
-    // В development используем файл
     dbPath = join(__dirname, '../../data/dinosgames.db');
     db = new sqlite3.Database(dbPath, (err) => {
         if (err) {
@@ -48,11 +45,7 @@ export const initDatabase = () => {
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     last_login DATETIME DEFAULT NULL,
                     is_online BOOLEAN DEFAULT 0,
-                    total_games INTEGER DEFAULT 0,
-                    wins INTEGER DEFAULT 0,
-                    losses INTEGER DEFAULT 0,
-                    draws INTEGER DEFAULT 0,
-                    rating INTEGER DEFAULT 1000,
+
                     status VARCHAR(20) DEFAULT 'active'
                 )
             `, (err) => {
@@ -81,30 +74,8 @@ export const initDatabase = () => {
                 }
             });
 
-            // Таблица комнат
-            db.run(`
-                CREATE TABLE IF NOT EXISTS rooms (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name VARCHAR(100) NOT NULL,
-                    description TEXT,
-                    max_players INTEGER DEFAULT 2,
-                    current_players INTEGER DEFAULT 0,
-                    is_private BOOLEAN DEFAULT 0,
-                    password_hash VARCHAR(255) DEFAULT NULL,
-                    creator_id INTEGER NOT NULL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    status VARCHAR(20) DEFAULT 'waiting',
-                    FOREIGN KEY (creator_id) REFERENCES users (id)
-                )
-            `, (err) => {
-                if (err) {
-                    console.error('Ошибка создания таблицы rooms:', err);
-                    reject(err);
-                    return;
-                }
-                console.log('🟢 База данных инициализирована');
-                resolve();
-            });
+            console.log('🟢 База данных инициализирована');
+            resolve();
         });
     });
 };
@@ -162,7 +133,7 @@ export const userQueries = {
     findById: (id) => {
         return new Promise((resolve, reject) => {
             db.get(
-                'SELECT id, username, email, avatar_url, created_at, last_login, total_games, wins, losses, draws, rating FROM users WHERE id = ?',
+                'SELECT id, username, email, avatar_url, created_at, last_login FROM users WHERE id = ?',
                 [id],
                 (err, row) => {
                     if (err) reject(err);
@@ -210,7 +181,7 @@ export const userQueries = {
     getOnlineUsers: () => {
         return new Promise((resolve, reject) => {
             db.all(
-                'SELECT id, username, avatar_url, rating FROM users WHERE is_online = 1 ORDER BY rating DESC',
+                'SELECT id, username, avatar_url FROM users WHERE is_online = 1 ORDER BY username',
                 [],
                 (err, rows) => {
                     if (err) reject(err);
