@@ -6,8 +6,8 @@
     <title>DiLauncher - Лучший лаунчер для Minecraft</title>
     
     <!-- Preload critical resources -->
-    <link rel="preload" href="/FRONTS/Benzin-Bold.ttf" as="font" type="font/ttf" crossorigin>
-    <link rel="preload" href="/FRONTS/Benzin-Regular.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="/FRONTS/Benzin-Bold.ttf" as="font" crossorigin>
+    <link rel="preload" href="/FRONTS/Benzin-Regular.ttf" as="font" crossorigin>
     
     <!-- CSS with cache busting -->
     <link rel="stylesheet" href="/css/variables.css?v=6.2">
@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/css/auth.css?v=6.2">
     <link rel="stylesheet" href="/css/success.css?v=6.2">
     <link rel="stylesheet" href="/css/ai-assistant.css?v=6.2">
+    <link rel="stylesheet" href="/css/update-log.css?v=6.2">
     
     <!-- Modern CSS features meta -->
     <meta name="color-scheme" content="dark">
@@ -39,7 +40,7 @@
     <nav class="navbar">
         <div class="navbar-container">
             <div class="navbar-brand">
-                <img src="/icons/gameIcons/PNG/White/2x/star.png" alt="DiLauncher" class="navbar-logo">
+                <img src="/icons/gameIcons/PNG/White/2x/star.png" alt="DiLauncher" class="navbar-logo" id="logoUpdateLog" title="Показать лог обновлений">
                 <span class="navbar-title">DiLauncher</span>
             </div>
             
@@ -54,14 +55,24 @@
             </div>
             
             <div class="navbar-auth">
-                <button class="btn btn-refresh" id="refreshButton" title="Обновить страницу">
-                    <img src="/icons/gameIcons/PNG/White/2x/return.png" alt="Обновить" class="btn-icon">
-                </button>
-                <button class="btn btn-discord" id="discordLoginBtn" title="Войти через Discord">
-                    <img src="/icons/gameIcons/PNG/White/2x/buttonStart.png" alt="Discord" class="btn-icon">
-                    Discord
-                </button>
-                <div class="btn btn-coming-soon" disabled>Регистрация<span class="coming-soon-label">Скоро</span></div>
+                <div class="auth-buttons">
+                    <button class="btn btn-discord btn-disabled" id="discordLoginBtn" disabled>
+                        <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" alt="Discord" class="btn-icon">
+                        Войти через Discord
+                        <span class="coming-soon-label">Настройка</span>
+                    </button>
+                    <div class="user-menu" id="userMenu" style="display: none;">
+                        <div class="user-info">
+                            <img src="" alt="Avatar" class="user-avatar" id="userAvatar">
+                            <span class="user-name" id="userName"></span>
+                        </div>
+                        <div class="user-dropdown">
+                            <button class="dropdown-item" id="userProfile">Профиль</button>
+                            <button class="dropdown-item" id="userSettings">Настройки</button>
+                            <button class="dropdown-item" id="userLogout">Выйти</button>
+                        </div>
+                    </div>
+                </div>
                 <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
             </div>
         </div>
@@ -77,15 +88,18 @@
         <a href="#helper" class="mobile-menu-link mobile-helper" id="aiHelperMobileBtn">
             AI <span class="helper-badge">beta</span>
         </a>
-        <button class="btn btn-refresh mobile-refresh" id="refreshButtonMobile" title="Обновить страницу">
-            <img src="/icons/gameIcons/PNG/White/2x/return.png" alt="Обновить" class="btn-icon">
-            Обновить
-        </button>
-        <button class="btn btn-discord mobile-discord" id="discordLoginBtnMobile" title="Войти через Discord">
-            <img src="/icons/gameIcons/PNG/White/2x/buttonStart.png" alt="Discord" class="btn-icon">
-            Discord
-        </button>
-        <div class="btn btn-coming-soon" disabled>Регистрация<span class="coming-soon-label">Скоро</span></div>
+        <div class="mobile-auth-buttons">
+            <button class="btn btn-discord btn-disabled" id="discordLoginMobileBtn" disabled>
+                <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" alt="Discord" class="btn-icon">
+                Войти через Discord
+                <span class="coming-soon-label">Настройка</span>
+            </button>
+            <div class="mobile-user-info" id="mobileUserInfo" style="display: none;">
+                <img src="" alt="Avatar" class="mobile-user-avatar" id="mobileUserAvatar">
+                <span class="mobile-user-name" id="mobileUserName"></span>
+                <button class="mobile-logout-btn" id="mobileUserLogout">Выйти</button>
+            </div>
+        </div>
     </div>
 
     <!-- Hero секция -->
@@ -246,6 +260,54 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Информация о разработке -->
+                <div class="development-info">
+                    <div class="dev-status-card">
+                        <div class="dev-status-header">
+                            <img src="/icons/gameIcons/PNG/White/2x/wrench.png" alt="Разработка" class="dev-icon">
+                            <div>
+                                <h3>Разработка в процессе</h3>
+                                <p>Активно работаем над улучшениями</p>
+                            </div>
+                        </div>
+                        <div class="dev-status-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 75%"></div>
+                            </div>
+                            <span class="progress-text">75% готово</span>
+                        </div>
+                    </div>
+                    
+                    <div class="future-launcher-card">
+                        <div class="future-header">
+                            <img src="/icons/gameIcons/PNG/White/2x/star.png" alt="Будущее" class="future-icon">
+                            <h3>Будущий лаунчер</h3>
+                        </div>
+                        <div class="future-features">
+                            <div class="feature-item">
+                                <span class="feature-dot"></span>
+                                <span>Умный менеджер модов</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-dot"></span>
+                                <span>Интеграция с Discord</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-dot"></span>
+                                <span>Автоматические обновления</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-dot"></span>
+                                <span>Облачная синхронизация</span>
+                            </div>
+                        </div>
+                        <div class="future-eta">
+                            <span class="eta-label">Ориентировочно:</span>
+                            <span class="eta-date">Q2 2025</span>
                         </div>
                     </div>
                 </div>
@@ -627,6 +689,157 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно лога обновлений -->
+    <div class="modal" id="updateLogModal">
+        <div class="modal-content update-log-content">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <img src="/icons/gameIcons/PNG/White/2x/star.png" alt="" class="update-log-icon">
+                    Лог обновлений DiLauncher
+                </h2>
+                <button class="modal-close" id="updateLogClose">&times;</button>
+            </div>
+            
+            <div class="modal-body update-log-body">
+                <div class="version-carousel-container">
+                    <button class="carousel-nav carousel-prev" id="carouselPrev">
+                        <img src="/icons/gameIcons/PNG/White/2x/arrowLeft.png" alt="Предыдущая">
+                    </button>
+                    
+                    <div class="version-carousel" id="versionCarousel">
+                        <div class="version-slide current" data-version="v2.1.0">
+                            <div class="version-card">
+                                <div class="version-header">
+                                    <span class="version-number">v2.1.0</span>
+                                    <span class="version-date">08 января 2025</span>
+                                    <span class="version-badge current">ТЕКУЩАЯ</span>
+                                </div>
+                                <div class="version-content">
+                                    <h4>🔐 Discord OAuth Авторизация</h4>
+                                    <ul>
+                                        <li>Добавлена авторизация через Discord (в разработке)</li>
+                                        <li>Постоянное сохранение сессии через httpOnly cookies</li>
+                                        <li>Безопасное управление JWT токенами</li>
+                                        <li>Система управления пользователями</li>
+                                    </ul>
+                                    
+                                    <h4>🎨 Дизайн и интерфейс</h4>
+                                    <ul>
+                                        <li>Горизонтальный лог обновлений</li>
+                                        <li>Анимированные метки состояния</li>
+                                        <li>Улучшенная навигация и меню</li>
+                                        <li>Адаптивный дизайн для мобильных</li>
+                                    </ul>
+                                    
+                                    <h4>🔧 Технические улучшения</h4>
+                                    <ul>
+                                        <li>Добавлена поддержка cookie-parser</li>
+                                        <li>Обновлена система безопасности</li>
+                                        <li>Оптимизированы шрифты и ресурсы</li>
+                                        <li>Улучшено логирование сервера</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="version-slide" data-version="v2.0.1">
+                            <div class="version-card">
+                                <div class="version-header">
+                                    <span class="version-number">v2.0.1</span>
+                                    <span class="version-date">07 января 2025</span>
+                                </div>
+                                <div class="version-content">
+                                    <h4>🤖 ИИ-Помощник по Minecraft</h4>
+                                    <ul>
+                                        <li>Интеграция с Google Gemini 2.0 Flash</li>
+                                        <li>Модальное окно чата с ИИ</li>
+                                        <li>Форматирование markdown ответов</li>
+                                        <li>Экспертные знания по Minecraft</li>
+                                    </ul>
+                                    
+                                    <h4>⚡ Веб-оптимизация</h4>
+                                    <ul>
+                                        <li>Современные CSS Grid и Flexbox</li>
+                                        <li>Сжатие и минификация ресурсов</li>
+                                        <li>Оптимизированная загрузка шрифтов</li>
+                                        <li>Улучшенная производительность сайта</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="version-slide" data-version="v2.0.0">
+                            <div class="version-card">
+                                <div class="version-header">
+                                    <span class="version-number">v2.0.0</span>
+                                    <span class="version-date">06 января 2025</span>
+                                    <span class="version-badge major">MAJOR</span>
+                                </div>
+                                <div class="version-content">
+                                    <h4>🚀 Полное обновление платформы</h4>
+                                    <ul>
+                                        <li>Переход на Railway для хостинга</li>
+                                        <li>Новая архитектура Express.js сервера</li>
+                                        <li>Современный дизайн в стиле 2025</li>
+                                        <li>Полностью переписанный интерфейс</li>
+                                    </ul>
+                                    
+                                    <h4>🎨 Дизайн-система</h4>
+                                    <ul>
+                                        <li>Семейство шрифтов Benzin</li>
+                                        <li>Цветовая схема и CSS переменные</li>
+                                        <li>Система компонентов и модулей</li>
+                                        <li>Анимации и эффекты переходов</li>
+                                    </ul>
+                                    
+                                    <h4>🌐 Современные веб-технологии</h4>
+                                    <ul>
+                                        <li>View Transitions API</li>
+                                        <li>Container Queries для адаптивности</li>
+                                        <li>Backdrop-filter эффекты</li>
+                                        <li>Progressive Enhancement</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="version-slide" data-version="v1.0.0">
+                            <div class="version-card">
+                                <div class="version-header">
+                                    <span class="version-number">v1.0.0</span>
+                                    <span class="version-date">Декабрь 2024</span>
+                                    <span class="version-badge legacy">LEGACY</span>
+                                </div>
+                                <div class="version-content">
+                                    <h4>🎯 Первый релиз сайта</h4>
+                                    <ul>
+                                        <li>Базовая структура веб-приложения</li>
+                                        <li>Простой интерфейс и навигация</li>
+                                        <li>Первые CSS стили и компоненты</li>
+                                        <li>Основа для будущих обновлений</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="carousel-nav carousel-next" id="carouselNext">
+                        <img src="/icons/gameIcons/PNG/White/2x/arrowRight.png" alt="Следующая">
+                    </button>
+                </div>
+                
+                <div class="version-indicators" id="versionIndicators">
+                    <button class="indicator active current-version" data-slide="0" title="v2.1.0 - Текущая версия"></button>
+                    <button class="indicator normal-version" data-slide="1" title="v2.0.1 - Обычная версия"></button>
+                    <button class="indicator major-version" data-slide="2" title="v2.0.0 - Мажорная версия"></button>
+                    <button class="indicator legacy-version" data-slide="3" title="v1.0.0 - Устаревшая версия"></button>
+                </div>
+            </div>
+            
+
         </div>
     </div>
 

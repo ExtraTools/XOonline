@@ -3,8 +3,7 @@
 class ModernLauncher {
     constructor() {
         this.currentUser = null;
-        this.token = localStorage.getItem('authToken');
-        this.sessionId = localStorage.getItem('sessionId');
+        this.token = null;
         this.downloadLinks = {
             windows: '',
             mac: '',
@@ -16,12 +15,14 @@ class ModernLauncher {
     }
 
     init() {
-        this.handleAuthCallback();
         this.setupEventListeners();
         this.setupScrollAnimations();
         this.checkAuthState();
         this.startAnimations();
         this.setupLauncherDemo();
+        this.setupDiscordAuth();
+        this.handleAuthCallback();
+        this.setupUpdateLog();
     }
 
     setupEventListeners() {
@@ -39,12 +40,6 @@ class ModernLauncher {
         
         // Форма авторизации
         this.setupAuthForms();
-        
-        // Discord авторизация
-        this.setupDiscordAuth();
-        
-        // Кнопка обновления
-        this.setupRefreshButton();
         
         // Плавная прокрутка
         this.setupSmoothScroll();
@@ -373,334 +368,209 @@ class ModernLauncher {
     }
 
     setupAuthForms() {
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-
-        if (loginForm) {
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleLogin(new FormData(loginForm));
+        // Старые формы больше не используются
+        // Всё управление авторизацией происходит через Discord OAuth
+        const logoutButtons = document.querySelectorAll('#userLogout, #mobileUserLogout');
+        
+        logoutButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.logout();
             });
-        }
-
-        if (registerForm) {
-            registerForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleRegister(new FormData(registerForm));
-            });
-        }
+        });
     }
 
-    async handleLogin(formData) {
-        const submitBtn = document.querySelector('#loginForm .btn-primary');
-        const errorDiv = document.getElementById('loginError');
+    // Discord OAuth Functions
+    setupDiscordAuth() {
+        const discordButtons = document.querySelectorAll('#discordLoginBtn, #discordLoginMobileBtn');
         
-        try {
-            this.setLoading(submitBtn, true, 'Вход...');
-            this.clearError(errorDiv);
-
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    login: formData.get('login'),
-                    password: formData.get('password'),
-                }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                this.token = data.token;
-                this.currentUser = data.user;
-                localStorage.setItem('authToken', this.token);
-                
-                this.closeModal('loginModal');
-                this.showNotification('Успешный вход в систему!', 'success');
-                this.updateAuthState(true);
-            } else {
-                this.showError(errorDiv, data.message);
-            }
-        } catch (error) {
-            this.showError(errorDiv, 'Ошибка соединения с сервером');
-            console.error('Login error:', error);
-        } finally {
-            this.setLoading(submitBtn, false, 'Войти');
-        }
-    }
-
-    async handleRegister(formData) {
-        const submitBtn = document.querySelector('#registerForm .btn-primary');
-        const errorDiv = document.getElementById('registerError');
-        
-        try {
-            this.setLoading(submitBtn, true, 'Регистрация...');
-            this.clearError(errorDiv);
-
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: formData.get('username'),
-                    email: formData.get('email'),
-                    password: formData.get('password'),
-                }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                this.token = data.token;
-                this.currentUser = data.user;
-                localStorage.setItem('authToken', this.token);
-                
-                this.closeModal('registerModal');
-                this.showNotification('Аккаунт успешно создан!', 'success');
-                this.updateAuthState(true);
-            } else {
-                if (data.errors && data.errors.length > 0) {
-                    const errorMessages = data.errors.map(err => err.msg).join('<br>');
-                    this.showError(errorDiv, errorMessages);
-                } else {
-                    this.showError(errorDiv, data.message);
+        discordButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Проверяем, если кнопка отключена
+                if (btn.disabled || btn.classList.contains('btn-disabled')) {
+                    e.preventDefault();
+                    this.showNotification('Discord авторизация временно недоступна. Ведется настройка приложения.', 'info');
+                    return;
                 }
+                
+                this.initiateDiscordLogin();
+            });
+        });
+    }
+
+    initiateDiscordLogin() {
+        // Показываем состояние загрузки
+        const discordButtons = document.querySelectorAll('#discordLoginBtn, #discordLoginMobileBtn');
+        discordButtons.forEach(btn => {
+            btn.classList.add('auth-loading');
+            btn.disabled = true;
+            btn.textContent = 'Переход в Discord...';
+        });
+
+        // Перенаправляем на Discord OAuth
+        window.location.href = '/api/auth/discord';
+    }
+
+    handleAuthCallback() {
+        // Обработка результатов OAuth после возврата с Discord
+        const urlParams = new URLSearchParams(window.location.search);
+        const authResult = urlParams.get('auth');
+        const error = urlParams.get('error');
+
+        if (authResult === 'success') {
+            // Успешная авторизация
+            this.showNotification('Добро пожаловать в DiLauncher!', 'success');
+            this.checkAuthState();
+            
+            // Очищаем URL от параметров
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (error) {
+            // Ошибка авторизации
+            let errorMessage = 'Ошибка авторизации';
+            switch (error) {
+                case 'invalid_state':
+                    errorMessage = 'Ошибка безопасности. Попробуйте еще раз.';
+                    break;
+                case 'auth_failed':
+                    errorMessage = 'Не удалось войти через Discord. Попробуйте еще раз.';
+                    break;
+                default:
+                    errorMessage = 'Произошла ошибка при входе';
             }
-        } catch (error) {
-            this.showError(errorDiv, 'Ошибка соединения с сервером');
-            console.error('Register error:', error);
-        } finally {
-            this.setLoading(submitBtn, false, 'Создать аккаунт');
+            
+            this.showNotification(errorMessage, 'error');
+            this.updateAuthState(false);
+            
+            // Очищаем URL от параметров
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
     }
 
     async checkAuthState() {
-        if (this.token) {
-            const userData = await this.verifyToken();
-            if (userData) {
-                this.currentUser = userData;
-                this.updateAuthState(true);
-            } else {
-                this.logout();
-            }
-        }
-    }
-
-    updateAuthState(isLoggedIn) {
-        const navbarAuth = document.querySelector('.navbar-auth');
-        
-        if (isLoggedIn && this.currentUser) {
-            // Пользователь вошел в систему
-            if (navbarAuth) {
-                navbarAuth.innerHTML = `
-                    <button class="btn btn-refresh" id="refreshButton" title="Обновить страницу">
-                        <img src="/icons/gameIcons/PNG/White/2x/return.png" alt="Обновить" class="btn-icon">
-                    </button>
-                    <div class="user-info-nav">
-                        <span class="user-name">${this.currentUser.displayName || this.currentUser.username}</span>
-                        <button class="btn btn-outline" onclick="launcher.logout()">Выйти</button>
-                    </div>
-                    <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
-                `;
-                
-                // Переподключаем обработчики
-                this.setupRefreshButton();
-                this.setupMobileMenu();
-            }
-        } else {
-            // Пользователь не вошел в систему
-            if (navbarAuth) {
-                navbarAuth.innerHTML = `
-                    <button class="btn btn-refresh" id="refreshButton" title="Обновить страницу">
-                        <img src="/icons/gameIcons/PNG/White/2x/return.png" alt="Обновить" class="btn-icon">
-                    </button>
-                    <button class="btn btn-discord" id="discordLoginBtn" title="Войти через Discord">
-                        <img src="/icons/gameIcons/PNG/White/2x/buttonStart.png" alt="Discord" class="btn-icon">
-                        Discord
-                    </button>
-                    <div class="btn btn-coming-soon" disabled>Регистрация<span class="coming-soon-label">Скоро</span></div>
-                    <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
-                `;
-                
-                // Переподключаем обработчики
-                this.setupRefreshButton();
-                this.setupDiscordAuth();
-                this.setupMobileMenu();
-            }
-        }
-    }
-
-    logout() {
-        this.currentUser = null;
-        this.token = null;
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('sessionId');
-        
-        // Отправляем запрос на выход из системы
-        if (this.sessionId) {
-            fetch('/api/auth/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ sessionId: this.sessionId })
-            }).catch(err => console.error('Ошибка при выходе:', err));
-        }
-        
-        this.sessionId = null;
-        this.updateAuthState(false);
-        this.showNotification('Вы вышли из системы', 'info');
-    }
-
-    handleAuthCallback() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        const sessionId = urlParams.get('session');
-        const error = urlParams.get('error');
-
-        if (error) {
-            let errorMessage = 'Произошла ошибка авторизации';
-            switch (error) {
-                case 'no_code':
-                    errorMessage = 'Не получен код авторизации';
-                    break;
-                case 'auth_failed':
-                    errorMessage = 'Не удалось авторизоваться через Discord';
-                    break;
-            }
-            this.showNotification(errorMessage, 'error');
-            
-            // Очищаем URL от параметров ошибки
-            window.history.replaceState({}, document.title, window.location.pathname);
-            return;
-        }
-
-        if (token && sessionId) {
-            this.token = token;
-            this.sessionId = sessionId;
-            localStorage.setItem('authToken', token);
-            localStorage.setItem('sessionId', sessionId);
-            
-            // Проверяем токен и получаем данные пользователя
-            this.verifyToken().then(userData => {
-                if (userData) {
-                    this.currentUser = userData;
-                    this.updateAuthState(true);
-                    this.showNotification(`Добро пожаловать, ${userData.displayName}!`, 'success');
-                }
-            });
-            
-            // Очищаем URL от параметров авторизации
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-    }
-
-    async verifyToken() {
-        if (!this.token) return null;
-
         try {
-            const response = await fetch('/api/auth/verify', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
+            const response = await fetch('/api/auth/me', {
+                credentials: 'include' // Включаем cookie в запрос
             });
 
             if (response.ok) {
                 const data = await response.json();
-                return data.user;
-            } else {
-                // Токен недействителен, удаляем его
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('sessionId');
-                this.token = null;
-                this.sessionId = null;
-                return null;
+                
+                if (data.success && data.user) {
+                    this.currentUser = data.user;
+                    this.updateAuthState(true);
+                    console.log('✅ Пользователь авторизован:', data.user.username);
+                    return;
+                }
             }
+            
+            // Если статус 401 или данные неверные - пользователь не авторизован
+            console.log('ℹ️ Пользователь не авторизован');
+            this.updateAuthState(false);
+            
         } catch (error) {
-            console.error('Ошибка проверки токена:', error);
-            return null;
+            console.error('Auth verification error:', error);
+            this.updateAuthState(false);
         }
     }
 
-    setupDiscordAuth() {
-        const discordButtons = document.querySelectorAll('#discordLoginBtn, #discordLoginBtnMobile');
+    updateAuthState(isLoggedIn) {
+        const discordLoginBtn = document.getElementById('discordLoginBtn');
+        const discordLoginMobileBtn = document.getElementById('discordLoginMobileBtn');
+        const userMenu = document.getElementById('userMenu');
+        const mobileUserInfo = document.getElementById('mobileUserInfo');
         
-        discordButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (this.currentUser) {
-                    // Если уже авторизован, показываем профиль
-                    this.showUserProfile();
-                } else {
-                    // Перенаправляем на Discord OAuth
-                    window.location.href = '/auth/discord';
-                }
-            });
-        });
-    }
-
-    setupRefreshButton() {
-        const refreshButtons = document.querySelectorAll('#refreshButton, #refreshButtonMobile');
-        
-        refreshButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Добавляем анимацию вращения
-                button.style.transform = 'rotate(360deg)';
-                
-                // Обновляем страницу
-                setTimeout(() => {
-                    window.location.reload();
-                }, 300);
-            });
-        });
-    }
-
-    showUserProfile() {
-        if (!this.currentUser) return;
-        
-        const profileInfo = `
-            <div class="user-profile">
-                <div class="profile-header">
-                    ${this.currentUser.avatar ? 
-                        `<img src="https://cdn.discordapp.com/avatars/${this.currentUser.id}/${this.currentUser.avatar}.png" alt="${this.currentUser.displayName}" class="profile-avatar">` :
-                        `<div class="profile-avatar-placeholder">${this.currentUser.displayName.charAt(0)}</div>`
-                    }
-                    <div class="profile-details">
-                        <h3>${this.currentUser.displayName}</h3>
-                        <p>@${this.currentUser.username}</p>
-                        ${this.currentUser.email ? `<p>${this.currentUser.email}</p>` : ''}
-                    </div>
-                </div>
-                <div class="profile-actions">
-                    <button class="btn btn-outline" onclick="launcher.logout()">Выйти</button>
-                </div>
-            </div>
-        `;
-        
-        // Создаем модальное окно для профиля
-        const modal = document.createElement('div');
-        modal.className = 'modal active';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Профиль пользователя</h2>
-                    <button class="modal-close" onclick="this.closest('.modal').remove()">&times;</button>
-                </div>
-                ${profileInfo}
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        // Закрытие по клику на фон
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove();
+        if (isLoggedIn && this.currentUser) {
+            // Пользователь вошел в систему
+            if (discordLoginBtn) {
+                discordLoginBtn.style.display = 'none';
             }
-        });
+            if (discordLoginMobileBtn) {
+                discordLoginMobileBtn.style.display = 'none';
+            }
+            
+            // Показываем меню пользователя
+            if (userMenu) {
+                userMenu.style.display = 'flex';
+                
+                // Обновляем информацию о пользователе
+                const userAvatar = document.getElementById('userAvatar');
+                const userName = document.getElementById('userName');
+                
+                if (userAvatar && this.currentUser.avatar) {
+                    userAvatar.src = `https://cdn.discordapp.com/avatars/${this.currentUser.userId}/${this.currentUser.avatar}.png`;
+                }
+                if (userName) {
+                    userName.textContent = this.currentUser.globalName || this.currentUser.username;
+                }
+            }
+            
+            // Мобильная версия
+            if (mobileUserInfo) {
+                mobileUserInfo.style.display = 'flex';
+                
+                const mobileUserAvatar = document.getElementById('mobileUserAvatar');
+                const mobileUserName = document.getElementById('mobileUserName');
+                
+                if (mobileUserAvatar && this.currentUser.avatar) {
+                    mobileUserAvatar.src = `https://cdn.discordapp.com/avatars/${this.currentUser.userId}/${this.currentUser.avatar}.png`;
+                }
+                if (mobileUserName) {
+                    mobileUserName.textContent = this.currentUser.globalName || this.currentUser.username;
+                }
+            }
+            
+            // Обновляем аватарку и имя в лаунчере
+            this.loadRandomAvatar();
+        } else {
+            // Пользователь не вошел в систему
+            if (discordLoginBtn) {
+                discordLoginBtn.style.display = 'flex';
+                discordLoginBtn.classList.remove('auth-loading');
+                discordLoginBtn.disabled = false;
+                if (!discordLoginBtn.innerHTML.includes('Войти через Discord')) {
+                    discordLoginBtn.innerHTML = `
+                        <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" alt="Discord" class="btn-icon">
+                        Войти через Discord
+                    `;
+                }
+            }
+            if (discordLoginMobileBtn) {
+                discordLoginMobileBtn.style.display = 'flex';
+                discordLoginMobileBtn.classList.remove('auth-loading');
+                discordLoginMobileBtn.disabled = false;
+                if (!discordLoginMobileBtn.innerHTML.includes('Войти через Discord')) {
+                    discordLoginMobileBtn.innerHTML = `
+                        <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" alt="Discord" class="btn-icon">
+                        Войти через Discord
+                    `;
+                }
+            }
+            
+            if (userMenu) {
+                userMenu.style.display = 'none';
+            }
+            if (mobileUserInfo) {
+                mobileUserInfo.style.display = 'none';
+            }
+            
+            // Обновляем аватарку и имя в лаунчере
+            this.loadRandomAvatar();
+        }
+    }
+
+    async logout() {
+        try {
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+        
+        this.token = null;
+        this.currentUser = null;
+        this.updateAuthState(false);
+        this.showNotification('Вы вышли из системы', 'info');
     }
 
     setupSmoothScroll() {
@@ -1026,15 +896,28 @@ class ModernLauncher {
     }
     
     loadRandomAvatar() {
-        // Используем только одну аватарку
-        const selectedAvatar = 'photo_2025-07-03_02-50-33 (2).jpg';
-        
         const avatarImage = document.getElementById('avatarImage');
         
         if (avatarImage) {
-            // Устанавливаем аватарку напрямую
-            avatarImage.src = `/avatars/${selectedAvatar}`;
+            if (this.currentUser && this.currentUser.avatar) {
+                // Если пользователь вошел через Discord, используем его аватарку
+                avatarImage.src = `https://cdn.discordapp.com/avatars/${this.currentUser.userId}/${this.currentUser.avatar}.png`;
+            } else {
+                // Используем дефолтную аватарку
+                const selectedAvatar = 'photo_2025-07-03_02-50-33 (2).jpg';
+                avatarImage.src = `/avatars/${selectedAvatar}`;
+            }
             avatarImage.style.opacity = '1';
+            
+            // Обновляем имя пользователя в профиле лаунчера
+            const profileName = document.querySelector('.profile-name');
+            if (profileName) {
+                if (this.currentUser) {
+                    profileName.textContent = this.currentUser.globalName || this.currentUser.username || 'WaitDinoS';
+                } else {
+                    profileName.textContent = 'WaitDinoS';
+                }
+            }
         }
     }
 
@@ -1274,6 +1157,227 @@ class ModernLauncher {
         div.textContent = text;
         return div.innerHTML;
     }
+
+    // Update Log Modal
+    setupUpdateLog() {
+        const logoUpdateLog = document.getElementById('logoUpdateLog');
+        const updateLogModal = document.getElementById('updateLogModal');
+        const updateLogClose = document.getElementById('updateLogClose');
+
+        // Инициализация карусели
+        this.currentSlide = 0;
+        this.totalSlides = 4;
+        this.isTransitioning = false;
+
+        // Открытие модального окна при клике на логотип
+        if (logoUpdateLog && updateLogModal) {
+            logoUpdateLog.addEventListener('click', () => {
+                this.openUpdateLog();
+            });
+        }
+
+        // Закрытие модального окна
+        if (updateLogClose) {
+            updateLogClose.addEventListener('click', () => {
+                this.closeUpdateLog();
+            });
+        }
+
+        // Закрытие по клику на фон
+        if (updateLogModal) {
+            updateLogModal.addEventListener('click', (e) => {
+                if (e.target === updateLogModal) {
+                    this.closeUpdateLog();
+                }
+            });
+        }
+
+        // Закрытие по ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && updateLogModal && updateLogModal.classList.contains('active')) {
+                this.closeUpdateLog();
+            }
+        });
+
+        // Настройка навигации карусели
+        this.setupCarouselNavigation();
+    }
+
+    setupCarouselNavigation() {
+        const prevBtn = document.getElementById('carouselPrev');
+        const nextBtn = document.getElementById('carouselNext');
+        const indicators = document.querySelectorAll('.indicator');
+        const carousel = document.getElementById('versionCarousel');
+
+        // Навигационные кнопки
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', () => this.prevSlide());
+            nextBtn.addEventListener('click', () => this.nextSlide());
+        }
+
+        // Индикаторы
+        if (indicators && indicators.length > 0) {
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => this.goToSlide(index));
+            });
+        }
+
+        // Клавиатурная навигация
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('updateLogModal')?.classList.contains('active')) {
+                if (e.key === 'ArrowLeft') this.prevSlide();
+                if (e.key === 'ArrowRight') this.nextSlide();
+            }
+        });
+
+        // Свайп-жесты для мобильных
+        if (carousel) {
+            this.setupSwipeGestures(carousel);
+        }
+
+        // Инициализация состояния (только если модальное окно не открыто)
+        if (!document.getElementById('updateLogModal')?.classList.contains('active')) {
+            this.updateCarouselState();
+        }
+    }
+
+    setupSwipeGestures(carousel) {
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+
+        carousel.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        }, { passive: true });
+
+        carousel.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+        }, { passive: true });
+
+        carousel.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const diff = startX - currentX;
+            const threshold = 50;
+
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) {
+                    this.nextSlide();
+                } else {
+                    this.prevSlide();
+                }
+            }
+        }, { passive: true });
+    }
+
+    prevSlide() {
+        if (this.isTransitioning) return;
+        this.currentSlide = this.currentSlide > 0 ? this.currentSlide - 1 : this.totalSlides - 1;
+        this.updateCarouselState();
+    }
+
+    nextSlide() {
+        if (this.isTransitioning) return;
+        this.currentSlide = this.currentSlide < this.totalSlides - 1 ? this.currentSlide + 1 : 0;
+        this.updateCarouselState();
+    }
+
+    goToSlide(index) {
+        if (this.isTransitioning || index === this.currentSlide) return;
+        this.currentSlide = index;
+        this.updateCarouselState();
+    }
+
+    updateCarouselState() {
+        const slides = document.querySelectorAll('.version-slide');
+        const indicators = document.querySelectorAll('.indicator');
+        const prevBtn = document.getElementById('carouselPrev');
+        const nextBtn = document.getElementById('carouselNext');
+
+        // Проверяем что элементы существуют
+        if (slides.length === 0) {
+            console.warn('Carousel slides not found');
+            return;
+        }
+
+        this.isTransitioning = true;
+
+        // Обновляем слайды
+        slides.forEach((slide, index) => {
+            slide.classList.remove('active', 'prev', 'next');
+            
+            if (index === this.currentSlide) {
+                slide.classList.add('active');
+            } else if (index < this.currentSlide) {
+                slide.classList.add('prev');
+            } else {
+                slide.classList.add('next');
+            }
+        });
+
+        // Обновляем индикаторы
+        if (indicators && indicators.length > 0) {
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === this.currentSlide);
+            });
+        }
+
+        // Обновляем кнопки навигации
+        if (prevBtn && nextBtn) {
+            prevBtn.disabled = false;
+            nextBtn.disabled = false;
+        }
+
+        // Сбрасываем флаг после анимации
+        setTimeout(() => {
+            this.isTransitioning = false;
+        }, 200);
+    }
+
+    openUpdateLog() {
+        const updateLogModal = document.getElementById('updateLogModal');
+        const carousel = document.getElementById('versionCarousel');
+        
+        if (updateLogModal) {
+            updateLogModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Инициализируем карусель
+            this.currentSlide = 0;
+            
+            // Добавляем класс initialized для включения анимаций
+            if (carousel) {
+                carousel.classList.add('initialized');
+            }
+            
+            // Небольшая задержка для корректной инициализации
+            setTimeout(() => {
+                this.updateCarouselState();
+            }, 50);
+            
+            console.log('📋 Открыт лог обновлений DiLauncher');
+        }
+    }
+
+    closeUpdateLog() {
+        const updateLogModal = document.getElementById('updateLogModal');
+        const carousel = document.getElementById('versionCarousel');
+        
+        if (updateLogModal) {
+            updateLogModal.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Убираем класс initialized
+            if (carousel) {
+                carousel.classList.remove('initialized');
+            }
+            
+            console.log('📋 Закрыт лог обновлений');
+        }
+    }
 }
 
 // Инициализация лаунчера
@@ -1452,7 +1556,7 @@ document.addEventListener('DOMContentLoaded', () => {
     new ProgressiveEnhancement();
     new ViewTransitionManager();
     
-    console.log('🚀 DiLauncher with 2025 modern web features loaded!');
+    console.log('🚀 DiLauncher with Discord OAuth and 2025 modern web features loaded!');
 });
 
 // Handle reduced motion preferences

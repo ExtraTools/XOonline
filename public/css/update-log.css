@@ -1,0 +1,508 @@
+/* Update Log Modal Styles */
+
+.navbar-logo {
+    cursor: pointer;
+    transition: var(--transition);
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+.navbar-logo:hover {
+    transform: scale(1.1) rotate(10deg);
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+}
+
+.update-log-content {
+    max-width: 900px;
+    max-height: 85vh;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d1117 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.update-log-body {
+    padding: 1.5rem 0;
+    overflow: hidden;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.update-log-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 0.75rem;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+/* Carousel Container */
+.version-carousel-container {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    height: 450px;
+}
+
+.version-carousel {
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: var(--radius-lg);
+}
+
+.version-carousel:not(.initialized) .version-slide {
+    transition: none;
+}
+
+.version-slide {
+    min-width: 100%;
+    width: 100%;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.version-slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    position: relative;
+}
+
+.version-slide.prev {
+    transform: translateX(-100%);
+}
+
+.version-slide.next {
+    transform: translateX(100%);
+}
+
+.version-card {
+    background: rgba(17, 17, 17, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.version-slide.current .version-card {
+    border-color: #00ff88;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+/* Navigation Buttons */
+.carousel-nav {
+    background: rgba(17, 17, 17, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.carousel-nav:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.carousel-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.carousel-nav img {
+    width: 20px;
+    height: 20px;
+    filter: invert(1);
+}
+
+/* Version Indicators */
+.version-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    width: 100%;
+    min-height: 40px;
+    align-items: center;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    cursor: pointer;
+    transition: transform 0.15s ease-out, background 0.15s ease-out, border-color 0.15s ease-out;
+    position: relative;
+}
+
+.indicator:hover {
+    transform: scale(1.2);
+}
+
+/* Типы версий */
+.indicator.current-version {
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.2);
+}
+
+.indicator.current-version:hover {
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.4);
+}
+
+.indicator.major-version {
+    border-color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.2);
+}
+
+.indicator.major-version:hover {
+    border-color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.4);
+}
+
+.indicator.legacy-version {
+    border-color: #4a5568;
+    background: rgba(74, 85, 104, 0.2);
+}
+
+.indicator.legacy-version:hover {
+    border-color: #4a5568;
+    background: rgba(74, 85, 104, 0.4);
+}
+
+.indicator.normal-version {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: transparent;
+}
+
+.indicator.normal-version:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Активные состояния */
+.indicator.active.current-version {
+    background: #00ff88;
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
+}
+
+.indicator.active.major-version {
+    background: #ff6b6b;
+    border-color: #ff6b6b;
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
+}
+
+.indicator.active.legacy-version {
+    background: #4a5568;
+    border-color: #4a5568;
+    box-shadow: 0 0 15px rgba(74, 85, 104, 0.6);
+}
+
+.indicator.active.normal-version {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+.indicator.active::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border: 1px solid;
+    border-radius: 50%;
+    animation: pulse-indicator 2s infinite;
+}
+
+.indicator.active.current-version::after {
+    border-color: rgba(0, 255, 136, 0.3);
+}
+
+.indicator.active.major-version::after {
+    border-color: rgba(255, 107, 107, 0.3);
+}
+
+.indicator.active.legacy-version::after {
+    border-color: rgba(74, 85, 104, 0.3);
+}
+
+.indicator.active.normal-version::after {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes pulse-indicator {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.2);
+    }
+}
+
+.version-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 1rem;
+    flex-wrap: wrap;
+    min-height: 80px;
+    flex-shrink: 0;
+}
+
+.version-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    font-family: 'Benzin', sans-serif;
+}
+
+.version-date {
+    color: #a0aec0;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.version-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid;
+    backdrop-filter: blur(4px);
+}
+
+.version-badge.current {
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    color: #000000;
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+    animation: pulse-current 2s infinite;
+}
+
+.version-badge.major {
+    background: linear-gradient(135deg, #ff6b6b, #e53e3e);
+    color: #ffffff;
+    border-color: #ff6b6b;
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+}
+
+.version-badge.legacy {
+    background: linear-gradient(135deg, #4a5568, #2d3748);
+    color: #a0aec0;
+    border-color: #4a5568;
+}
+
+@keyframes pulse-current {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    }
+}
+
+.version-content {
+    padding: 1.5rem;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.version-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.version-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.version-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.version-content h4 {
+    color: #ffffff;
+    margin: 0 0 0.75rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.version-content ul {
+    margin: 0 0 1.5rem 0;
+    padding-left: 1.25rem;
+    list-style: none;
+}
+
+.version-content li {
+    color: #e2e8f0;
+    margin-bottom: 0.5rem;
+    position: relative;
+    line-height: 1.5;
+    padding-left: 1rem;
+}
+
+.version-content li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: #00ff88;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.version-content li:hover {
+    color: #ffffff;
+}
+
+.version-content ul:last-child {
+    margin-bottom: 0;
+}
+
+
+
+/* Swipe Gestures */
+.version-carousel {
+    touch-action: pan-y;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.version-slide.swiping {
+    transition: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .update-log-content {
+        max-width: 95vw;
+        max-height: 90vh;
+        margin: 1rem;
+    }
+    
+    .update-log-body {
+        min-height: 420px;
+    }
+    
+    .version-carousel-container {
+        gap: 0.5rem;
+        height: 320px;
+    }
+    
+    .carousel-nav {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .carousel-nav img {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .version-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .version-content {
+        padding: 1rem;
+    }
+    
+    .version-indicators {
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .indicator {
+        width: 10px;
+        height: 10px;
+        border-width: 1.5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .version-content h4 {
+        font-size: 1rem;
+    }
+    
+    .version-content li {
+        font-size: 0.9rem;
+    }
+    
+    .update-log-body {
+        min-height: 360px;
+    }
+    
+    .version-carousel-container {
+        height: 280px;
+    }
+    
+    .carousel-nav {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .carousel-nav img {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .indicator {
+        border-width: 1px;
+    }
+    
+    .indicator.active::after {
+        top: -3px;
+        left: -3px;
+        right: -3px;
+        bottom: -3px;
+    }
+}
+
+/* Carousel Animations */
+.version-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+ 
