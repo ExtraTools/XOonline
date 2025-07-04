@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Демонстрация шрифтов Benzin - DiLauncher</title>
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/fonts.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            padding: 4rem 2rem;
+        }
+        
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .demo-section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .font-sample {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border-left: 4px solid #00ff88;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .weight-info {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 0.5rem;
+            font-family: monospace;
+        }
+        
+        .code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 style="font-weight: 800; font-size: 3rem; margin-bottom: 1rem; text-align: center;">
+            Демонстрация шрифта Benzin
+        </h1>
+        
+        <p class="lead" style="text-align: center; margin-bottom: 3rem;">
+            Все 5 весов шрифта от Regular до ExtraBold в действии
+        </p>
+
+        <!-- Regular 400 -->
+        <div class="demo-section">
+            <h2 style="font-weight: 700; margin-bottom: 1rem;">Regular (400) - Основной текст</h2>
+            <div class="font-sample">
+                <div class="weight-info">font-weight: 400 | Benzin-Regular.ttf</div>
+                <p style="font-weight: 400; font-size: 1.2rem; line-height: 1.7;">
+                    Это основной текст, используемый для параграфов, описаний и обычного контента. 
+                    Regular вес обеспечивает отличную читаемость и подходит для длинных текстов. 
+                    Идеально для описаний продуктов, новостей и документации.
+                </p>
+                <div class="code">font-weight: 400; /* Regular */</div>
+            </div>
+        </div>
+
+        <!-- Medium 500 -->
+        <div class="demo-section">
+            <h2 style="font-weight: 700; margin-bottom: 1rem;">Medium (500) - Акценты и лейблы</h2>
+            <div class="font-sample">
+                <div class="weight-info">font-weight: 500 | Benzin-Medium.ttf</div>
+                <p style="font-weight: 500; font-size: 1.2rem; line-height: 1.6;">
+                    Medium вес отлично подходит для важных элементов интерфейса: навигационные ссылки, 
+                    лейблы форм, подписи к изображениям. Создает нужный акцент без излишней жирности.
+                </p>
+                <div style="font-weight: 500; margin: 1rem 0;">
+                    <span>Примеры использования:</span><br>
+                    <span style="font-size: 0.9rem; color: #aaa;">Навигация • Лейблы • Подписи • Социальные ссылки</span>
+                </div>
+                <div class="code">font-weight: 500; /* Medium */</div>
+            </div>
+        </div>
+
+        <!-- Semibold 600 -->
+        <div class="demo-section">
+            <h2 style="font-weight: 700; margin-bottom: 1rem;">Semibold (600) - Подзаголовки и элементы UI</h2>
+            <div class="font-sample">
+                <div class="weight-info">font-weight: 600 | Benzin-Semibold.ttf</div>
+                <h3 style="font-weight: 600; font-size: 1.5rem; margin-bottom: 1rem; letter-spacing: -0.005em;">
+                    Заголовки карточек и кнопок
+                </h3>
+                <p style="font-weight: 400; margin-bottom: 1rem;">
+                    Semibold идеально подходит для подзаголовков, названий карточек, кнопок и других UI элементов. 
+                    Обеспечивает хорошую видимость без чрезмерного веса.
+                </p>
+                <button style="font-weight: 600; padding: 0.75rem 1.5rem; background: #00ff88; color: #000; border: none; border-radius: 8px; cursor: pointer;">
+                    Кнопка с Semibold
+                </button>
+                <div class="code">font-weight: 600; /* Semibold */</div>
+            </div>
+        </div>
+
+        <!-- Bold 700 -->
+        <div class="demo-section">
+            <h2 style="font-weight: 700; margin-bottom: 1rem;">Bold (700) - Основные заголовки</h2>
+            <div class="font-sample">
+                <div class="weight-info">font-weight: 700 | Benzin-Bold.ttf</div>
+                <h2 style="font-weight: 700; font-size: 2.5rem; margin-bottom: 1rem; letter-spacing: -0.01em;">
+                    Заголовки секций
+                </h2>
+                <p style="font-weight: 400; margin-bottom: 1rem;">
+                    Bold вес используется для основных заголовков страниц и секций. 
+                    Создает сильный визуальный акцент и помогает структурировать контент.
+                </p>
+                <h3 style="font-weight: 700; font-size: 1.5rem; margin: 1rem 0;">Заголовки модальных окон</h3>
+                <div class="code">font-weight: 700; /* Bold */</div>
+            </div>
+        </div>
+
+        <!-- ExtraBold 800 -->
+        <div class="demo-section">
+            <h2 style="font-weight: 700; margin-bottom: 1rem;">ExtraBold (800) - Главные заголовки и логотипы</h2>
+            <div class="font-sample">
+                <div class="weight-info">font-weight: 800 | Benzin-ExtraBold.ttf</div>
+                <h1 style="font-weight: 800; font-size: 4rem; margin-bottom: 1rem; letter-spacing: -0.02em; line-height: 1.1;">
+                    DiLauncher
+                </h1>
+                <p style="font-weight: 400; margin-bottom: 1.5rem;">
+                    ExtraBold используется для самых важных элементов: логотипов, главных заголовков страниц, 
+                    крупных цифр в статистике. Максимальный визуальный вес для ключевых элементов.
+                </p>
+                <div style="display: flex; gap: 2rem; margin: 1.5rem 0;">
+                    <div style="text-align: center;">
+                        <div style="font-weight: 800; font-size: 3rem; color: #00ff88; letter-spacing: -0.01em;">1000+</div>
+                        <div style="font-weight: 500; color: #888; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Пользователей</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-weight: 800; font-size: 3rem; color: #00ff88; letter-spacing: -0.01em;">24/7</div>
+                        <div style="font-weight: 500; color: #888; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Поддержка</div>
+                    </div>
+                </div>
+                <div class="code">font-weight: 800; /* ExtraBold */</div>
+            </div>
+        </div>
+
+        <!-- Сравнение всех весов -->
+        <div class="demo-section">
+            <h2 style="font-weight: 700; margin-bottom: 2rem;">Сравнение всех весов</h2>
+            
+            <div style="margin-bottom: 2rem;">
+                <div style="font-weight: 400; font-size: 2rem; margin: 0.5rem 0;">Regular 400: Новое поколение Minecraft лаунчера</div>
+                <div style="font-weight: 500; font-size: 2rem; margin: 0.5rem 0;">Medium 500: Новое поколение Minecraft лаунчера</div>
+                <div style="font-weight: 600; font-size: 2rem; margin: 0.5rem 0;">Semibold 600: Новое поколение Minecraft лаунчера</div>
+                <div style="font-weight: 700; font-size: 2rem; margin: 0.5rem 0;">Bold 700: Новое поколение Minecraft лаунчера</div>
+                <div style="font-weight: 800; font-size: 2rem; margin: 0.5rem 0; letter-spacing: -0.01em;">ExtraBold 800: Новое поколение Minecraft лаунчера</div>
+            </div>
+            
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: 8px;">
+                <h3 style="font-weight: 600; margin-bottom: 1rem;">Рекомендации по использованию:</h3>
+                <ul style="font-weight: 400; line-height: 1.8; list-style: none; padding: 0;">
+                    <li style="margin: 0.5rem 0;">📝 <strong style="font-weight: 500;">Regular (400)</strong> - основной текст, параграфы, описания</li>
+                    <li style="margin: 0.5rem 0;">🔗 <strong style="font-weight: 500;">Medium (500)</strong> - навигация, лейблы, ссылки</li>
+                    <li style="margin: 0.5rem 0;">🎯 <strong style="font-weight: 500;">Semibold (600)</strong> - подзаголовки, кнопки, UI элементы</li>
+                    <li style="margin: 0.5rem 0;">📰 <strong style="font-weight: 500;">Bold (700)</strong> - заголовки секций, модальные окна</li>
+                    <li style="margin: 0.5rem 0;">🎨 <strong style="font-weight: 500;">ExtraBold (800)</strong> - логотипы, главные заголовки, статистика</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Практические примеры -->
+        <div class="demo-section">
+            <h2 style="font-weight: 700; margin-bottom: 1rem;">Практические примеры из DiLauncher</h2>
+            
+            <!-- Пример навбара -->
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-weight: 800; font-size: 1.5rem; letter-spacing: -0.01em;">DiLauncher</div>
+                    <nav style="display: flex; gap: 2rem;">
+                        <a href="#" style="color: #fff; text-decoration: none; font-weight: 500;">Главная</a>
+                        <a href="#" style="color: #aaa; text-decoration: none; font-weight: 500;">Особенности</a>
+                        <a href="#" style="color: #aaa; text-decoration: none; font-weight: 500;">Скачать</a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Пример карточки -->
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 12px; margin: 1rem 0;">
+                <h3 style="font-weight: 600; font-size: 1.5rem; margin-bottom: 1rem; letter-spacing: -0.005em;">Мгновенный запуск</h3>
+                <p style="font-weight: 400; color: #ccc; margin-bottom: 1.5rem; line-height: 1.6;">
+                    Запуск игры за секунды благодаря оптимизированному коду и кэшированию.
+                </p>
+                <button style="font-weight: 600; padding: 0.75rem 1.5rem; background: #00ff88; color: #000; border: none; border-radius: 8px; cursor: pointer;">
+                    Узнать больше
+                </button>
+            </div>
+            
+            <!-- Пример статистики -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin: 2rem 0;">
+                <div style="text-align: center; background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: 8px;">
+                    <div style="font-weight: 800; font-size: 2rem; color: #00ff88; letter-spacing: -0.01em;">1000+</div>
+                    <div style="font-weight: 500; color: #888; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Загрузок</div>
+                </div>
+                <div style="text-align: center; background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: 8px;">
+                    <div style="font-weight: 800; font-size: 2rem; color: #00ff88; letter-spacing: -0.01em;">15+</div>
+                    <div style="font-weight: 500; color: #888; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Версий MC</div>
+                </div>
+                <div style="text-align: center; background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: 8px;">
+                    <div style="font-weight: 800; font-size: 2rem; color: #00ff88; letter-spacing: -0.01em;">24/7</div>
+                    <div style="font-weight: 500; color: #888; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Поддержка</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+            <p style="font-weight: 400; color: #888;">
+                Демонстрация типографии DiLauncher • 
+                <a href="/" style="color: #00ff88; text-decoration: none; font-weight: 500;">Вернуться на главную</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

@@ -24,6 +24,108 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Typography Hierarchy - Типографическая иерархия */
+h1, .h1 {
+    font-weight: 800; /* ExtraBold */
+    font-size: 3rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+}
+
+h2, .h2 {
+    font-weight: 700; /* Bold */
+    font-size: 2.25rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    margin-bottom: 1.25rem;
+}
+
+h3, .h3 {
+    font-weight: 600; /* Semibold */
+    font-size: 1.75rem;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+}
+
+h4, .h4 {
+    font-weight: 600; /* Semibold */
+    font-size: 1.5rem;
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+}
+
+h5, .h5 {
+    font-weight: 500; /* Medium */
+    font-size: 1.25rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+h6, .h6 {
+    font-weight: 500; /* Medium */
+    font-size: 1.125rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+/* Paragraph and text styles */
+p {
+    font-weight: 400; /* Regular */
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+/* Emphasis styles */
+.text-emphasis {
+    font-weight: 500; /* Medium */
+}
+
+.text-strong {
+    font-weight: 600; /* Semibold */
+}
+
+.text-bold {
+    font-weight: 700; /* Bold */
+}
+
+.text-extrabold {
+    font-weight: 800; /* ExtraBold */
+}
+
+/* Lead text */
+.lead {
+    font-weight: 400; /* Regular */
+    font-size: 1.125rem;
+    line-height: 1.75;
+    opacity: 0.9;
+}
+
+/* Small text */
+.small, small {
+    font-weight: 400; /* Regular */
+    font-size: 0.875rem;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
+/* Labels and captions */
+.label {
+    font-weight: 500; /* Medium */
+    font-size: 0.875rem;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.caption {
+    font-weight: 400; /* Regular */
+    font-size: 0.75rem;
+    line-height: 1.4;
+    opacity: 0.7;
+}
+
 /* Background Animation - Черная тема */
 .background {
     position: fixed;
@@ -62,4 +164,5 @@ body {
     font-style: italic;
     font-size: 0.8rem;
     padding: 1rem 0;
+    font-weight: 400;
 } 

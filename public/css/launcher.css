@@ -23,6 +23,7 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -83,9 +84,10 @@ body {
 
 .navbar-title {
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 800; /* ExtraBold для логотипа */
     color: var(--text-primary);
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    letter-spacing: -0.01em;
 }
 
 .navbar-menu {
@@ -97,10 +99,11 @@ body {
 .navbar-link {
     color: var(--text-secondary);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 500; /* Medium для навигации */
     transition: all 0.15s ease-out;
     position: relative;
     padding: 0.5rem 0;
+    letter-spacing: 0.01em;
 }
 
 .navbar-link:hover,
@@ -172,7 +175,7 @@ body {
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: var(--radius-md);
-    font-weight: 600;
+    font-weight: 600; /* Semibold для кнопок */
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -184,6 +187,7 @@ body {
     color: inherit;
     position: relative;
     overflow: hidden;
+    letter-spacing: 0.01em;
 }
 
 .btn::before {
@@ -434,13 +438,14 @@ body {
 
 .hero-title {
     font-size: 4rem;
-    font-weight: 800;
+    font-weight: 800; /* ExtraBold для главного заголовка */
     line-height: 1.1;
     margin-bottom: 1.5rem;
     background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    letter-spacing: -0.02em;
 }
 
 .hero-highlight {
@@ -453,6 +458,7 @@ body {
 
 .hero-description {
     font-size: 1.3rem;
+    font-weight: 400; /* Regular для описания */
     color: var(--text-secondary);
     margin-bottom: 2.5rem;
     line-height: 1.7;
@@ -477,13 +483,15 @@ body {
 .stat-number {
     display: block;
     font-size: 2rem;
-    font-weight: 800;
+    font-weight: 800; /* ExtraBold для цифр статистики */
     color: var(--text-primary);
     text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    letter-spacing: -0.01em;
 }
 
 .stat-label {
     font-size: 0.9rem;
+    font-weight: 500; /* Medium для подписей */
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -694,7 +702,7 @@ body {
 
 .section-title {
     font-size: 2.5rem;
-    font-weight: 700;
+    font-weight: 700; /* Bold для заголовков секций */
     text-align: center;
     margin-bottom: 1rem;
     background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
@@ -703,6 +711,7 @@ body {
     background-clip: text;
     position: relative;
     z-index: 10;
+    letter-spacing: -0.01em;
 }
 
 .platforms-grid {
@@ -764,14 +773,17 @@ body {
 
 .platform-card h3 {
     font-size: 1.3rem;
-    font-weight: 600;
+    font-weight: 600; /* Semibold для подзаголовков карточек */
     margin-bottom: 0.5rem;
     color: var(--text-primary);
+    letter-spacing: -0.005em;
 }
 
 .platform-card p {
+    font-weight: 400; /* Regular для описаний */
     color: var(--text-secondary);
     margin-bottom: 1rem;
+    line-height: 1.6;
 }
 
 .platform-badge {
@@ -869,12 +881,14 @@ body {
 
 .feature-card h3 {
     font-size: 1.5rem;
-    font-weight: 600;
+    font-weight: 600; /* Semibold для заголовков особенностей */
     margin-bottom: 1rem;
     color: var(--text-primary);
+    letter-spacing: -0.005em;
 }
 
 .feature-card p {
+    font-weight: 400; /* Regular для описаний особенностей */
     color: var(--text-secondary);
     margin-bottom: 1.5rem;
     line-height: 1.6;
@@ -1151,11 +1165,13 @@ body {
 
 .footer-title {
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 700; /* Bold для заголовка футера */
     color: var(--text-primary);
+    letter-spacing: -0.005em;
 }
 
 .footer-description {
+    font-weight: 400; /* Regular для описания футера */
     color: var(--text-secondary);
     line-height: 1.6;
 }
@@ -1168,7 +1184,7 @@ body {
 .social-link {
     color: var(--text-muted);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 500; /* Medium для социальных ссылок */
     transition: var(--transition);
 }
 
@@ -1184,8 +1200,9 @@ body {
 
 .link-group h4 {
     color: var(--text-primary);
-    font-weight: 600;
+    font-weight: 600; /* Semibold для заголовков групп ссылок */
     margin-bottom: 1rem;
+    letter-spacing: 0.01em;
 }
 
 .link-group a {
@@ -1287,7 +1304,8 @@ body {
 
 .modal-header h2 {
     color: var(--text-primary);
-    font-weight: 600;
+    font-weight: 700; /* Bold для заголовков модальных окон */
+    letter-spacing: -0.005em;
 }
 
 .modal-close {
@@ -1317,8 +1335,9 @@ body {
 
 .form-group label {
     color: var(--text-secondary);
-    font-weight: 500;
+    font-weight: 500; /* Medium для лейблов форм */
     font-size: 0.9rem;
+    letter-spacing: 0.01em;
 }
 
 .form-group input {
@@ -1961,14 +1980,17 @@ section {
 .platform-text h3 {
     margin: 0 0 0.25rem 0;
     font-size: 1.5rem;
-    font-weight: 600;
+    font-weight: 600; /* Semibold для названий платформ */
     color: var(--text-primary);
+    letter-spacing: -0.005em;
 }
 
 .platform-text p {
     margin: 0;
+    font-weight: 400; /* Regular для описаний платформ */
     color: var(--text-secondary);
     font-size: 0.9rem;
+    line-height: 1.5;
 }
 
 /* Download button styling */
