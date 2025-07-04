@@ -62,6 +62,27 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(join(__dirname, 'public')));
 app.use('/FRONTS', express.static(join(__dirname, 'FRONTS')));
 
+// Middleware для отключения кеширования
+app.use((req, res, next) => {
+    // Отключаем кеширование для всех файлов
+    res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Surrogate-Control': 'no-store'
+    });
+    
+    // Дополнительные заголовки для предотвращения кеширования
+    if (req.path.endsWith('.html') || req.path.endsWith('.css') || req.path.endsWith('.js')) {
+        res.set({
+            'Last-Modified': new Date().toUTCString(),
+            'ETag': Date.now().toString()
+        });
+    }
+    
+    next();
+});
+
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
