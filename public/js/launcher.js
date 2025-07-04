@@ -4,6 +4,7 @@ class ModernLauncher {
     constructor() {
         this.currentUser = null;
         this.token = localStorage.getItem('authToken');
+        this.sessionId = localStorage.getItem('sessionId');
         this.downloadLinks = {
             windows: '',
             mac: '',
@@ -15,6 +16,7 @@ class ModernLauncher {
     }
 
     init() {
+        this.handleAuthCallback();
         this.setupEventListeners();
         this.setupScrollAnimations();
         this.checkAuthState();
@@ -37,6 +39,12 @@ class ModernLauncher {
         
         // Форма авторизации
         this.setupAuthForms();
+        
+        // Discord авторизация
+        this.setupDiscordAuth();
+        
+        // Кнопка обновления
+        this.setupRefreshButton();
         
         // Плавная прокрутка
         this.setupSmoothScroll();
@@ -471,63 +479,228 @@ class ModernLauncher {
 
     async checkAuthState() {
         if (this.token) {
-            try {
-                const response = await fetch('/api/auth/verify', {
-                    headers: {
-                        'Authorization': `Bearer ${this.token}`,
-                    },
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    this.currentUser = data.user;
-                    this.updateAuthState(true);
-                } else {
-                    this.logout();
-                }
-            } catch (error) {
-                console.error('Auth verification error:', error);
+            const userData = await this.verifyToken();
+            if (userData) {
+                this.currentUser = userData;
+                this.updateAuthState(true);
+            } else {
                 this.logout();
             }
         }
     }
 
     updateAuthState(isLoggedIn) {
-        const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
         const navbarAuth = document.querySelector('.navbar-auth');
         
         if (isLoggedIn && this.currentUser) {
             // Пользователь вошел в систему
             if (navbarAuth) {
                 navbarAuth.innerHTML = `
+                    <button class="btn btn-refresh" id="refreshButton" title="Обновить страницу">
+                        <img src="/icons/gameIcons/PNG/White/2x/return.png" alt="Обновить" class="btn-icon">
+                    </button>
                     <div class="user-info-nav">
-                        <span class="user-name">${this.currentUser.username}</span>
+                        <span class="user-name">${this.currentUser.displayName || this.currentUser.username}</span>
                         <button class="btn btn-outline" onclick="launcher.logout()">Выйти</button>
                     </div>
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
                 `;
+                
+                // Переподключаем обработчики
+                this.setupRefreshButton();
+                this.setupMobileMenu();
             }
         } else {
             // Пользователь не вошел в систему
             if (navbarAuth) {
                 navbarAuth.innerHTML = `
-                    <button class="btn btn-outline" id="loginBtn">Войти</button>
-                    <button class="btn btn-primary" id="registerBtn">Регистрация</button>
+                    <button class="btn btn-refresh" id="refreshButton" title="Обновить страницу">
+                        <img src="/icons/gameIcons/PNG/White/2x/return.png" alt="Обновить" class="btn-icon">
+                    </button>
+                    <button class="btn btn-discord" id="discordLoginBtn" title="Войти через Discord">
+                        <img src="/icons/gameIcons/PNG/White/2x/buttonStart.png" alt="Discord" class="btn-icon">
+                        Discord
+                    </button>
+                    <div class="btn btn-coming-soon" disabled>Регистрация<span class="coming-soon-label">Скоро</span></div>
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
                 `;
                 
                 // Переподключаем обработчики
-                this.setupModals();
+                this.setupRefreshButton();
+                this.setupDiscordAuth();
+                this.setupMobileMenu();
             }
         }
     }
 
     logout() {
-        this.token = null;
         this.currentUser = null;
+        this.token = null;
         localStorage.removeItem('authToken');
+        localStorage.removeItem('sessionId');
+        
+        // Отправляем запрос на выход из системы
+        if (this.sessionId) {
+            fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sessionId: this.sessionId })
+            }).catch(err => console.error('Ошибка при выходе:', err));
+        }
+        
+        this.sessionId = null;
         this.updateAuthState(false);
         this.showNotification('Вы вышли из системы', 'info');
+    }
+
+    handleAuthCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const sessionId = urlParams.get('session');
+        const error = urlParams.get('error');
+
+        if (error) {
+            let errorMessage = 'Произошла ошибка авторизации';
+            switch (error) {
+                case 'no_code':
+                    errorMessage = 'Не получен код авторизации';
+                    break;
+                case 'auth_failed':
+                    errorMessage = 'Не удалось авторизоваться через Discord';
+                    break;
+            }
+            this.showNotification(errorMessage, 'error');
+            
+            // Очищаем URL от параметров ошибки
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return;
+        }
+
+        if (token && sessionId) {
+            this.token = token;
+            this.sessionId = sessionId;
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('sessionId', sessionId);
+            
+            // Проверяем токен и получаем данные пользователя
+            this.verifyToken().then(userData => {
+                if (userData) {
+                    this.currentUser = userData;
+                    this.updateAuthState(true);
+                    this.showNotification(`Добро пожаловать, ${userData.displayName}!`, 'success');
+                }
+            });
+            
+            // Очищаем URL от параметров авторизации
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
+
+    async verifyToken() {
+        if (!this.token) return null;
+
+        try {
+            const response = await fetch('/api/auth/verify', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this.token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return data.user;
+            } else {
+                // Токен недействителен, удаляем его
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('sessionId');
+                this.token = null;
+                this.sessionId = null;
+                return null;
+            }
+        } catch (error) {
+            console.error('Ошибка проверки токена:', error);
+            return null;
+        }
+    }
+
+    setupDiscordAuth() {
+        const discordButtons = document.querySelectorAll('#discordLoginBtn, #discordLoginBtnMobile');
+        
+        discordButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (this.currentUser) {
+                    // Если уже авторизован, показываем профиль
+                    this.showUserProfile();
+                } else {
+                    // Перенаправляем на Discord OAuth
+                    window.location.href = '/auth/discord';
+                }
+            });
+        });
+    }
+
+    setupRefreshButton() {
+        const refreshButtons = document.querySelectorAll('#refreshButton, #refreshButtonMobile');
+        
+        refreshButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Добавляем анимацию вращения
+                button.style.transform = 'rotate(360deg)';
+                
+                // Обновляем страницу
+                setTimeout(() => {
+                    window.location.reload();
+                }, 300);
+            });
+        });
+    }
+
+    showUserProfile() {
+        if (!this.currentUser) return;
+        
+        const profileInfo = `
+            <div class="user-profile">
+                <div class="profile-header">
+                    ${this.currentUser.avatar ? 
+                        `<img src="https://cdn.discordapp.com/avatars/${this.currentUser.id}/${this.currentUser.avatar}.png" alt="${this.currentUser.displayName}" class="profile-avatar">` :
+                        `<div class="profile-avatar-placeholder">${this.currentUser.displayName.charAt(0)}</div>`
+                    }
+                    <div class="profile-details">
+                        <h3>${this.currentUser.displayName}</h3>
+                        <p>@${this.currentUser.username}</p>
+                        ${this.currentUser.email ? `<p>${this.currentUser.email}</p>` : ''}
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <button class="btn btn-outline" onclick="launcher.logout()">Выйти</button>
+                </div>
+            </div>
+        `;
+        
+        // Создаем модальное окно для профиля
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Профиль пользователя</h2>
+                    <button class="modal-close" onclick="this.closest('.modal').remove()">&times;</button>
+                </div>
+                ${profileInfo}
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Закрытие по клику на фон
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
     }
 
     setupSmoothScroll() {

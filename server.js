@@ -5,6 +5,10 @@ import { dirname, join } from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import jwt from 'jsonwebtoken';
+import session from 'express-session';
+import axios from 'axios';
+import crypto from 'crypto';
 
 // Инициализация
 const __filename = fileURLToPath(import.meta.url);
@@ -16,6 +20,15 @@ const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = 'AIzaSyDivBxbfDHZA7VqGmV21bCzWZ5PnLIDpBI';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
+// Discord OAuth конфигурация
+const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || '1327743663095877713';
+const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || 'placeholder_secret';
+const DISCORD_REDIRECT_URI = process.env.DISCORD_REDIRECT_URI || 'https://xoonline-production-b3d1.up.railway.app/auth/discord/callback';
+const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
+
+// В память хранилище для активных сессий (в продакшене используйте Redis)
+const activeSessions = new Map();
+
 // Middleware
 app.use(helmet({
     contentSecurityPolicy: {
@@ -23,13 +36,30 @@ app.use(helmet({
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
-            imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "ws:", "wss:", "https://generativelanguage.googleapis.com"]
+            imgSrc: ["'self'", "data:", "https:", "https://cdn.discordapp.com"],
+            connectSrc: ["'self'", "ws:", "wss:", "https://generativelanguage.googleapis.com", "https://discord.com"]
         }
     }
 }));
 
-app.use(cors());
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production' 
+        ? ['https://xoonline-production-b3d1.up.railway.app', 'https://railway.app']
+        : 'http://localhost:3000',
+    credentials: true
+}));
+
+app.use(session({
+    secret: JWT_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 дней
+    }
+}));
+
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -43,6 +73,24 @@ app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
 });
+
+// Middleware для проверки JWT токенов
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Токен не предоставлен' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ success: false, message: 'Недействительный токен' });
+        }
+        req.user = user;
+        next();
+    });
+};
 
 // API маршруты
 app.get('/api/health', (req, res) => {
@@ -160,7 +208,120 @@ app.post('/api/ai/chat', async (req, res) => {
     }
 });
 
-// Простая авторизация (mock данные)
+// Discord OAuth маршруты
+app.get('/auth/discord', (req, res) => {
+    const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&response_type=code&scope=identify%20email`;
+    res.redirect(discordAuthUrl);
+});
+
+app.get('/auth/discord/callback', async (req, res) => {
+    const { code } = req.query;
+    
+    if (!code) {
+        return res.redirect('/?error=no_code');
+    }
+
+    try {
+        // Обмен кода на токен
+        const tokenResponse = await axios.post('https://discord.com/api/oauth2/token', {
+            client_id: DISCORD_CLIENT_ID,
+            client_secret: DISCORD_CLIENT_SECRET,
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: DISCORD_REDIRECT_URI
+        }, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+
+        const { access_token } = tokenResponse.data;
+
+        // Получение информации о пользователе
+        const userResponse = await axios.get('https://discord.com/api/users/@me', {
+            headers: {
+                'Authorization': `Bearer ${access_token}`
+            }
+        });
+
+        const discordUser = userResponse.data;
+
+        // Создание JWT токена
+        const jwtToken = jwt.sign({
+            id: discordUser.id,
+            username: discordUser.username,
+            displayName: discordUser.global_name || discordUser.username,
+            discriminator: discordUser.discriminator,
+            avatar: discordUser.avatar,
+            email: discordUser.email
+        }, JWT_SECRET, { expiresIn: '30d' });
+
+        // Сохранение сессии
+        const sessionId = crypto.randomBytes(32).toString('hex');
+        activeSessions.set(sessionId, {
+            userId: discordUser.id,
+            username: discordUser.username,
+            displayName: discordUser.global_name || discordUser.username,
+            avatar: discordUser.avatar,
+            email: discordUser.email,
+            createdAt: new Date(),
+            lastActivity: new Date()
+        });
+
+        // Редирект с токеном
+        res.redirect(`/?token=${jwtToken}&session=${sessionId}`);
+    } catch (error) {
+        console.error('Discord OAuth error:', error);
+        res.redirect('/?error=auth_failed');
+    }
+});
+
+// Проверка токена
+app.get('/api/auth/verify', (req, res) => {
+    const token = req.query.token || req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Токен не предоставлен' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        res.json({
+            success: true,
+            user: decoded,
+            message: 'Токен действителен'
+        });
+    } catch (error) {
+        res.status(401).json({
+            success: false,
+            message: 'Недействительный токен'
+        });
+    }
+});
+
+// Выход из системы
+app.post('/api/auth/logout', (req, res) => {
+    const sessionId = req.body.sessionId;
+    
+    if (sessionId && activeSessions.has(sessionId)) {
+        activeSessions.delete(sessionId);
+    }
+    
+    res.json({
+        success: true,
+        message: 'Выход выполнен успешно'
+    });
+});
+
+// Информация о текущем пользователе
+app.get('/api/auth/me', authenticateToken, (req, res) => {
+    res.json({
+        success: true,
+        user: req.user
+    });
+});
+
+// Простая авторизация (mock данные) - сохраняем для совместимости
 app.post('/api/auth/login', (req, res) => {
     const { login, password } = req.body;
 
@@ -172,15 +333,24 @@ app.post('/api/auth/login', (req, res) => {
     };
 
     if (testUsers[login] && testUsers[login] === password) {
+        // Создание JWT токена для тестовых пользователей
+        const jwtToken = jwt.sign({
+            id: Math.floor(Math.random() * 1000),
+            username: login,
+            displayName: login.charAt(0).toUpperCase() + login.slice(1),
+            isTestUser: true
+        }, JWT_SECRET, { expiresIn: '30d' });
+
         res.json({
             success: true,
             message: 'Успешная авторизация',
             user: {
                 id: Math.floor(Math.random() * 1000),
                 username: login,
-                displayName: login.charAt(0).toUpperCase() + login.slice(1)
+                displayName: login.charAt(0).toUpperCase() + login.slice(1),
+                isTestUser: true
             },
-            token: 'test-jwt-token-' + Date.now()
+            token: jwtToken
         });
     } else {
         res.status(401).json({
