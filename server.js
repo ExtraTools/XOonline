@@ -22,12 +22,16 @@ const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const DISCORD_REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'demo-secret-key-for-development';
 
-if (!DISCORD_CLIENT_ID || !DISCORD_CLIENT_SECRET || !DISCORD_REDIRECT_URI || !JWT_SECRET) {
-    console.error('❌ Отсутствуют обязательные переменные окружения для Discord OAuth');
-    console.error('Необходимо установить: DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI, JWT_SECRET');
-    process.exit(1);
+// Проверяем наличие Discord OAuth переменных
+const DISCORD_OAUTH_ENABLED = !!(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_REDIRECT_URI);
+
+if (!DISCORD_OAUTH_ENABLED) {
+    console.log('⚠️  Discord OAuth отключен - работаем в демо-режиме');
+    console.log('💡 Для полной функциональности установите: DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI');
+} else {
+    console.log('✅ Discord OAuth настроен и готов к работе');
 }
 
 const activeSessions = new Map();
@@ -227,6 +231,14 @@ app.post('/api/ai/chat', async (req, res) => {
 });
 
 app.get('/api/auth/discord', (req, res) => {
+    if (!DISCORD_OAUTH_ENABLED) {
+        return res.status(503).json({
+            success: false,
+            message: 'Discord OAuth недоступен в демо-режиме',
+            demo: true
+        });
+    }
+    
     const state = crypto.randomBytes(32).toString('hex');
     const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&response_type=code&scope=identify&state=${state}`;
     
@@ -241,6 +253,10 @@ app.get('/api/auth/discord', (req, res) => {
 });
 
 app.get('/api/auth/discord/callback', async (req, res) => {
+    if (!DISCORD_OAUTH_ENABLED) {
+        return res.redirect('/?error=oauth_disabled');
+    }
+    
     const { code, state } = req.query;
     const storedState = req.cookies.oauth_state;
     
@@ -318,17 +334,59 @@ app.get('/api/auth/discord/callback', async (req, res) => {
     }
 });
 
-app.get('/api/auth/me', authenticate, (req, res) => {
+app.get('/api/auth/me', (req, res) => {
+    if (!DISCORD_OAUTH_ENABLED) {
+        return res.json({
+            success: false,
+            demo: true,
+            message: 'Демо-режим: авторизация отключена'
+        });
+    }
+    
+    // Проверяем авторизацию только если OAuth включен
+    const token = req.cookies.authToken || req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            message: 'Токен авторизации не найден'
+        });
+    }
+    
+    const decoded = verifyJWT(token);
+    if (!decoded) {
+        return res.status(401).json({
+            success: false,
+            message: 'Недействительный токен'
+        });
+    }
+    
     res.json({
         success: true,
-        user: req.user
+        user: decoded
     });
 });
 
 // Выход из системы
-app.post('/api/auth/logout', authenticate, (req, res) => {
-    // Удаляем сессию
-    activeSessions.delete(req.user.userId);
+app.post('/api/auth/logout', (req, res) => {
+    if (!DISCORD_OAUTH_ENABLED) {
+        return res.json({
+            success: false,
+            demo: true,
+            message: 'Демо-режим: авторизация отключена'
+        });
+    }
+    
+    // Проверяем авторизацию
+    const token = req.cookies.authToken || req.headers.authorization?.replace('Bearer ', '');
+    
+    if (token) {
+        const decoded = verifyJWT(token);
+        if (decoded) {
+            // Удаляем сессию
+            activeSessions.delete(decoded.userId);
+        }
+    }
     
     // Очищаем cookie
     res.clearCookie('authToken');
