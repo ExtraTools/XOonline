@@ -3,6 +3,7 @@ export default {
     preset: 'node',
     testEnvironment: 'node',
     
+    
     // Поддержка ES modules
     extensionsToTreatAsEsm: ['.js'],
     globals: {

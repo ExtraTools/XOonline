@@ -1,0 +1,595 @@
+/* ИИ-помощник стили */
+
+/* Helper ссылка в навигации */
+.navbar-helper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.helper-badge {
+    background: white;
+    color: black;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    animation: pulse-glow 2s infinite;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    50% {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+}
+
+.navbar-helper:hover .helper-badge {
+    background: #f0f0f0;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Мобильная helper ссылка */
+.mobile-helper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* ===== MODERN AI CHAT 2024-2025 DESIGN ===== */
+
+/* Модальное окно - полноэкранный floating container */
+.ai-assistant-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(25px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease-out, backdrop-filter 0.3s ease-out;
+}
+
+.ai-assistant-modal.show {
+    opacity: 1;
+}
+
+.ai-assistant-modal.closing {
+    opacity: 0;
+}
+
+/* Основной контейнер чата - floating glass card */
+.ai-assistant-container {
+    width: 95%;
+    max-width: 1000px;
+    height: 85vh;
+    max-height: 800px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(35px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 32px 64px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    transform: scale(0.9) translateY(20px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ai-assistant-modal.show .ai-assistant-container {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+.ai-assistant-modal.closing .ai-assistant-container {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+}
+
+/* Заголовок чата - floating header */
+.ai-assistant-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    position: relative;
+}
+
+.ai-assistant-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.ai-assistant-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Кнопка закрытия - modern minimal */
+.ai-assistant-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-assistant-close:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: scale(1.05);
+}
+
+.ai-assistant-close:active {
+    transform: scale(0.95);
+}
+
+.ai-assistant-close::before,
+.ai-assistant-close::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 1.5px;
+    background: #ffffff;
+    border-radius: 1px;
+    opacity: 0.9;
+}
+
+.ai-assistant-close::before {
+    transform: rotate(45deg);
+}
+
+.ai-assistant-close::after {
+    transform: rotate(-45deg);
+}
+
+/* Область сообщений - floating scroll */
+.ai-assistant-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+/* Стилизация скроллбара */
+.ai-assistant-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ai-assistant-messages::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 3px;
+}
+
+.ai-assistant-messages::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+.ai-assistant-messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Приветственное сообщение - floating card */
+.ai-welcome-message {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 8px;
+    position: relative;
+    animation: messageSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ai-welcome-message::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    border-radius: 16px 16px 0 0;
+}
+
+.ai-welcome-message h3 {
+    color: #ffffff;
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.ai-welcome-message p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+/* Сообщения пользователя - floating bubbles */
+.ai-message.user {
+    align-self: flex-end;
+    max-width: 70%;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    border-radius: 20px 20px 4px 20px;
+    padding: 12px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    animation: bubbleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Сообщения ИИ - floating bubbles */
+.ai-message.ai {
+    align-self: flex-start;
+    max-width: 75%;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(15px);
+    border-radius: 20px 20px 20px 4px;
+    padding: 12px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    position: relative;
+    animation: bubbleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes bubbleIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.ai-message {
+    color: #ffffff;
+    line-height: 1.5;
+    font-size: 14px;
+    word-wrap: break-word;
+    position: relative;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Область ввода - floating input */
+.ai-assistant-input-area {
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    position: relative;
+}
+
+.ai-assistant-input-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.ai-input-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    position: relative;
+}
+
+/* Поле ввода - modern floating input */
+.ai-message-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 12px 16px;
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1.4;
+    resize: none;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    max-height: 120px;
+    min-height: 44px;
+}
+
+.ai-message-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.ai-message-input:focus {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+}
+
+/* Кнопка отправки - floating action button */
+.ai-send-button {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.ai-send-button:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.ai-send-button:active {
+    transform: scale(0.95);
+}
+
+.ai-send-button img {
+    width: 20px;
+    height: 20px;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+}
+
+.ai-send-button:hover img {
+    opacity: 1;
+}
+
+/* Индикатор загрузки - modern dots */
+.ai-loading {
+    align-self: flex-start;
+    max-width: 75%;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(15px);
+    border-radius: 20px 20px 20px 4px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: bubbleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ai-loading-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.ai-loading-dot {
+    width: 6px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: dotPulse 1.4s ease-in-out infinite both;
+}
+
+.ai-loading-dot:nth-child(1) { animation-delay: -0.32s; }
+.ai-loading-dot:nth-child(2) { animation-delay: -0.16s; }
+.ai-loading-dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes dotPulse {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.3;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .ai-assistant-container {
+        width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+        border: none;
+    }
+    
+    .ai-assistant-modal {
+        padding: 0;
+        background: rgba(0, 0, 0, 0.95);
+    }
+    
+    .ai-assistant-messages {
+        padding: 16px;
+        gap: 12px;
+    }
+    
+    .ai-message {
+        font-size: 15px;
+    }
+    
+    .ai-assistant-input-area {
+        padding: 16px;
+    }
+    
+    .ai-message-input {
+        font-size: 16px; /* Предотвращает зум на iOS */
+    }
+}
+
+/* Анимация для плавного появления */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Дополнительные эффекты для glassmorphism */
+.ai-assistant-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    pointer-events: none;
+    border-radius: 24px;
+}
+
+/* Улучшенные тени для depth */
+.ai-message.user,
+.ai-message.ai {
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Hover эффекты для интерактивности */
+.ai-message.user:hover,
+.ai-message.ai:hover {
+    transform: translateY(-1px);
+    box-shadow: 
+        0 4px 16px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Улучшенная типографика */
+.ai-message,
+.ai-welcome-message p {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+/* Микро-анимация для отправки */
+.ai-send-button.sending {
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Анимации */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.ai-typing {
+    animation: pulse 1.5s infinite;
+}
+
+/* Дополнительная темная тема (если переменные не определены) */
+@media (prefers-color-scheme: dark) {
+    :root:not([style*="--color-bg-primary"]) .ai-chat-modal {
+        background: #0a0a0a;
+        border-color: #333;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+    }
+    
+    :root:not([style*="--color-bg-primary"]) .ai-chat-messages {
+        background: #0a0a0a;
+    }
+    
+    :root:not([style*="--color-bg-primary"]) .ai-message-content {
+        background: #1a1a1a;
+        border-color: #333;
+        color: #e5e5e5;
+    }
+    
+    :root:not([style*="--color-bg-primary"]) .ai-input-container textarea {
+        background: transparent;
+        border-color: #333;
+        color: #e5e5e5;
+    }
+    
+    :root:not([style*="--color-bg-primary"]) .ai-chat-input {
+        background: #1a1a1a;
+        border-color: #333;
+    }
+    
+    :root:not([style*="--color-bg-primary"]) .ai-input-container {
+        background: transparent;
+        border: none;
+    }
+} 

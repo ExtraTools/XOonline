@@ -12,6 +12,10 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Gemini API конфигурация
+const GEMINI_API_KEY = 'AIzaSyDivBxbfDHZA7VqGmV21bCzWZ5PnLIDpBI';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
 // Middleware
 app.use(helmet({
     contentSecurityPolicy: {
@@ -20,7 +24,7 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "ws:", "wss:"]
+            connectSrc: ["'self'", "ws:", "wss:", "https://generativelanguage.googleapis.com"]
         }
     }
 }));
@@ -59,7 +63,8 @@ app.get('/api/status', (req, res) => {
             'Railway деплой',
             'Статический контент',
             'API endpoints',
-            'Кроссплатформенность'
+            'Кроссплатформенность',
+            'ИИ-помощник по Minecraft'
         ],
         supportedVersions: [
             '1.21.6', '1.21.5', '1.21.4', '1.21.3',
@@ -67,6 +72,92 @@ app.get('/api/status', (req, res) => {
             '1.19.4', '1.19.2'
         ]
     });
+});
+
+// ИИ-помощник по Minecraft
+app.post('/api/ai/chat', async (req, res) => {
+    try {
+        const { message, context } = req.body;
+        
+        if (!message || message.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                message: 'Сообщение не может быть пустым'
+            });
+        }
+
+        // Системный промпт для универсального помощника по Minecraft
+        const systemPrompt = `Ты - ИИ-помощник для DiLauncher, универсальный эксперт по Minecraft. Помогаешь игрокам со всеми аспектами игры.
+
+Основные области твоей экспертизы:
+- Моды и модпаки для всех версий Minecraft
+- Gameplay советы и механики игры
+- Строительство и редстоун
+- Фармы и автоматизация
+- Выживание и достижения
+- Серверы и мультиплеер
+- Настройки производительности
+- Решение технических проблем
+- Совместимость модов
+- OptiFine, шейдеры и ресурспаки
+
+Поддерживаемые модлоадеры:
+- Forge (классический, много модов)
+- Fabric (легкий, быстрый)
+- Quilt (форк Fabric)  
+- NeoForge (новый форк Forge)
+
+Ты знаешь обо всех версиях Minecraft - от альфа до последних релизов. Всегда уточняй версию, если это важно для ответа.
+
+Отвечай на русском языке кратко и по делу. Если не знаешь точной информации, честно скажи об этом и предложи альтернативы.`;
+
+        const fullPrompt = `${systemPrompt}\n\nКонтекст: ${context || 'Пользователь спрашивает о Minecraft'}\n\nВопрос пользователя: ${message}`;
+
+        const response = await fetch(GEMINI_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-goog-api-key': GEMINI_API_KEY
+            },
+            body: JSON.stringify({
+                contents: [
+                    {
+                        parts: [
+                            {
+                                text: fullPrompt
+                            }
+                        ]
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Gemini API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates.length > 0) {
+            const aiResponse = data.candidates[0].content.parts[0].text;
+            
+            res.json({
+                success: true,
+                response: aiResponse,
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            throw new Error('Нет ответа от ИИ');
+        }
+
+    } catch (error) {
+        console.error('Ошибка ИИ-помощника:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Извините, ИИ-помощник временно недоступен. Попробуйте позже.',
+            error: error.message
+        });
+    }
 });
 
 // Простая авторизация (mock данные)

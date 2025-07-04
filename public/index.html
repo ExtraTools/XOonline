@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="/css/launcher.css?v=6.2">
     <link rel="stylesheet" href="/css/auth.css?v=6.2">
     <link rel="stylesheet" href="/css/success.css?v=6.2">
+    <link rel="stylesheet" href="/css/ai-assistant.css?v=6.2">
     
     <!-- Modern CSS features meta -->
     <meta name="color-scheme" content="dark">
@@ -47,6 +48,9 @@
                 <a href="#features" class="navbar-link">Возможности</a>
                 <a href="#download" class="navbar-link">Скачать</a>
                 <a href="#community" class="navbar-link">Сообщество</a>
+                <a href="#helper" class="navbar-link navbar-helper" id="aiHelperNavBtn">
+                    AI <span class="helper-badge">beta</span>
+                </a>
             </div>
             
             <div class="navbar-auth">
@@ -63,6 +67,9 @@
         <a href="#features" class="mobile-menu-link">Возможности</a>
         <a href="#download" class="mobile-menu-link">Скачать</a>
         <a href="#community" class="mobile-menu-link">Сообщество</a>
+        <a href="#helper" class="mobile-menu-link mobile-helper" id="aiHelperMobileBtn">
+            AI <span class="helper-badge">beta</span>
+        </a>
         <div class="btn btn-coming-soon" disabled>Регистрация<span class="coming-soon-label">Скоро</span></div>
     </div>
 
@@ -135,7 +142,8 @@
                                 <div class="launcher-tab active" id="home-tab">
                                     <div class="version-selector">
                                         <select id="versionSelect">
-                                            <option selected>Minecraft 1.21.6</option>
+                                            <option value="">Выберите версию</option>
+                                            <option>Minecraft 1.21.6</option>
                                             <option>Minecraft 1.21.4</option>
                                             <option>Minecraft 1.20.4</option>
                                             <option>Minecraft 1.20.1</option>
@@ -574,6 +582,36 @@
                 </div>
                 <div class="form-error" id="loginError"></div>
             </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно ИИ-помощника - Modern 2024-2025 Design -->
+    <div class="ai-assistant-modal" id="aiAssistantModal">
+        <div class="ai-assistant-container">
+            <!-- Заголовок чата -->
+            <div class="ai-assistant-header">
+                <h2 class="ai-assistant-title">AI beta</h2>
+                <button class="ai-assistant-close" id="aiAssistantClose" data-modal="aiAssistantModal"></button>
+            </div>
+            
+            <!-- Область сообщений -->
+            <div class="ai-assistant-messages" id="aiChatMessages">
+                <!-- Приветственное сообщение -->
+                <div class="ai-welcome-message">
+                    <h3>🤖 Привет! Я ИИ-помощник по Minecraft</h3>
+                    <p>Помогу с модами, модпаками, настройками и всем, что связано с Minecraft. Знаю про все версии игры и модлоадеры. Спрашивай что угодно!</p>
+                </div>
+            </div>
+            
+            <!-- Область ввода -->
+            <div class="ai-assistant-input-area">
+                <div class="ai-input-container">
+                    <textarea class="ai-message-input" id="aiChatInput" placeholder="Например: Какие моды добавляют новые биомы в Minecraft?" rows="1"></textarea>
+                    <button class="ai-send-button" id="aiSendBtn">
+                        <img src="/icons/gameIcons/PNG/White/2x/arrowRight.png" alt="Отправить">
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 

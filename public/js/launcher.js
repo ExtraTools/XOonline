@@ -9,6 +9,7 @@ class ModernLauncher {
             mac: '',
             linux: ''
         };
+        this.aiAssistantInitialized = false;
         
         this.init();
     }
@@ -246,7 +247,12 @@ class ModernLauncher {
         closeButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const modalId = e.target.getAttribute('data-modal');
-                this.closeModal(modalId);
+                // Специальная обработка для ИИ-чата
+                if (modalId === 'aiAssistantModal') {
+                    this.closeAIAssistant();
+                } else {
+                    this.closeModal(modalId);
+                }
             });
         });
 
@@ -310,6 +316,28 @@ class ModernLauncher {
                 this.handleDownload(platform);
             });
         });
+
+        // AI Assistant buttons
+        const aiHelperNavBtn = document.getElementById('aiHelperNavBtn');
+        const aiHelperMobileBtn = document.getElementById('aiHelperMobileBtn');
+        
+        if (aiHelperNavBtn) {
+            aiHelperNavBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // Предотвращаем переход по ссылке
+                this.openAIAssistant();
+            });
+        }
+        
+        if (aiHelperMobileBtn) {
+            aiHelperMobileBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // Предотвращаем переход по ссылке
+                // Закрываем мобильное меню и открываем ИИ-помощника
+                this.closeMobileMenu();
+                setTimeout(() => {
+                    this.openAIAssistant();
+                }, 300);
+            });
+        }
     }
 
     handleDownload(platform = 'windows') {
@@ -753,7 +781,7 @@ class ModernLauncher {
         // Кнопка запуска
         if (playButton) {
             playButton.addEventListener('click', () => {
-                const selectedVersion = versionSelect ? versionSelect.value : 'Minecraft 1.21.6';
+                const selectedVersion = versionSelect ? versionSelect.value : 'Minecraft';
                 playButton.innerHTML = '⏳ Запуск...';
                 playButton.disabled = true;
                 playButton.style.cursor = 'not-allowed';
@@ -835,6 +863,243 @@ class ModernLauncher {
             avatarImage.src = `/avatars/${selectedAvatar}`;
             avatarImage.style.opacity = '1';
         }
+    }
+
+    // AI Assistant methods - Modern 2024-2025 Design
+    openAIAssistant() {
+        const aiModal = document.getElementById('aiAssistantModal');
+        if (aiModal) {
+            aiModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Запускаем анимацию появления
+            requestAnimationFrame(() => {
+                aiModal.classList.add('show');
+            });
+        }
+        
+        // Устанавливаем обработчики только один раз
+        if (!this.aiAssistantInitialized) {
+            this.setupAIAssistant();
+            this.aiAssistantInitialized = true;
+        }
+    }
+
+    setupAIAssistant() {
+        const aiSendBtn = document.getElementById('aiSendBtn');
+        const aiChatInput = document.getElementById('aiChatInput');
+        const aiAssistantClose = document.getElementById('aiAssistantClose');
+
+        // Закрытие модального окна
+        if (aiAssistantClose) {
+            aiAssistantClose.addEventListener('click', () => {
+                this.closeAIAssistant();
+            });
+        }
+
+        // Закрытие по клику на фон
+        const aiModal = document.getElementById('aiAssistantModal');
+        if (aiModal) {
+            aiModal.addEventListener('click', (e) => {
+                if (e.target === aiModal) {
+                    this.closeAIAssistant();
+                }
+            });
+        }
+
+        // Закрытие по ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && aiModal && aiModal.classList.contains('show')) {
+                this.closeAIAssistant();
+            }
+        });
+
+        // Отправка сообщения
+        if (aiSendBtn) {
+            aiSendBtn.addEventListener('click', () => {
+                this.sendAIMessage();
+            });
+        }
+
+        // Отправка по Enter
+        if (aiChatInput) {
+            aiChatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendAIMessage();
+                }
+            });
+
+            // Авто-ресайз текстового поля
+            aiChatInput.addEventListener('input', () => {
+                aiChatInput.style.height = 'auto';
+                aiChatInput.style.height = Math.min(aiChatInput.scrollHeight, 120) + 'px';
+            });
+        }
+    }
+
+    closeAIAssistant() {
+        const aiModal = document.getElementById('aiAssistantModal');
+        if (aiModal) {
+            // Запускаем анимацию закрытия
+            aiModal.classList.remove('show');
+            aiModal.classList.add('closing');
+            
+            // После анимации скрываем модальное окно
+            setTimeout(() => {
+                aiModal.style.display = 'none';
+                aiModal.classList.remove('closing');
+                document.body.style.overflow = '';
+            }, 300); // Время анимации
+        }
+    }
+
+    async sendAIMessage() {
+        const aiChatInput = document.getElementById('aiChatInput');
+        const aiChatMessages = document.getElementById('aiChatMessages');
+        const aiSendBtn = document.getElementById('aiSendBtn');
+
+        if (!aiChatInput || !aiChatMessages) return;
+
+        const message = aiChatInput.value.trim();
+        if (!message) return;
+
+        // Добавляем сообщение пользователя
+        this.addUserMessage(message);
+        
+        // Очищаем поле ввода
+        aiChatInput.value = '';
+        aiChatInput.style.height = 'auto';
+
+        // Отключаем кнопку отправки и добавляем анимацию
+        if (aiSendBtn) {
+            aiSendBtn.disabled = true;
+            aiSendBtn.classList.add('sending');
+        }
+
+        // Показываем индикатор загрузки
+        const loadingMessage = this.addAILoadingMessage();
+
+        try {
+            // Получаем общий контекст Minecraft
+            const versionSelect = document.getElementById('versionSelect');
+            const currentVersion = versionSelect ? versionSelect.value : null;
+            
+            // Формируем контекст без привязки к версии
+            let contextMessage = 'Пользователь использует DiLauncher для игры в Minecraft';
+            if (currentVersion) {
+                contextMessage += `. Текущая версия: ${currentVersion}`;
+            }
+            
+            const response = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    context: contextMessage
+                }),
+            });
+
+            const data = await response.json();
+
+            // Удаляем индикатор загрузки
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+
+            if (data.success) {
+                this.addAIMessage(data.response);
+            } else {
+                this.addAIMessage('Извините, произошла ошибка: ' + data.message);
+            }
+        } catch (error) {
+            console.error('AI Chat error:', error);
+            
+            // Удаляем индикатор загрузки
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+            
+            this.addAIMessage('Извините, не удалось связаться с ИИ-помощником. Попробуйте позже.');
+        } finally {
+            // Включаем кнопку отправки и убираем анимацию
+            if (aiSendBtn) {
+                aiSendBtn.disabled = false;
+                aiSendBtn.classList.remove('sending');
+            }
+        }
+    }
+
+    addUserMessage(message) {
+        const aiChatMessages = document.getElementById('aiChatMessages');
+        if (!aiChatMessages) return;
+
+        const messageElement = document.createElement('div');
+        messageElement.className = 'ai-message user';
+        messageElement.textContent = message;
+
+        aiChatMessages.appendChild(messageElement);
+        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+    }
+
+    addAIMessage(message) {
+        const aiChatMessages = document.getElementById('aiChatMessages');
+        if (!aiChatMessages) return;
+
+        const messageElement = document.createElement('div');
+        messageElement.className = 'ai-message ai';
+        messageElement.innerHTML = this.formatAIMessage(message);
+
+        aiChatMessages.appendChild(messageElement);
+        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+    }
+
+    addAILoadingMessage() {
+        const aiChatMessages = document.getElementById('aiChatMessages');
+        if (!aiChatMessages) return null;
+
+        const loadingElement = document.createElement('div');
+        loadingElement.className = 'ai-loading';
+        loadingElement.innerHTML = `
+            <div class="ai-loading-dots">
+                <div class="ai-loading-dot"></div>
+                <div class="ai-loading-dot"></div>
+                <div class="ai-loading-dot"></div>
+            </div>
+        `;
+
+        aiChatMessages.appendChild(loadingElement);
+        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
+        return loadingElement;
+    }
+
+    formatAIMessage(message) {
+        // Простое форматирование markdown-подобного текста
+        let formatted = this.escapeHtml(message);
+        
+        // Жирный текст
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Курсив
+        formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        // Списки
+        formatted = formatted.replace(/^- (.*$)/gm, '<li>$1</li>');
+        formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+        
+        // Переносы строк
+        formatted = formatted.replace(/\n/g, '<br>');
+        
+        return formatted;
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 }
 
