@@ -4,7 +4,6 @@ import { authenticateToken } from './auth.js';
 
 const router = express.Router();
 
-// Получение списка пользователей онлайн
 router.get('/users', authenticateToken, async (req, res) => {
     try {
         const onlineUsers = await userQueries.getOnlineUsers();
@@ -24,7 +23,6 @@ router.get('/users', authenticateToken, async (req, res) => {
     }
 });
 
-// Получение статистики лобби
 router.get('/stats', authenticateToken, async (req, res) => {
     try {
         const onlineUsers = await userQueries.getOnlineUsers();

@@ -296,7 +296,6 @@ router.post('/logout', authenticateToken, async (req, res) => {
     }
 });
 
-// Получение профиля текущего пользователя
 router.get('/profile', authenticateToken, async (req, res) => {
     try {
         const user = await userQueries.findById(req.user.id);

@@ -206,7 +206,7 @@ export const userQueries = {
         });
     },
 
-    // Получение списка онлайн пользователей
+
     getOnlineUsers: () => {
         return new Promise((resolve, reject) => {
             db.all(

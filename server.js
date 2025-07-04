@@ -285,7 +285,6 @@ app.get('/api/auth/discord/callback', async (req, res) => {
             throw new Error('Не удалось получить access token');
         }
         
-        // Получение информации о пользователе
         const userResponse = await fetch('https://discord.com/api/users/@me', {
             headers: {
                 'Authorization': `Bearer ${tokenData.access_token}`
@@ -334,7 +333,6 @@ app.get('/api/auth/discord/callback', async (req, res) => {
     }
 });
 
-// Получение информации о текущем пользователе
 app.get('/api/auth/me', authenticate, (req, res) => {
     res.json({
         success: true,

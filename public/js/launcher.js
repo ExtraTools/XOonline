@@ -23,6 +23,7 @@ class ModernLauncher {
         this.setupDiscordAuth();
         this.handleAuthCallback();
         this.setupUpdateLog();
+        this.setupInteractiveArrows();
     }
 
     setupEventListeners() {
@@ -1376,6 +1377,46 @@ class ModernLauncher {
             }
             
             console.log('📋 Закрыт лог обновлений');
+        }
+    }
+
+    setupInteractiveArrows() {
+        const arrowLeft = document.getElementById('arrowLeft');
+        const arrowRight = document.getElementById('arrowRight');
+
+        // Инициализируем углы поворота
+        this.arrowRotations = {
+            left: 0,
+            right: 0
+        };
+
+        if (arrowLeft) {
+            arrowLeft.addEventListener('click', () => {
+                this.rotateArrow(arrowLeft, 'left');
+            });
+        }
+
+        if (arrowRight) {
+            arrowRight.addEventListener('click', () => {
+                this.rotateArrow(arrowRight, 'right');
+            });
+        }
+    }
+
+    rotateArrow(arrow, direction) {
+        if (arrow) {
+            // Увеличиваем угол поворота на 90 градусов
+            this.arrowRotations[direction] += 90;
+            
+            // Применяем поворот с сохранением базового transform
+            const baseTransform = direction === 'left' ? 'translateX(-50%)' : 'translateX(50%)';
+            arrow.style.transform = `${baseTransform} rotate(${this.arrowRotations[direction]}deg)`;
+            
+            // Добавляем эффект при клике
+            arrow.style.filter = 'brightness(1.5)';
+            setTimeout(() => {
+                arrow.style.filter = '';
+            }, 150);
         }
     }
 }

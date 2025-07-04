@@ -3981,10 +3981,45 @@ img {
     margin-top: 2rem;
     max-width: 600px;
     width: 100%;
+    position: relative;
 }
 
+/* Интерактивные стрелки */
+.arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    cursor: pointer;
+    transition: transform 0.3s ease, filter 0.2s ease;
+    z-index: 50;
+}
+
+.arrow:hover {
+    filter: brightness(1.2);
+}
+
+.arrow-left {
+    top: -2.5rem;
+    left: 25%;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 20px solid rgba(255, 255, 255, 0.7);
+    transform: translateX(-50%);
+}
+
+.arrow-right {
+    top: -2.5rem;
+    right: 25%;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 20px solid rgba(255, 255, 255, 0.7);
+    transform: translateX(50%);
+}
+
+
+
 .dev-status-card,
-.future-launcher-card {
+.project-info-card {
     flex: 1;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3997,7 +4032,7 @@ img {
 }
 
 .dev-status-card::before,
-.future-launcher-card::before {
+.project-info-card::before {
     content: '';
     position: absolute;
     top: 0;
@@ -4011,12 +4046,12 @@ img {
 }
 
 .dev-status-card:hover::before,
-.future-launcher-card:hover::before {
+.project-info-card:hover::before {
     opacity: 1;
 }
 
 .dev-status-card:hover,
-.future-launcher-card:hover {
+.project-info-card:hover {
     transform: translateY(-2px);
     border-color: rgba(255, 255, 255, 0.2);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -4089,7 +4124,9 @@ img {
     font-weight: 500;
 }
 
-.future-header {
+
+
+.project-header {
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -4098,27 +4135,38 @@ img {
     z-index: 2;
 }
 
-.future-icon {
+.project-icon {
     width: 2rem;
     height: 2rem;
     filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
-    animation: twinkle 2s infinite ease-in-out;
+    animation: pulse 3s infinite ease-in-out;
 }
 
-.future-header h3 {
+.project-header h3 {
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
 }
 
-.future-features {
+.project-content {
     margin-bottom: 1.5rem;
     position: relative;
     z-index: 2;
 }
 
-.feature-item {
+.project-content p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.project-features {
+    margin-bottom: 1rem;
+}
+
+.project-item {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -4127,7 +4175,7 @@ img {
     color: var(--text-secondary);
 }
 
-.feature-dot {
+.project-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
@@ -4141,29 +4189,26 @@ img {
     100% { opacity: 1; }
 }
 
-.future-eta {
+.project-warning {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 165, 0, 0.1);
+    border: 1px solid rgba(255, 165, 0, 0.2);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    color: rgba(255, 165, 0, 0.9);
     position: relative;
     z-index: 2;
+    margin-top: 1rem;
 }
 
-.eta-label {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-
-.eta-date {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    background: linear-gradient(45deg, #ffffff, #cccccc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.warning-icon {
+    width: 1rem;
+    height: 1rem;
+    filter: invert(1) sepia(1) saturate(3) hue-rotate(15deg);
+    animation: pulse 2s infinite ease-in-out;
 }
 
 /* Адаптивность для информации о разработке */
@@ -4174,19 +4219,32 @@ img {
         margin-top: 1.5rem;
     }
     
+    /* Адаптируем стрелочки для мобильных */
+    .arrow-left {
+        top: -2rem;
+        left: 50%;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 16px solid rgba(255, 255, 255, 0.7);
+    }
+    
+    .arrow-right {
+        display: none; /* Скрываем вторую стрелочку на мобильных */
+    }
+    
     .dev-status-card,
-    .future-launcher-card {
+    .project-info-card {
         padding: 1rem;
     }
     
     .dev-icon,
-    .future-icon {
+    .project-icon {
         width: 1.5rem;
         height: 1.5rem;
     }
     
     .dev-status-header h3,
-    .future-header h3 {
+    .project-header h3 {
         font-size: 1rem;
     }
     
@@ -4194,7 +4252,28 @@ img {
         font-size: 0.8rem;
     }
     
-    .feature-item {
+    .project-item {
         font-size: 0.8rem;
+    }
+    
+    .project-content p {
+        font-size: 0.8rem;
+    }
+    
+    .project-warning {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+    }
+    
+}
+
+/* Дополнительная адаптивность стрелочек для очень маленьких экранов */
+@media (max-width: 480px) {
+    .arrow-left {
+        top: -1.5rem;
+        left: 50%;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 14px solid rgba(255, 255, 255, 0.7);
     }
 }
