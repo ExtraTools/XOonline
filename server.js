@@ -14,6 +14,7 @@ import bcrypt from 'bcrypt';
 // Импортируем роуты авторизации
 import authRoutes from './server/routes/auth.js';
 import profileRoutes from './server/routes/profile.js';
+import minecraftRoutes from './server/routes/minecraft.js';
 
 dotenv.config();
 
@@ -84,7 +85,10 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 
 // Подключаем роуты профилей
-app.use('/api/user', profileRoutes);
+app.use('/api/profile', profileRoutes);
+
+// Подключаем роуты Minecraft
+app.use('/api/minecraft', minecraftRoutes);
 
 // Маршрут для страницы профиля
 app.get('/profile.html', (req, res) => {

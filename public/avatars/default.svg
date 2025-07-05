@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="avatarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Фон -->
+  <circle cx="60" cy="60" r="60" fill="url(#avatarGradient)"/>
+  
+  <!-- Голова -->
+  <circle cx="60" cy="45" r="18" fill="#ffffff" opacity="0.9"/>
+  
+  <!-- Тело -->
+  <ellipse cx="60" cy="85" rx="25" ry="30" fill="#ffffff" opacity="0.9"/>
+  
+  <!-- Внутренние детали -->
+  <circle cx="60" cy="45" r="12" fill="#f0f0f0" opacity="0.7"/>
+  <ellipse cx="60" cy="85" rx="18" ry="22" fill="#f0f0f0" opacity="0.7"/>
+</svg> 

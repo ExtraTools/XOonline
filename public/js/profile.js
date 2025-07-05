@@ -1,720 +1,591 @@
-// Профиль игрока
-class GameProfile {
-    constructor() {
-        this.currentUser = null;
-        this.init();
+document.addEventListener('DOMContentLoaded', function() {
+    // Проверка авторизации
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+        window.location.href = '/';
+        return;
     }
 
-    init() {
-        this.loadUserData();
-        this.initTabs();
-        this.initModals();
-        this.initAvatarSystem();
-        this.initFriendSystem();
-        this.initSettings();
-        this.initCharts();
-        this.addEventListeners();
-    }
+    // Инициализация
+    initTabs();
+    loadUserData();
+    setupEventListeners();
+});
 
-    // Загрузка данных пользователя
-    async loadUserData() {
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = 'index.html';
-                return;
-            }
+function initTabs() {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-            const response = await fetch('/api/auth/profile', {
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.dataset.tab;
+            
+            // Удаляем активные классы
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            // Добавляем активный класс
+            btn.classList.add('active');
+            document.getElementById(targetTab).classList.add('active');
+        });
+    });
+}
+
+function loadUserData() {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return;
+
+    fetch('/api/auth/profile', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-            });
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateProfileDisplay(data.user);
+        } else {
+            console.error('Error loading profile:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching profile:', error);
+    });
+}
 
-            if (response.ok) {
-                this.currentUser = await response.json();
-                this.updateProfileDisplay();
-                this.loadPlayerStats();
+function updateProfileDisplay(user) {
+    // Обновляем информацию профиля
+    document.getElementById('profileUsername').textContent = user.username || 'Игрок';
+    document.getElementById('profileTitle').textContent = user.minecraft && user.minecraft.username ? 'Minecraft Player' : 'Пользователь';
+    document.getElementById('profileStatus').textContent = user.status || 'Оффлайн';
+    document.getElementById('profileVersion').textContent = user.game_version || '1.20.4';
+    document.getElementById('profileSince').textContent = new Date(user.created_at).toLocaleDateString();
+
+    // Обновляем аватар (приоритет Minecraft скину)
+    const avatar = document.getElementById('profileAvatar');
+    if (avatar) {
+        if (user.minecraft && user.minecraft.head_url) {
+            avatar.src = user.minecraft.head_url;
+        } else if (user.avatar_url) {
+            avatar.src = user.avatar_url;
             } else {
-                throw new Error('Ошибка загрузки профиля');
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            // Используем демо данные если сервер недоступен
-            this.loadDemoData();
+            // Используем дефолтную аватарку
+            avatar.src = 'avatars/default.svg';
         }
     }
 
-    // Демо данные для отображения
-    loadDemoData() {
-        this.currentUser = {
-            username: 'GamerPro2025',
-            email: 'gamer@example.com',
-            avatar: 'avatars/photo_2025-07-03_02-50-32.jpg',
-            level: 25,
-            rating: 1580,
-            memberSince: 'Январь 2025',
-            stats: {
-                totalGames: 245,
-                wins: 156,
-                losses: 89,
-                winRate: 63.7,
-                bestStreak: 12,
-                avgGameTime: '4:32',
-                favoriteMode: 'XO Classic',
-                playTime: '48 часов'
-            }
-        };
-        this.updateProfileDisplay();
-        this.loadPlayerStats();
-    }
+    // Заполняем поля формы
+    document.getElementById('username').value = user.username || '';
+    document.getElementById('email').value = user.email || '';
+    document.getElementById('registrationDate').value = new Date(user.created_at).toLocaleDateString();
+    
+    // Обновляем информацию о Minecraft аккаунте
+    updateMinecraftInfo(user.minecraft);
+    
+    // Загружаем скины
+    loadSkins(user.minecraft);
+}
 
-    // Обновление отображения профиля
-    updateProfileDisplay() {
-        if (!this.currentUser) return;
-
-        // Обновляем основную информацию
-        const usernameEl = document.getElementById('profileUsername');
-        const avatarEl = document.getElementById('profileAvatar');
-        const levelEl = document.getElementById('playerLevel');
-        const ratingEl = document.getElementById('playerRating');
-        const memberSinceEl = document.getElementById('memberSince');
-
-        if (usernameEl) usernameEl.textContent = this.currentUser.username;
-        if (avatarEl) avatarEl.src = this.currentUser.avatar;
-        if (levelEl) levelEl.textContent = this.currentUser.level;
-        if (ratingEl) ratingEl.textContent = this.currentUser.rating;
-        if (memberSinceEl) memberSinceEl.textContent = this.currentUser.memberSince;
-
-        // Обновляем статистику
-        this.updateStatsDisplay();
-    }
-
-    // Обновление статистики
-    updateStatsDisplay() {
-        if (!this.currentUser?.stats) return;
-
-        const stats = this.currentUser.stats;
-        
-        // Обновляем числовые значения статистики
-        const statElements = {
-            totalGames: stats.totalGames,
-            winRate: `${stats.winRate}%`,
-            bestStreak: stats.bestStreak,
-            avgGameTime: stats.avgGameTime,
-            favoriteMode: stats.favoriteMode,
-            playTime: stats.playTime
-        };
-
-        Object.entries(statElements).forEach(([key, value]) => {
-            const element = document.querySelector(`[data-stat="${key}"]`);
-            if (element) element.textContent = value;
-        });
-    }
-
-    // Инициализация вкладок
-    initTabs() {
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const targetTab = button.getAttribute('data-tab');
-                
-                // Убираем активный класс со всех вкладок
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
-                
-                // Добавляем активный класс к выбранной вкладке
-                button.classList.add('active');
-                const targetContent = document.getElementById(targetTab);
-                if (targetContent) {
-                    targetContent.classList.add('active');
-                    
-                    // Загружаем данные для конкретной вкладки
-                    this.loadTabContent(targetTab);
-                }
-                
-                // Анимация
-                this.animateTabChange();
-            });
-        });
-    }
-
-    // Загрузка контента вкладки
-    loadTabContent(tabName) {
-        switch (tabName) {
-            case 'stats':
-                this.loadStatistics();
-                break;
-            case 'achievements':
-                this.loadAchievements();
-                break;
-            case 'inventory':
-                this.loadInventory();
-                break;
-            case 'friends':
-                this.loadFriends();
-                break;
-        }
-    }
-
-    // Анимация смены вкладки
-    animateTabChange() {
-        const activeContent = document.querySelector('.tab-content.active');
-        if (activeContent) {
-            activeContent.style.opacity = '0';
-            activeContent.style.transform = 'translateY(20px)';
+function updateMinecraftInfo(minecraft) {
+    const linkedSection = document.getElementById('minecraftLinked');
+    const unlinkButton = document.getElementById('unlinkMinecraft');
+    const linkSection = document.getElementById('minecraftLink');
+    
+    if (minecraft && minecraft.uuid) {
+        // Аккаунт связан
+        if (linkedSection) {
+            linkedSection.style.display = 'block';
+            document.getElementById('minecraftNickname').textContent = minecraft.username || 'Неизвестно';
+            document.getElementById('minecraftUuid').textContent = minecraft.uuid;
+            document.getElementById('minecraftSkinModel').textContent = minecraft.skin_model === 'slim' ? 'Alex' : 'Steve';
             
-            setTimeout(() => {
-                activeContent.style.opacity = '1';
-                activeContent.style.transform = 'translateY(0)';
-            }, 100);
+            // Отображаем скин
+            const skinPreview = document.getElementById('minecraftSkinPreview');
+            if (skinPreview && minecraft.avatar_url) {
+                skinPreview.src = minecraft.avatar_url;
+            }
+        }
+        
+        if (unlinkButton) {
+            unlinkButton.style.display = 'block';
+        }
+        
+        if (linkSection) {
+            linkSection.style.display = 'none';
+        }
+    } else {
+        // Аккаунт не связан
+        if (linkedSection) {
+            linkedSection.style.display = 'none';
+        }
+        
+        if (unlinkButton) {
+            unlinkButton.style.display = 'none';
+        }
+        
+        if (linkSection) {
+            linkSection.style.display = 'block';
         }
     }
+}
 
-    // Инициализация модальных окон
-    initModals() {
-        // Модальное окно смены аватара
-        const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+function loadSkins(minecraft) {
+    const skinsList = document.getElementById('skinsList');
+    if (!skinsList) return;
+    
+    // Очищаем список скинов
+    skinsList.innerHTML = '';
+    
+    // Если есть связанный аккаунт, показываем текущий скин
+    if (minecraft && minecraft.uuid) {
+        const currentSkinCard = document.createElement('div');
+        currentSkinCard.className = 'skin-card active';
+        currentSkinCard.innerHTML = `
+            <img src="${minecraft.avatar_url}" alt="Текущий скин">
+            <div class="skin-info">
+                <h4>Текущий скин</h4>
+                <p>Модель: ${minecraft.skin_model === 'slim' ? 'Alex' : 'Steve'}</p>
+                <button class="btn btn-primary" onclick="refreshSkin()">Обновить скин</button>
+            </div>
+        `;
+        skinsList.appendChild(currentSkinCard);
+    }
+    
+    // Загружаем популярные скины
+    loadPopularSkins();
+}
+
+function loadPopularSkins() {
+    fetch('/api/minecraft/popular-skins')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const skinsList = document.getElementById('skinsList');
+                if (!skinsList) return;
+                
+                data.data.forEach(skin => {
+                    const skinCard = document.createElement('div');
+                    skinCard.className = 'skin-card';
+                    skinCard.innerHTML = `
+                        <img src="${skin.avatar_url}" alt="Скин ${skin.name}">
+                        <div class="skin-info">
+                            <h4>${skin.name}</h4>
+                            <p>Популярный скин</p>
+                            <button class="btn btn-secondary" onclick="previewSkin('${skin.uuid}')">Предпросмотр</button>
+                        </div>
+                    `;
+                    skinsList.appendChild(skinCard);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки популярных скинов:', error);
+        });
+}
+
+function setupEventListeners() {
+    // Обработчики для изменения пароля
+    const changePasswordBtn = document.getElementById('changePasswordBtn');
+    if (changePasswordBtn) {
+        changePasswordBtn.addEventListener('click', changePassword);
+    }
+
+    // Обработчики для изменения никнейма
+    const updateUsernameBtn = document.getElementById('updateUsernameBtn');
+    if (updateUsernameBtn) {
+        updateUsernameBtn.addEventListener('click', updateUsername);
+    }
+
+    // Обработчики для модального окна аватара
+    const changeAvatarBtn = document.querySelector('.change-avatar-btn');
         const avatarModal = document.getElementById('avatarModal');
         const closeAvatarModal = document.getElementById('closeAvatarModal');
+    const avatarOptions = document.querySelectorAll('.avatar-option');
 
         if (changeAvatarBtn) {
             changeAvatarBtn.addEventListener('click', () => {
-                this.showModal(avatarModal);
+            avatarModal.style.display = 'block';
             });
         }
 
         if (closeAvatarModal) {
             closeAvatarModal.addEventListener('click', () => {
-                this.hideModal(avatarModal);
+            avatarModal.style.display = 'none';
             });
         }
 
-        // Закрытие модального окна по клику на фон
-        if (avatarModal) {
-            avatarModal.addEventListener('click', (e) => {
+    // Закрытие модального окна по клику вне его
+    window.addEventListener('click', (e) => {
                 if (e.target === avatarModal) {
-                    this.hideModal(avatarModal);
-                }
-            });
+            avatarModal.style.display = 'none';
         }
-    }
+    });
 
-    // Показать модальное окно
-    showModal(modal) {
-        if (modal) {
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-    }
-
-    // Скрыть модальное окно
-    hideModal(modal) {
-        if (modal) {
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    }
-
-    // Система аватаров
-    initAvatarSystem() {
-        // Выбор аватара из предустановленных
-        const avatarOptions = document.querySelectorAll('.avatar-option');
+    // Выбор аватара
         avatarOptions.forEach(option => {
             option.addEventListener('click', () => {
-                const avatarSrc = option.getAttribute('data-avatar');
-                this.changeAvatar(avatarSrc);
-            });
+            const avatarUrl = option.dataset.avatar;
+            changeAvatar(avatarUrl);
         });
+    });
 
-        // Загрузка собственного аватара
+    // Загрузка аватара
         const uploadAvatarBtn = document.getElementById('uploadAvatarBtn');
         const avatarUpload = document.getElementById('avatarUpload');
 
-        if (uploadAvatarBtn && avatarUpload) {
+    if (uploadAvatarBtn) {
             uploadAvatarBtn.addEventListener('click', () => {
                 avatarUpload.click();
             });
+    }
 
+    if (avatarUpload) {
             avatarUpload.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
-                    this.uploadCustomAvatar(file);
-                }
-            });
-        }
-
-        // Выбор аватара в инвентаре
-        const avatarItems = document.querySelectorAll('.avatar-item');
-        avatarItems.forEach(item => {
-            if (!item.classList.contains('locked')) {
-                item.addEventListener('click', () => {
-                    const img = item.querySelector('img');
-                    if (img) {
-                        this.changeAvatar(img.src);
-                        this.updateAvatarSelection(item);
-                    }
-                });
+                uploadAvatar(file);
             }
         });
     }
 
-    // Смена аватара
-    async changeAvatar(avatarSrc) {
-        try {
-            // Обновляем локально
-            this.currentUser.avatar = avatarSrc;
-            const profileAvatar = document.getElementById('profileAvatar');
-            if (profileAvatar) {
-                profileAvatar.src = avatarSrc;
-            }
-
-            // Отправляем на сервер (если доступен)
-            const token = localStorage.getItem('token');
-            if (token) {
-                await fetch('/api/user/avatar', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ avatar: avatarSrc })
-                });
-            }
-
-            // Закрываем модальное окно
-            const avatarModal = document.getElementById('avatarModal');
-            this.hideModal(avatarModal);
-
-            this.showNotification('Аватар успешно изменен!', 'success');
-        } catch (error) {
-            console.error('Ошибка смены аватара:', error);
-            this.showNotification('Ошибка смены аватара', 'error');
-        }
-    }
-
-    // Загрузка собственного аватара
-    uploadCustomAvatar(file) {
-        if (!file.type.startsWith('image/')) {
-            this.showNotification('Пожалуйста, выберите изображение', 'error');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            this.changeAvatar(e.target.result);
-        };
-        reader.readAsDataURL(file);
-    }
-
-    // Обновление выбора аватара
-    updateAvatarSelection(selectedItem) {
-        document.querySelectorAll('.avatar-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        selectedItem.classList.add('active');
-    }
-
-    // Система друзей
-    initFriendSystem() {
-        const addFriendBtn = document.querySelector('.add-friend-btn');
-        if (addFriendBtn) {
-            addFriendBtn.addEventListener('click', () => {
-                this.showAddFriendDialog();
-            });
-        }
-
-        // Кнопки действий с друзьями
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const action = btn.textContent.trim();
-                const friendItem = btn.closest('.friend-item');
-                const friendName = friendItem.querySelector('h4').textContent;
-
-                switch (action) {
-                    case 'Пригласить':
-                        this.inviteFriend(friendName);
-                        break;
-                    case 'Сообщение':
-                        this.openChat(friendName);
-                        break;
-                }
-            });
-        });
-    }
-
-    // Диалог добавления друга
-    showAddFriendDialog() {
-        const friendName = prompt('Введите имя пользователя:');
-        if (friendName) {
-            this.addFriend(friendName);
-        }
-    }
-
-    // Добавление друга
-    async addFriend(friendName) {
-        try {
-            const token = localStorage.getItem('token');
-            if (token) {
-                const response = await fetch('/api/friends/add', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ friendName })
-                });
-
-                if (response.ok) {
-                    this.showNotification(`Запрос в друзья отправлен ${friendName}`, 'success');
-                    this.loadFriends();
-                } else {
-                    throw new Error('Ошибка добавления друга');
-                }
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            this.showNotification('Ошибка добавления друга', 'error');
-        }
-    }
-
-    // Приглашение друга в игру
-    inviteFriend(friendName) {
-        this.showNotification(`Приглашение отправлено ${friendName}`, 'info');
-    }
-
-    // Открытие чата
-    openChat(friendName) {
-        this.showNotification(`Открытие чата с ${friendName}`, 'info');
-    }
-
-    // Настройки
-    initSettings() {
-        const settingsBtn = document.getElementById('settingsBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-
-        if (settingsBtn) {
-            settingsBtn.addEventListener('click', () => {
-                this.showSettings();
-            });
-        }
-
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                this.logout();
-            });
-        }
-    }
-
-    // Показать настройки
-    showSettings() {
-        this.showNotification('Настройки профиля', 'info');
-    }
-
-    // Выход из аккаунта
-    logout() {
-        if (confirm('Вы уверены, что хотите выйти?')) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
-        }
-    }
-
-    // Инициализация графиков
-    initCharts() {
-        this.createGamesChart();
-        this.createRatingChart();
-    }
-
-    // График игр
-    createGamesChart() {
-        const canvas = document.getElementById('gamesChart');
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        const data = {
-            wins: 156,
-            losses: 89
-        };
-
-        // Простой круговой график
-        this.drawPieChart(ctx, data);
-    }
-
-    // График рейтинга
-    createRatingChart() {
-        const canvas = document.getElementById('ratingChart');
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        const data = [1200, 1300, 1450, 1380, 1520, 1580]; // Рейтинг по месяцам
-
-        // Простой линейный график
-        this.drawLineChart(ctx, data);
-    }
-
-    // Рисование круговой диаграммы
-    drawPieChart(ctx, data) {
-        const centerX = ctx.canvas.width / 2;
-        const centerY = ctx.canvas.height / 2;
-        const radius = Math.min(centerX, centerY) - 20;
-
-        const total = data.wins + data.losses;
-        const winsAngle = (data.wins / total) * 2 * Math.PI;
-
-        // Победы
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, winsAngle);
-        ctx.lineTo(centerX, centerY);
-        ctx.fillStyle = '#4CAF50';
-        ctx.fill();
-
-        // Поражения
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, winsAngle, 2 * Math.PI);
-        ctx.lineTo(centerX, centerY);
-        ctx.fillStyle = '#F44336';
-        ctx.fill();
-
-        // Подписи
-        ctx.fillStyle = 'white';
-        ctx.font = '16px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(`Победы: ${data.wins}`, centerX, centerY - 10);
-        ctx.fillText(`Поражения: ${data.losses}`, centerX, centerY + 10);
-    }
-
-    // Рисование линейного графика
-    drawLineChart(ctx, data) {
-        const width = ctx.canvas.width;
-        const height = ctx.canvas.height;
-        const padding = 40;
-
-        const maxValue = Math.max(...data);
-        const minValue = Math.min(...data);
-        const valueRange = maxValue - minValue;
-
-        // Очистка canvas
-        ctx.clearRect(0, 0, width, height);
-
-        // Линия графика
-        ctx.beginPath();
-        ctx.strokeStyle = '#4CAF50';
-        ctx.lineWidth = 3;
-
-        data.forEach((value, index) => {
-            const x = padding + (index / (data.length - 1)) * (width - padding * 2);
-            const y = height - padding - ((value - minValue) / valueRange) * (height - padding * 2);
-
-            if (index === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-        });
-
-        ctx.stroke();
-
-        // Точки
-        ctx.fillStyle = '#4CAF50';
-        data.forEach((value, index) => {
-            const x = padding + (index / (data.length - 1)) * (width - padding * 2);
-            const y = height - padding - ((value - minValue) / valueRange) * (height - padding * 2);
-
-            ctx.beginPath();
-            ctx.arc(x, y, 5, 0, 2 * Math.PI);
-            ctx.fill();
-        });
-    }
-
-    // Загрузка статистики
-    loadStatistics() {
-        // Обновляем графики при переходе на вкладку статистики
-        setTimeout(() => {
-            this.createGamesChart();
-            this.createRatingChart();
-        }, 100);
-    }
-
-    // Загрузка достижений
-    loadAchievements() {
-        // Анимация разблокированных достижений
-        document.querySelectorAll('.achievement-card.unlocked').forEach((card, index) => {
-            setTimeout(() => {
-                card.style.transform = 'translateY(-5px)';
-                setTimeout(() => {
-                    card.style.transform = '';
-                }, 200);
-            }, index * 100);
-        });
-    }
-
-    // Загрузка инвентаря
-    loadInventory() {
-        // Анимация предметов инвентаря
-        document.querySelectorAll('.avatar-item, .badge-item').forEach((item, index) => {
-            setTimeout(() => {
-                item.style.transform = 'scale(1.05)';
-                setTimeout(() => {
-                    item.style.transform = '';
-                }, 200);
-            }, index * 50);
-        });
-    }
-
-    // Загрузка друзей
-    loadFriends() {
-        // Анимация списка друзей
-        document.querySelectorAll('.friend-item').forEach((item, index) => {
-            setTimeout(() => {
-                item.style.transform = 'translateX(10px)';
-                setTimeout(() => {
-                    item.style.transform = '';
-                }, 200);
-            }, index * 100);
-        });
-    }
-
-    // Загрузка статистики игрока
-    async loadPlayerStats() {
-        try {
-            const token = localStorage.getItem('token');
-            if (token) {
-                const response = await fetch('/api/user/stats', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.ok) {
-                    const stats = await response.json();
-                    this.updateStatsFromServer(stats);
-                }
-            }
-        } catch (error) {
-            console.error('Ошибка загрузки статистики:', error);
-        }
-    }
-
-    // Обновление статистики с сервера
-    updateStatsFromServer(stats) {
-        // Обновляем различные элементы статистики
-        if (stats.level) {
-            const levelEl = document.getElementById('playerLevel');
-            if (levelEl) levelEl.textContent = stats.level;
-        }
-
-        if (stats.rating) {
-            const ratingEl = document.getElementById('playerRating');
-            if (ratingEl) ratingEl.textContent = stats.rating;
-        }
-
-        // Обновляем графики с новыми данными
-        if (stats.gamesData) {
-            this.updateChartsWithServerData(stats.gamesData);
-        }
-    }
-
-    // Обновление графиков с данными сервера
-    updateChartsWithServerData(gamesData) {
-        // Обновляем данные для графиков
-        setTimeout(() => {
-            this.createGamesChart();
-            this.createRatingChart();
-        }, 100);
-    }
-
-    // Добавление общих обработчиков событий
-    addEventListeners() {
-        // Обработка ошибок изображений
-        document.querySelectorAll('img').forEach(img => {
-            img.addEventListener('error', () => {
-                img.src = 'avatars/photo_2025-07-03_02-50-32.jpg'; // Дефолтный аватар
-            });
-        });
-
-        // Клавиатурные сокращения
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                // Закрытие всех модальных окон
-                document.querySelectorAll('.modal.active').forEach(modal => {
-                    this.hideModal(modal);
-                });
-            }
-        });
-
-        // Автообновление онлайн статуса
-        setInterval(() => {
-            this.updateOnlineStatus();
-        }, 30000); // Каждые 30 секунд
-    }
-
-    // Обновление онлайн статуса
-    updateOnlineStatus() {
-        const statusIndicator = document.querySelector('.status-indicator');
-        if (statusIndicator) {
-            statusIndicator.classList.add('online');
-        }
-    }
-
-    // Показ уведомлений
-    showNotification(message, type = 'info') {
-        // Создаем элемент уведомления
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.textContent = message;
-
-        // Стили уведомления
-        Object.assign(notification.style, {
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            padding: '1rem 2rem',
-            borderRadius: '10px',
-            color: 'white',
-            fontWeight: 'bold',
-            zIndex: '10000',
-            transform: 'translateX(100%)',
-            transition: 'transform 0.3s ease',
-            maxWidth: '300px'
-        });
-
-        // Цвета в зависимости от типа
-        const colors = {
-            success: '#4CAF50',
-            error: '#F44336',
-            info: '#2196F3',
-            warning: '#FF9800'
-        };
-
-        notification.style.background = colors[type] || colors.info;
-
-        // Добавляем на страницу
-        document.body.appendChild(notification);
-
-        // Анимация появления
-        setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-
-        // Автоматическое удаление
-        setTimeout(() => {
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 300);
-        }, 3000);
+    // Кнопка выхода
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
     }
 }
 
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-    const profile = new GameProfile();
+function changePassword() {
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        alert('Заполните все поля');
+            return;
+        }
+
+    if (newPassword !== confirmPassword) {
+        alert('Пароли не совпадают');
+        return;
+    }
+
+    if (newPassword.length < 6) {
+        alert('Пароль должен содержать минимум 6 символов');
+        return;
+    }
+
+    const token = localStorage.getItem('auth_token');
+    fetch('/api/profile/change-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            currentPassword,
+            newPassword
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Пароль успешно изменён');
+            // Очищаем поля
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        } else {
+            alert('Ошибка: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error changing password:', error);
+        alert('Ошибка при изменении пароля');
+    });
+}
+
+function updateUsername() {
+    const newUsername = document.getElementById('username').value;
     
-    // Экспортируем в глобальную область для отладки
-    window.gameProfile = profile;
-}); 
+    if (!newUsername) {
+        alert('Введите никнейм');
+        return;
+    }
+
+    const token = localStorage.getItem('auth_token');
+    fetch('/api/profile/update-username', {
+                    method: 'POST',
+                    headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            username: newUsername
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Никнейм успешно изменён');
+            // Обновляем отображение
+            document.getElementById('profileName').textContent = newUsername;
+                } else {
+            alert('Ошибка: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error updating username:', error);
+        alert('Ошибка при обновлении никнейма');
+    });
+}
+
+function changeAvatar(avatarUrl) {
+    const token = localStorage.getItem('auth_token');
+    fetch('/api/profile/change-avatar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            avatar_url: avatarUrl
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Обновляем отображение аватара
+            const avatar = document.getElementById('profileAvatar');
+            if (avatar) {
+                avatar.src = avatarUrl;
+            }
+            // Закрываем модальное окно
+            document.getElementById('avatarModal').style.display = 'none';
+        } else {
+            alert('Ошибка: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error changing avatar:', error);
+        alert('Ошибка при изменении аватара');
+    });
+}
+
+function uploadAvatar(file) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const token = localStorage.getItem('auth_token');
+    fetch('/api/profile/upload-avatar', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Обновляем отображение аватара
+            const avatar = document.getElementById('profileAvatar');
+            if (avatar) {
+                avatar.src = data.avatar_url;
+            }
+            // Закрываем модальное окно
+            document.getElementById('avatarModal').style.display = 'none';
+        } else {
+            alert('Ошибка: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error uploading avatar:', error);
+        alert('Ошибка при загрузке аватара');
+    });
+}
+
+function logout() {
+    localStorage.removeItem('auth_token');
+    window.location.href = '/';
+}
+
+// Функции для работы с Minecraft аккаунтом
+function linkMinecraftAccount() {
+    const minecraftUsername = document.getElementById('minecraftUsername').value;
+    const token = localStorage.getItem('auth_token');
+    
+    if (!minecraftUsername.trim()) {
+        showNotification('Введите никнейм Minecraft', 'error');
+        return;
+    }
+    
+    fetch('/api/minecraft/link-account', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            minecraftUsername: minecraftUsername.trim()
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Minecraft аккаунт успешно связан!', 'success');
+            // Перезагружаем данные профиля
+            loadUserData();
+            } else {
+            showNotification(data.message || 'Ошибка связывания аккаунта', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error linking account:', error);
+        showNotification('Ошибка при связывании аккаунта', 'error');
+    });
+}
+
+function unlinkMinecraftAccount() {
+    const token = localStorage.getItem('auth_token');
+    
+    if (!confirm('Вы уверены, что хотите отвязать Minecraft аккаунт?')) {
+        return;
+    }
+    
+    fetch('/api/minecraft/unlink-account', {
+        method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Minecraft аккаунт отвязан', 'success');
+            // Перезагружаем данные профиля
+            loadUserData();
+        } else {
+            showNotification(data.message || 'Ошибка отвязывания аккаунта', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error unlinking account:', error);
+        showNotification('Ошибка при отвязывании аккаунта', 'error');
+    });
+}
+
+function refreshSkin() {
+    const token = localStorage.getItem('auth_token');
+    
+    fetch('/api/minecraft/update-skin', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Скин обновлен!', 'success');
+            // Перезагружаем данные профиля
+            loadUserData();
+        } else {
+            showNotification(data.message || 'Ошибка обновления скина', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating skin:', error);
+        showNotification('Ошибка при обновлении скина', 'error');
+    });
+}
+
+function previewSkin(uuid) {
+    // Открываем модальное окно предпросмотра
+    const modal = document.getElementById('skinPreviewModal');
+    const modalImg = document.getElementById('skinPreviewImage');
+    const modalTitle = document.getElementById('skinPreviewTitle');
+    
+    if (modal && modalImg) {
+        modalImg.src = `https://crafatar.com/renders/body/${uuid}?size=400&overlay`;
+        modalTitle.textContent = 'Предпросмотр скина';
+        modal.style.display = 'block';
+    }
+}
+
+function uploadSkin() {
+    const fileInput = document.getElementById('skinFileInput');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        showNotification('Выберите файл скина', 'error');
+        return;
+    }
+    
+    if (file.type !== 'image/png') {
+        showNotification('Файл должен быть в формате PNG', 'error');
+        return;
+    }
+    
+    if (file.size > 1024 * 1024) { // 1MB
+        showNotification('Размер файла не должен превышать 1MB', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('skin', file);
+    
+    const token = localStorage.getItem('auth_token');
+    
+    fetch('/api/minecraft/upload-skin', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Скин загружен!', 'success');
+            loadUserData();
+        } else {
+            showNotification(data.message || 'Ошибка загрузки скина', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error uploading skin:', error);
+        showNotification('Ошибка при загрузке скина', 'error');
+    });
+}
+
+function showNotification(message, type) {
+    // Создаем уведомление
+        const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+        notification.textContent = message;
+
+    // Добавляем стили
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#4CAF50' : '#f44336'};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 5px;
+        z-index: 10000;
+        font-weight: bold;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+        document.body.appendChild(notification);
+
+    // Автоматически удаляем через 5 секунд
+        setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+            }, 300);
+    }, 5000);
+} 

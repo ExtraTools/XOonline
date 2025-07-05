@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Профиль игрока - XO Online</title>
+    <title>Профиль игрока - Minecraft</title>
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/profile.css">
     <link rel="stylesheet" href="css/effects.css">
@@ -43,7 +43,7 @@
             <div class="profile-info">
                 <div class="avatar-section">
                     <div class="avatar-wrapper">
-                        <img src="avatars/photo_2025-07-03_02-50-32.jpg" alt="Аватар игрока" class="profile-avatar" id="profileAvatar">
+                        <img src="avatars/default.svg" alt="Аватар игрока" class="profile-avatar" id="profileAvatar">
                         <div class="avatar-overlay">
                             <button class="change-avatar-btn" id="changeAvatarBtn">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -56,20 +56,20 @@
                     <div class="status-indicator online"></div>
                 </div>
                 <div class="profile-details">
-                    <h1 class="username" id="profileUsername">Загрузка...</h1>
-                    <p class="user-title">Игрок XO Online</p>
+                    <h1 class="username" id="profileUsername">Игрок</h1>
+                    <p class="user-title" id="profileTitle">Пользователь</p>
                     <div class="profile-stats">
                         <div class="stat-item">
-                            <span class="stat-label">Уровень</span>
-                            <span class="stat-value" id="playerLevel">25</span>
+                            <span class="stat-label">Статус</span>
+                            <span class="stat-value" id="profileStatus">Оффлайн</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-label">Рейтинг</span>
-                            <span class="stat-value" id="playerRating">1580</span>
+                            <span class="stat-label">Версия</span>
+                            <span class="stat-value" id="profileVersion">1.20.4</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-label">В игре с</span>
-                            <span class="stat-value" id="memberSince">Янв 2025</span>
+                            <span class="stat-label">Регистрация</span>
+                            <span class="stat-value" id="profileSince">-</span>
                         </div>
                     </div>
                 </div>
@@ -80,314 +80,158 @@
         <div class="profile-content">
             <!-- Навигация по вкладкам -->
             <div class="tabs-nav">
-                <button class="tab-btn active" data-tab="overview">Обзор</button>
-                <button class="tab-btn" data-tab="stats">Статистика</button>
-                <button class="tab-btn" data-tab="achievements">Достижения</button>
-                <button class="tab-btn" data-tab="inventory">Инвентарь</button>
-                <button class="tab-btn" data-tab="friends">Друзья</button>
+                <button class="tab-btn active" data-tab="account">Аккаунт</button>
+                <button class="tab-btn" data-tab="skins">Скины</button>
             </div>
 
-            <!-- Вкладка Обзор -->
-            <div class="tab-content active" id="overview">
-                <div class="overview-grid">
-                    <!-- Игровая активность -->
-                    <div class="game-activity card">
-                        <h3>Последняя активность</h3>
-                        <div class="activity-item">
-                            <div class="activity-icon">🎮</div>
-                            <div class="activity-text">
-                                <p>Сыграл партию XO Classic</p>
-                                <small>2 часа назад</small>
-                            </div>
+            <!-- Вкладка Аккаунт -->
+            <div class="tab-content active" id="account">
+                <div class="account-grid">
+                    <!-- Основная информация -->
+                    <div class="account-info card">
+                        <h3>Информация об аккаунте</h3>
+                        <div class="form-group">
+                            <label for="username">Никнейм</label>
+                            <input type="text" id="username" placeholder="Ваш никнейм">
+                            <button class="btn btn-primary" id="updateUsernameBtn">Изменить</button>
                         </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">🏆</div>
-                            <div class="activity-text">
-                                <p>Получил достижение "Мастер крестиков"</p>
-                                <small>1 день назад</small>
-                            </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="your@email.com" readonly>
+                            <span class="form-hint">Для изменения email обратитесь к администратору</span>
                         </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">👥</div>
-                            <div class="activity-text">
-                                <p>Добавил в друзья GameMaster2024</p>
-                                <small>3 дня назад</small>
-                            </div>
+                        <div class="form-group">
+                            <label>Дата регистрации</label>
+                            <input type="text" id="registrationDate" readonly>
                         </div>
                     </div>
 
-                    <!-- Недавные игры -->
-                    <div class="recent-games card">
-                        <h3>Недавние игры</h3>
-                        <div class="game-item">
-                            <div class="game-result win">Победа</div>
-                            <div class="game-details">
-                                <p>XO Classic против PlayerX</p>
-                                <small>Сегодня, 14:30</small>
-                            </div>
+                    <!-- Безопасность -->
+                    <div class="security-settings card">
+                        <h3>Безопасность</h3>
+                        <div class="form-group">
+                            <label for="currentPassword">Текущий пароль</label>
+                            <input type="password" id="currentPassword" placeholder="Введите текущий пароль">
                         </div>
-                        <div class="game-item">
-                            <div class="game-result loss">Поражение</div>
-                            <div class="game-details">
-                                <p>XO Blitz против SuperGamer</p>
-                                <small>Вчера, 20:15</small>
-                            </div>
+                        <div class="form-group">
+                            <label for="newPassword">Новый пароль</label>
+                            <input type="password" id="newPassword" placeholder="Введите новый пароль">
                         </div>
-                        <div class="game-item">
-                            <div class="game-result win">Победа</div>
-                            <div class="game-details">
-                                <p>XO Tournament - Финал</p>
-                                <small>2 дня назад</small>
-                            </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Подтвердите пароль</label>
+                            <input type="password" id="confirmPassword" placeholder="Повторите новый пароль">
                         </div>
+                        <button class="btn btn-primary" id="changePasswordBtn">Изменить пароль</button>
                     </div>
 
-                    <!-- Быстрая статистика -->
-                    <div class="quick-stats card">
-                        <h3>Быстрая статистика</h3>
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-icon">🎯</div>
-                                <div class="stat-info">
-                                    <span class="stat-number">156</span>
-                                    <span class="stat-label">Побед</span>
+                    <!-- Minecraft интеграция -->
+                    <div class="minecraft-integration card">
+                        <h3>Minecraft аккаунт</h3>
+                        
+                        <!-- Секция связанного аккаунта -->
+                        <div class="minecraft-linked" id="minecraftLinked" style="display: none;">
+                            <div class="linked-account-info">
+                                <div class="minecraft-avatar">
+                                    <img id="minecraftSkinPreview" src="" alt="Minecraft скин" style="width: 64px; height: 64px;">
                                 </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-icon">⚡</div>
-                                <div class="stat-info">
-                                    <span class="stat-number">89</span>
-                                    <span class="stat-label">Поражений</span>
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-icon">🏆</div>
-                                <div class="stat-info">
-                                    <span class="stat-number">12</span>
-                                    <span class="stat-label">Достижений</span>
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-icon">⏱️</div>
-                                <div class="stat-info">
-                                    <span class="stat-number">48ч</span>
-                                    <span class="stat-label">Время игры</span>
+                                <div class="minecraft-details">
+                                    <div class="form-group">
+                                        <label>Никнейм Minecraft</label>
+                                        <span id="minecraftNickname">Не связан</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>UUID</label>
+                                        <span id="minecraftUuid">-</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Модель скина</label>
+                                        <span id="minecraftSkinModel">Steve</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Вкладка Статистика -->
-            <div class="tab-content" id="stats">
-                <div class="stats-grid">
-                    <!-- График побед/поражений -->
-                    <div class="stats-chart card">
-                        <h3>Статистика игр</h3>
-                        <div class="chart-container">
-                            <canvas id="gamesChart"></canvas>
+                        
+                        <!-- Секция связывания аккаунта -->
+                        <div class="minecraft-link" id="minecraftLink">
+                            <div class="form-group">
+                                <label for="minecraftUsername">Никнейм Minecraft</label>
+                                <input type="text" id="minecraftUsername" placeholder="Введите ваш никнейм в Minecraft">
+                                <span class="form-hint">Убедитесь, что никнейм введен правильно</span>
+                            </div>
+                            <button class="btn btn-primary" onclick="linkMinecraftAccount()">Связать аккаунт</button>
                         </div>
-                    </div>
-
-                    <!-- Детальная статистика -->
-                    <div class="detailed-stats card">
-                        <h3>Детальная статистика</h3>
-                        <div class="stat-row">
-                            <span class="stat-label">Общее количество игр</span>
-                            <span class="stat-value">245</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">Процент побед</span>
-                            <span class="stat-value">63.7%</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">Лучшая серия побед</span>
-                            <span class="stat-value">12</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">Среднее время игры</span>
-                            <span class="stat-value">4:32</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">Любимый режим</span>
-                            <span class="stat-value">XO Classic</span>
-                        </div>
+                        
+                        <button class="btn btn-danger" id="unlinkMinecraft" onclick="unlinkMinecraftAccount()" style="display: none;">
+                            Отвязать Minecraft аккаунт
+                        </button>
                     </div>
 
-                    <!-- Рейтинг по месяцам -->
-                    <div class="rating-history card">
-                        <h3>История рейтинга</h3>
-                        <div class="rating-chart">
-                            <canvas id="ratingChart"></canvas>
+                    <!-- Настройки приватности -->
+                    <div class="privacy-settings card">
+                        <h3>Приватность</h3>
+                        <div class="setting-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showOnlineStatus" checked>
+                                <span class="checkmark"></span>
+                                Показывать онлайн статус
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="allowFriendRequests" checked>
+                                <span class="checkmark"></span>
+                                Разрешить приглашения в друзья
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showProfile">
+                                <span class="checkmark"></span>
+                                Публичный профиль
+                            </label>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Вкладка Достижения -->
-            <div class="tab-content" id="achievements">
-                <div class="achievements-grid">
-                    <div class="achievement-card unlocked">
-                        <div class="achievement-icon">🎯</div>
-                        <div class="achievement-info">
-                            <h4>Первая победа</h4>
-                            <p>Выиграйте свою первую игру</p>
-                            <small>Получено: 15 января 2025</small>
+            <!-- Вкладка Скины -->
+            <div class="tab-content" id="skins">
+                <div class="skins-grid">
+                    <div class="skin-category">
+                        <h3>Мои скины</h3>
+                        <div class="minecraft-status" id="minecraftStatusSkins">
+                            <p>Для работы со скинами необходимо связать Minecraft аккаунт во вкладке "Аккаунт"</p>
+                        </div>
+                        <div class="skins-list" id="skinsList">
+                            <!-- Скины будут загружены динамически -->
                         </div>
                     </div>
-                    <div class="achievement-card unlocked">
-                        <div class="achievement-icon">🔥</div>
-                        <div class="achievement-info">
-                            <h4>Огненная серия</h4>
-                            <p>Выиграйте 5 игр подряд</p>
-                            <small>Получено: 18 января 2025</small>
-                        </div>
-                    </div>
-                    <div class="achievement-card unlocked">
-                        <div class="achievement-icon">⚡</div>
-                        <div class="achievement-info">
-                            <h4>Молния</h4>
-                            <p>Выиграйте игру за 30 секунд</p>
-                            <small>Получено: 20 января 2025</small>
-                        </div>
-                    </div>
-                    <div class="achievement-card locked">
-                        <div class="achievement-icon">👑</div>
-                        <div class="achievement-info">
-                            <h4>Мастер XO</h4>
-                            <p>Выиграйте 100 игр</p>
-                            <small>Прогресс: 67/100</small>
-                        </div>
-                    </div>
-                    <div class="achievement-card locked">
-                        <div class="achievement-icon">🏆</div>
-                        <div class="achievement-info">
-                            <h4>Чемпион</h4>
-                            <p>Достигните рейтинга 2000</p>
-                            <small>Прогресс: 1580/2000</small>
-                        </div>
-                    </div>
-                    <div class="achievement-card locked">
-                        <div class="achievement-icon">💎</div>
-                        <div class="achievement-info">
-                            <h4>Легенда</h4>
-                            <p>Выиграйте турнир</p>
-                            <small>Не получено</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Вкладка Инвентарь -->
-            <div class="tab-content" id="inventory">
-                <div class="inventory-section">
-                    <h3>Аватары</h3>
-                    <div class="avatar-grid">
-                        <div class="avatar-item active">
-                            <img src="avatars/photo_2025-07-03_02-50-32.jpg" alt="Аватар 1">
-                        </div>
-                        <div class="avatar-item">
-                            <img src="avatars/photo_2025-07-03_02-50-32 (2).jpg" alt="Аватар 2">
-                        </div>
-                        <div class="avatar-item">
-                            <img src="avatars/photo_2025-07-03_02-50-32 (3).jpg" alt="Аватар 3">
-                        </div>
-                        <div class="avatar-item">
-                            <img src="avatars/photo_2025-07-03_02-50-32 (4).jpg" alt="Аватар 4">
-                        </div>
-                        <div class="avatar-item locked">
-                            <img src="avatars/photo_2025-07-03_02-50-32 (5).jpg" alt="Аватар 5">
-                            <div class="lock-icon">🔒</div>
-                        </div>
-                        <div class="avatar-item locked">
-                            <img src="avatars/photo_2025-07-03_02-50-32 (6).jpg" alt="Аватар 6">
-                            <div class="lock-icon">🔒</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="inventory-section">
-                    <h3>Эмблемы</h3>
-                    <div class="badge-grid">
-                        <div class="badge-item unlocked">
-                            <div class="badge-icon">🥇</div>
-                            <span>Победитель</span>
-                        </div>
-                        <div class="badge-item unlocked">
-                            <div class="badge-icon">🎯</div>
-                            <span>Снайпер</span>
-                        </div>
-                        <div class="badge-item locked">
-                            <div class="badge-icon">👑</div>
-                            <span>Король</span>
-                        </div>
-                        <div class="badge-item locked">
-                            <div class="badge-icon">💎</div>
-                            <span>Алмаз</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Вкладка Друзья -->
-            <div class="tab-content" id="friends">
-                <div class="friends-section">
-                    <div class="friends-header">
-                        <h3>Друзья (5)</h3>
-                        <button class="add-friend-btn">+ Добавить друга</button>
-                    </div>
-                    <div class="friends-list">
-                        <div class="friend-item online">
-                            <img src="avatars/photo_2025-07-03_02-50-32 (2).jpg" alt="Друг 1" class="friend-avatar">
-                            <div class="friend-info">
-                                <h4>GameMaster2024</h4>
-                                <p>В игре • XO Classic</p>
+                    
+                    <div class="skin-category">
+                        <h3>Загрузить скин</h3>
+                        <div class="upload-skin">
+                            <div class="upload-area" onclick="document.getElementById('skinFileInput').click()">
+                                <div class="upload-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14,2 14,8 20,8"/>
+                                        <line x1="16" y1="13" x2="8" y2="13"/>
+                                        <line x1="16" y1="17" x2="8" y2="17"/>
+                                        <polyline points="10,9 9,9 8,9"/>
+                                    </svg>
+                                </div>
+                                <p>Перетащите файл скина (.png) сюда</p>
+                                <p>или</p>
+                                <button class="btn-primary" type="button">Выберите файл</button>
+                                <input type="file" id="skinFileInput" accept=".png" style="display: none;" onchange="uploadSkin()">
                             </div>
-                            <div class="friend-actions">
-                                <button class="action-btn">Пригласить</button>
-                                <button class="action-btn secondary">Сообщение</button>
-                            </div>
-                        </div>
-                        <div class="friend-item online">
-                            <img src="avatars/photo_2025-07-03_02-50-32 (3).jpg" alt="Друг 2" class="friend-avatar">
-                            <div class="friend-info">
-                                <h4>SuperGamer</h4>
-                                <p>Онлайн</p>
-                            </div>
-                            <div class="friend-actions">
-                                <button class="action-btn">Пригласить</button>
-                                <button class="action-btn secondary">Сообщение</button>
-                            </div>
-                        </div>
-                        <div class="friend-item offline">
-                            <img src="avatars/photo_2025-07-03_02-50-32 (4).jpg" alt="Друг 3" class="friend-avatar">
-                            <div class="friend-info">
-                                <h4>ProPlayer</h4>
-                                <p>Не в сети • 2 часа назад</p>
-                            </div>
-                            <div class="friend-actions">
-                                <button class="action-btn secondary">Сообщение</button>
-                            </div>
-                        </div>
-                        <div class="friend-item offline">
-                            <img src="avatars/photo_2025-07-03_02-50-32 (5).jpg" alt="Друг 4" class="friend-avatar">
-                            <div class="friend-info">
-                                <h4>XO_Legend</h4>
-                                <p>Не в сети • 1 день назад</p>
-                            </div>
-                            <div class="friend-actions">
-                                <button class="action-btn secondary">Сообщение</button>
-                            </div>
-                        </div>
-                        <div class="friend-item offline">
-                            <img src="avatars/photo_2025-07-03_02-50-32 (6).jpg" alt="Друг 5" class="friend-avatar">
-                            <div class="friend-info">
-                                <h4>ChampionX</h4>
-                                <p>Не в сети • 3 дня назад</p>
-                            </div>
-                            <div class="friend-actions">
-                                <button class="action-btn secondary">Сообщение</button>
+                            <div class="upload-info">
+                                <h4>Требования к файлу скина:</h4>
+                                <ul>
+                                    <li>Формат: PNG</li>
+                                    <li>Размер: 64x64 или 64x32 пикселей</li>
+                                    <li>Максимальный размер файла: 1 МБ</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -405,23 +249,29 @@
             </div>
             <div class="modal-body">
                 <div class="avatar-selection">
-                    <div class="avatar-option" data-avatar="avatars/photo_2025-07-03_02-50-32.jpg">
-                        <img src="avatars/photo_2025-07-03_02-50-32.jpg" alt="Аватар 1">
-                    </div>
-                    <div class="avatar-option" data-avatar="avatars/photo_2025-07-03_02-50-32 (2).jpg">
-                        <img src="avatars/photo_2025-07-03_02-50-32 (2).jpg" alt="Аватар 2">
-                    </div>
-                    <div class="avatar-option" data-avatar="avatars/photo_2025-07-03_02-50-32 (3).jpg">
-                        <img src="avatars/photo_2025-07-03_02-50-32 (3).jpg" alt="Аватар 3">
-                    </div>
-                    <div class="avatar-option" data-avatar="avatars/photo_2025-07-03_02-50-32 (4).jpg">
-                        <img src="avatars/photo_2025-07-03_02-50-32 (4).jpg" alt="Аватар 4">
+                    <div class="avatar-option" data-avatar="avatars/default.svg">
+                        <img src="avatars/default.svg" alt="Дефолтный аватар">
                     </div>
                 </div>
                 <div class="upload-section">
                     <h4>Загрузить свой аватар</h4>
                     <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
                     <button class="upload-btn" id="uploadAvatarBtn">Выбрать файл</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно предпросмотра скина -->
+    <div class="modal" id="skinPreviewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="skinPreviewTitle">Предпросмотр скина</h3>
+                <button class="close-btn" onclick="document.getElementById('skinPreviewModal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="skin-preview-container">
+                    <img id="skinPreviewImage" src="" alt="Предпросмотр скина" style="max-width: 100%; height: auto;">
                 </div>
             </div>
         </div>

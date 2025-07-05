@@ -9,6 +9,10 @@ class ModernLauncher {
         };
         this.aiAssistantInitialized = false;
         
+        console.log('🏗️ Инициализация лаунчера...');
+        console.log('🏗️ Токен из localStorage:', this.token);
+        console.log('🏗️ Пользователь:', this.currentUser);
+        
         this.init();
     }
 
@@ -449,16 +453,20 @@ class ModernLauncher {
         
         if (userProfile) {
             userProfile.addEventListener('click', (e) => {
+                console.log('🔴 Клик по кнопке профиля в выпадающем меню');
                 e.preventDefault();
                 e.stopPropagation();
+                console.log('🔴 Вызов openProfile() из меню');
                 this.openProfile();
             });
         }
         
         if (profileBtn) {
             profileBtn.addEventListener('click', (e) => {
+                console.log('🔴 Клик по кнопке профиля');
                 e.preventDefault();
                 e.stopPropagation();
+                console.log('🔴 Вызов openProfile()');
                 this.openProfile();
             });
         }
@@ -598,6 +606,10 @@ class ModernLauncher {
     }
 
     async checkAuthState() {
+        console.log('🔍 Проверка состояния авторизации...');
+        console.log('🔍 Текущий токен:', this.token);
+        console.log('🔍 Текущий пользователь:', this.currentUser);
+        
         // Если токена нет, сразу считаем пользователя неавторизованным
         if (!this.token) {
             console.log('ℹ️ Токен отсутствует, пользователь не авторизован');
@@ -606,6 +618,7 @@ class ModernLauncher {
         }
 
         try {
+            console.log('🔍 Отправляем запрос на проверку токена...');
             const response = await fetch('/api/auth/verify', {
                 method: 'GET',
                 headers: {
@@ -614,11 +627,15 @@ class ModernLauncher {
                 credentials: 'include'
             });
 
+            console.log('🔍 Статус ответа:', response.status);
+
             if (response.ok) {
                 const data = await response.json();
+                console.log('🔍 Данные от сервера:', data);
                 
                 if (data.success && data.user) {
                     this.currentUser = data.user;
+                    console.log('✅ Пользователь установлен:', this.currentUser);
                     this.updateAuthState(true);
                     console.log('✅ Пользователь авторизован:', data.user.username);
                     return;
@@ -632,7 +649,7 @@ class ModernLauncher {
             this.updateAuthState(false);
             
         } catch (error) {
-            console.error('Auth verification error:', error);
+            console.error('❌ Ошибка проверки авторизации:', error);
             // При ошибке также очищаем токен
             this.token = null;
             localStorage.removeItem('auth_token');
@@ -744,20 +761,30 @@ class ModernLauncher {
     }
 
     // Открытие профиля
-    openProfile() {
+    async openProfile() {
         console.log('🔵 Открытие профиля...');
         console.log('🔵 Текущий пользователь:', this.currentUser);
+        console.log('🔵 Token:', this.token);
         
+        // Если нет пользователя, попробуем перепроверить авторизацию
+        if (!this.currentUser || !this.token) {
+            console.log('❌ Нет авторизованного пользователя, проверяем авторизацию...');
+            
+            // Повторная проверка авторизации
+            await this.checkAuthState();
+            
         if (!this.currentUser) {
+                console.log('❌ Пользователь не авторизован после повторной проверки');
             this.showNotification('Необходимо войти в аккаунт', 'error');
             return;
+            }
         }
         
         console.log('🔵 Переход на страницу профиля...');
         
-        // Переходим на страницу профиля
+        // Переход на страницу профиля
         try {
-            window.location.href = '/profile.html';
+        window.location.href = '/profile.html';
         } catch (error) {
             console.error('❌ Ошибка при переходе на профиль:', error);
             this.showNotification('Ошибка при открытии профиля', 'error');

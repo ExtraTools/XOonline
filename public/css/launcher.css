@@ -29,8 +29,8 @@ body {
 }
 
 .container {
-    max-width: 1400px;
-    margin: 0 auto;
+    width: 100%;
+    margin: 0;
     padding: 0 2rem;
     position: relative;
     z-index: 10;
@@ -56,8 +56,8 @@ body {
 }
 
 .navbar-container {
-    max-width: 1400px;
-    margin: 0 auto;
+    width: 100%;
+    margin: 0;
     padding: 0 2rem;
     display: flex;
     align-items: center;
@@ -772,8 +772,8 @@ body {
 }
 
 .hero-container {
-    max-width: 1400px;
-    margin: 0 auto;
+    width: 100%;
+    margin: 0;
     padding: 0 2rem;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2398,9 +2398,9 @@ section {
 
 /* Desktop-first container - will be overridden for mobile */
 .container {
-    max-width: 1400px;
+    width: 100%;
     padding: 0 2rem;
-    margin: 0 auto;
+    margin: 0;
 }
 
 /* Modern fluid typography using clamp() */
@@ -2439,8 +2439,8 @@ section {
 }
 
 .navbar-container {
-    max-width: 1400px;
-    margin: 0 auto;
+    width: 100%;
+    margin: 0;
     padding: 0 2rem;
     display: flex;
     align-items: center;
@@ -2901,7 +2901,7 @@ section {
 
 @media (min-width: 769px) {
     .container {
-        max-width: 1200px;
+        width: 100%;
         padding: 0 2rem;
     }
     
@@ -2982,7 +2982,7 @@ section {
 
 @media (min-width: 1025px) {
     .container {
-        max-width: 1400px;
+        width: 100%;
         padding: 0 2rem;
     }
     
@@ -3020,7 +3020,7 @@ section {
 
 @media (min-width: 1440px) {
     .container {
-        max-width: 1600px;
+        width: 100%;
     }
     
     .hero-container {

@@ -44,6 +44,10 @@ export const initDatabase = () => {
                     email VARCHAR(100) UNIQUE NOT NULL,
                     password_hash VARCHAR(255) NOT NULL,
                     avatar_url VARCHAR(255) DEFAULT NULL,
+                    minecraft_uuid VARCHAR(36) DEFAULT NULL,
+                    minecraft_username VARCHAR(50) DEFAULT NULL,
+                    current_skin_url VARCHAR(255) DEFAULT NULL,
+                    skin_model VARCHAR(10) DEFAULT 'classic',
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     last_login DATETIME DEFAULT NULL,
                     is_online BOOLEAN DEFAULT 0,
@@ -100,6 +104,25 @@ export const initDatabase = () => {
                         });
                     });
                 }
+            });
+
+            // Добавляем поля для Minecraft интеграции
+            const minecraftFields = [
+                'minecraft_uuid VARCHAR(36) DEFAULT NULL',
+                'minecraft_username VARCHAR(50) DEFAULT NULL',
+                'current_skin_url VARCHAR(255) DEFAULT NULL',
+                'skin_model VARCHAR(10) DEFAULT \'classic\''
+            ];
+
+            minecraftFields.forEach(field => {
+                const fieldName = field.split(' ')[0];
+                db.run(`ALTER TABLE users ADD COLUMN ${field}`, (err) => {
+                    if (err && !err.message.includes('duplicate column name')) {
+                        console.error(`Ошибка добавления поля ${fieldName}:`, err);
+                    } else if (!err) {
+                        console.log(`✅ Поле ${fieldName} успешно добавлено`);
+                    }
+                });
             });
 
             // Таблица сессий
@@ -440,6 +463,48 @@ export const userQueries = {
                 (err) => {
                     if (err) reject(err);
                     else resolve();
+                }
+            );
+        });
+    },
+
+    // Обновление данных Minecraft аккаунта
+    updateMinecraftData: (userId, minecraftUuid, minecraftUsername, skinUrl, skinModel) => {
+        return new Promise((resolve, reject) => {
+            db.run(
+                'UPDATE users SET minecraft_uuid = ?, minecraft_username = ?, current_skin_url = ?, skin_model = ? WHERE id = ?',
+                [minecraftUuid, minecraftUsername, skinUrl, skinModel, userId],
+                (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                }
+            );
+        });
+    },
+
+    // Поиск пользователя по Minecraft UUID
+    findByMinecraftUuid: (minecraftUuid) => {
+        return new Promise((resolve, reject) => {
+            db.get(
+                'SELECT * FROM users WHERE minecraft_uuid = ?',
+                [minecraftUuid],
+                (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
+                }
+            );
+        });
+    },
+
+    // Получение полной информации о пользователе с Minecraft данными
+    getFullUserInfo: (userId) => {
+        return new Promise((resolve, reject) => {
+            db.get(
+                'SELECT id, uuid, username, email, avatar_url, minecraft_uuid, minecraft_username, current_skin_url, skin_model, created_at, last_login, is_online, status FROM users WHERE id = ?',
+                [userId],
+                (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
                 }
             );
         });

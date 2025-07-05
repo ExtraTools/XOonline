@@ -308,7 +308,11 @@ router.post('/logout', authenticateToken, async (req, res) => {
 
 router.get('/profile', authenticateToken, async (req, res) => {
     try {
-        const user = await userQueries.findById(req.user.id);
+        const user = await userQueries.getFullUserInfo(req.user.id);
+        
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Пользователь не найден' });
+        }
         
         res.json({
             success: true,
@@ -319,7 +323,15 @@ router.get('/profile', authenticateToken, async (req, res) => {
                 avatar_url: user.avatar_url,
                 created_at: user.created_at,
                 last_login: user.last_login,
-
+                minecraft: {
+                    uuid: user.minecraft_uuid,
+                    username: user.minecraft_username,
+                    skin_url: user.current_skin_url,
+                    skin_model: user.skin_model,
+                    head_url: user.minecraft_uuid ? `https://crafatar.com/heads/${user.minecraft_uuid}?size=64&overlay` : null,
+                    avatar_url: user.minecraft_uuid ? `https://crafatar.com/avatars/${user.minecraft_uuid}?size=128&overlay` : null,
+                    render_url: user.minecraft_uuid ? `https://crafatar.com/renders/body/${user.minecraft_uuid}?size=256&overlay` : null
+                }
             }
         });
 

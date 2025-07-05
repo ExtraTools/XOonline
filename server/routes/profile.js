@@ -1,51 +1,169 @@
 import express from 'express';
-import { profileQueries, statsQueries, achievementQueries, friendsQueries } from '../database/database.js';
+import bcrypt from 'bcrypt';
+import { body, validationResult } from 'express-validator';
+import multer from 'multer';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import { profileQueries, statsQueries, achievementQueries, friendsQueries, userQueries } from '../database/database.js';
 import { authenticateToken } from '../middleware/auth.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const router = express.Router();
 
-// Получение профиля пользователя
-router.get('/profile', authenticateToken, async (req, res) => {
-    try {
-        const userId = req.user.id;
-        
-        // Получаем базовую информацию профиля
-        const profile = await profileQueries.getProfile(userId);
-        
-        if (!profile) {
-            // Создаем профиль если его нет
-            await profileQueries.createProfile(userId, {
-                level: 1,
-                rating: 1000,
-                avatar: 'avatars/photo_2025-07-03_02-50-32.jpg'
-            });
-            
-            const newProfile = await profileQueries.getProfile(userId);
-            return res.json(newProfile);
-        }
-        
-        res.json(profile);
-    } catch (error) {
-        console.error('Ошибка получения профиля:', error);
-        res.status(500).json({ error: 'Ошибка сервера' });
+// Настройка Multer для загрузки аватаров
+const avatarStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadPath = join(__dirname, '../../public/uploads/avatars');
+        fs.mkdirSync(uploadPath, { recursive: true });
+        cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, `avatar-${req.user.id}-${uniqueSuffix}.png`);
     }
 });
 
-// Обновление аватара
-router.post('/avatar', authenticateToken, async (req, res) => {
+const upload = multer({ 
+    storage: avatarStorage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Неверный тип файла, разрешены только изображения!'), false);
+        }
+    }
+});
+
+// Получение профиля пользователя
+router.get('/', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { avatar } = req.body;
+        const user = await userQueries.getFullUserInfo(userId);
         
-        if (!avatar) {
-            return res.status(400).json({ error: 'Аватар не указан' });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Пользователь не найден' });
         }
         
-        await profileQueries.updateAvatar(userId, avatar);
+        res.json({
+            success: true,
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                avatar_url: user.avatar_url,
+                created_at: user.created_at,
+                last_login: user.last_login,
+                minecraft: {
+                    uuid: user.minecraft_uuid,
+                    username: user.minecraft_username,
+                    skin_url: user.current_skin_url,
+                    skin_model: user.skin_model,
+                    head_url: user.minecraft_uuid ? `https://crafatar.com/heads/${user.minecraft_uuid}?size=64&overlay` : null,
+                    avatar_url: user.minecraft_uuid ? `https://crafatar.com/avatars/${user.minecraft_uuid}?size=128&overlay` : null,
+                    render_url: user.minecraft_uuid ? `https://crafatar.com/renders/body/${user.minecraft_uuid}?size=256&overlay` : null
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Ошибка получения профиля:', error);
+        res.status(500).json({ success: false, message: 'Внутренняя ошибка сервера' });
+    }
+});
+
+// Обновление никнейма
+router.post('/update-username', authenticateToken, [
+    body('username')
+        .isLength({ min: 3, max: 20 })
+        .withMessage('Имя пользователя должно быть от 3 до 20 символов')
+        .matches(/^[a-zA-Z0-9_]+$/)
+        .withMessage('Имя пользователя может содержать только буквы, цифры и подчеркивания'),
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, message: 'Ошибка валидации', errors: errors.array() });
+    }
+
+    try {
+        const { username } = req.body;
+        const userId = req.user.id;
+        
+        await userQueries.updateUsername(userId, username);
+        res.json({ success: true, message: 'Никнейм успешно обновлен' });
+    } catch (error) {
+        console.error('Ошибка обновления никнейма:', error);
+        res.status(500).json({ success: false, message: 'Ошибка сервера' });
+    }
+});
+
+// Смена пароля
+router.post('/change-password', authenticateToken, [
+    body('currentPassword').notEmpty().withMessage('Текущий пароль обязателен'),
+    body('newPassword').isLength({ min: 6 }).withMessage('Новый пароль должен быть не менее 6 символов')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, message: 'Ошибка валидации', errors: errors.array() });
+    }
+    
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const userId = req.user.id;
+        
+        const user = await userQueries.findById(userId);
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+        
+        if (!isPasswordValid) {
+            return res.status(400).json({ success: false, message: 'Текущий пароль неверен' });
+        }
+        
+        const newPasswordHash = await bcrypt.hash(newPassword, 12);
+        await userQueries.updatePassword(userId, newPasswordHash);
+        
+        res.json({ success: true, message: 'Пароль успешно изменен' });
+    } catch (error) {
+        console.error('Ошибка смены пароля:', error);
+        res.status(500).json({ success: false, message: 'Ошибка сервера' });
+    }
+});
+
+// Обновление аватара по URL (для стандартных)
+router.post('/change-avatar', authenticateToken, [
+    body('avatar_url').isURL().withMessage('Неверный URL аватара')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, message: 'Ошибка валидации', errors: errors.array() });
+    }
+
+    try {
+        const { avatar_url } = req.body;
+        await userQueries.updateAvatar(req.user.id, avatar_url);
         res.json({ success: true, message: 'Аватар обновлен' });
     } catch (error) {
         console.error('Ошибка обновления аватара:', error);
-        res.status(500).json({ error: 'Ошибка сервера' });
+        res.status(500).json({ success: false, message: 'Ошибка сервера' });
+    }
+});
+
+// Загрузка кастомного аватара
+router.post('/upload-avatar', authenticateToken, upload.single('avatar'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'Файл аватара не был загружен' });
+        }
+        
+        const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+        await userQueries.updateAvatar(req.user.id, avatarUrl);
+        
+        res.json({ success: true, message: 'Аватар успешно загружен', avatar_url: avatarUrl });
+    } catch (error) {
+        console.error('Ошибка загрузки аватара:', error);
+        res.status(500).json({ success: false, message: 'Ошибка сервера' });
     }
 });
 
