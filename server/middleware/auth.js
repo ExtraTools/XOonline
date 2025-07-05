@@ -17,9 +17,9 @@ export const authenticateToken = async (req, res, next) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         
         // Получаем пользователя из базы данных
-        const user = await userQueries.findById(decoded.id);
+        const user = await userQueries.findById(decoded.userId);
         if (!user) {
-            return res.status(401).json({ error: 'Недействительный токен' });
+            return res.status(401).json({ error: 'Недействительный токен: пользователь не найден' });
         }
 
         // Добавляем пользователя в запрос

@@ -92,6 +92,12 @@ router.post('/update-username', authenticateToken, [
         const { username } = req.body;
         const userId = req.user.id;
         
+        // Проверяем, занят ли никнейм другим пользователем
+        const existingUser = await userQueries.findByUsername(username);
+        if (existingUser && existingUser.id !== userId) {
+            return res.status(400).json({ success: false, message: 'Этот никнейм уже занят' });
+        }
+        
         await userQueries.updateUsername(userId, username);
         res.json({ success: true, message: 'Никнейм успешно обновлен' });
     } catch (error) {
