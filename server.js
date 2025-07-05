@@ -8,6 +8,12 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
+import { userQueries, initDatabase } from './server/database/database.js';
+import bcrypt from 'bcrypt';
+
+// Импортируем роуты авторизации
+import authRoutes from './server/routes/auth.js';
+import profileRoutes from './server/routes/profile.js';
 
 dotenv.config();
 
@@ -19,22 +25,7 @@ const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = 'AIzaSyDivBxbfDHZA7VqGmV21bCzWZ5PnLIDpBI';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
-const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const DISCORD_REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 const JWT_SECRET = process.env.JWT_SECRET || 'demo-secret-key-for-development';
-
-// Проверяем наличие Discord OAuth переменных
-const DISCORD_OAUTH_ENABLED = !!(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_REDIRECT_URI);
-
-if (!DISCORD_OAUTH_ENABLED) {
-    console.log('⚠️  Discord OAuth отключен - работаем в демо-режиме');
-    console.log('💡 Для полной функциональности установите: DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI');
-} else {
-    console.log('✅ Discord OAuth настроен и готов к работе');
-}
-
-const activeSessions = new Map();
 
 app.use(helmet({
     contentSecurityPolicy: {
@@ -42,8 +33,8 @@ app.use(helmet({
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
-            imgSrc: ["'self'", "data:", "https:", "https://cdn.discordapp.com"],
-            connectSrc: ["'self'", "ws:", "wss:", "https://generativelanguage.googleapis.com", "https://discord.com", "https://discordapp.com"]
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "ws:", "wss:", "https://generativelanguage.googleapis.com"]
         }
     }
 }));
@@ -61,6 +52,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(join(__dirname, 'public')));
 app.use('/FRONTS', express.static(join(__dirname, 'FRONTS')));
+app.use('/uploads', express.static(join(__dirname, 'public/uploads')));
 
 // Middleware для отключения кеширования
 app.use((req, res, next) => {
@@ -88,55 +80,109 @@ app.use((req, res, next) => {
     next();
 });
 
-function generateJWT(payload) {
-    const header = { alg: 'HS256', typ: 'JWT' };
-    const encodedHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
-    const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
-    const signature = crypto.createHmac('sha256', JWT_SECRET)
-        .update(`${encodedHeader}.${encodedPayload}`)
-        .digest('base64url');
-    return `${encodedHeader}.${encodedPayload}.${signature}`;
-}
+// Подключаем роуты авторизации
+app.use('/api/auth', authRoutes);
 
-function verifyJWT(token) {
+// Подключаем роуты профилей
+app.use('/api/user', profileRoutes);
+
+// Маршрут для страницы профиля
+app.get('/profile.html', (req, res) => {
+    res.sendFile(join(__dirname, 'public', 'profile.html'));
+});
+
+// GML Launcher авторизация - для кастомной авторизации лаунчера
+// Полная реализация согласно документации: https://gml-launcher.github.io/Gml.Docs/integrations-auth-custom.html
+app.post('/api/launcher/auth', async (req, res) => {
     try {
-        const [header, payload, signature] = token.split('.');
-        const expectedSignature = crypto.createHmac('sha256', JWT_SECRET)
-            .update(`${header}.${payload}`)
-            .digest('base64url');
+        const { Login, Password } = req.body;
         
-        if (signature !== expectedSignature) return null;
+        console.log('🎮 GML Launcher auth attempt for:', Login);
         
-        const decodedPayload = JSON.parse(Buffer.from(payload, 'base64url').toString());
-        if (decodedPayload.exp < Date.now() / 1000) return null;
-        
-        return decodedPayload;
-    } catch (error) {
-        return null;
-    }
-}
+        if (!Login || !Password) {
+            return res.status(400).json({
+                Message: 'Логин и пароль обязательны'
+            });
+        }
 
-function authenticate(req, res, next) {
-    const token = req.cookies.authToken || req.headers.authorization?.replace('Bearer ', '');
-    
-    if (!token) {
-        return res.status(401).json({
-            success: false,
-            message: 'Токен авторизации не найден'
+        // Ищем пользователя по логину (email или username)
+        const user = await userQueries.findByLogin(Login);
+        
+        if (!user) {
+            console.log('❌ GML Auth: Пользователь не найден:', Login);
+            return res.status(404).json({
+                Message: 'Пользователь не найден'
+            });
+        }
+
+        console.log('🟢 GML Auth: Пользователь найден:', user.username);
+
+        // Проверяем статус пользователя
+        if (user.status === 'banned') {
+            console.log('🚫 GML Auth: Пользователь заблокирован:', user.username);
+            return res.status(403).json({
+                Message: 'Пользователь заблокирован. Причина: Нарушение правил сервера'
+            });
+        }
+
+        // Проверяем пароль
+        const isPasswordValid = await bcrypt.compare(Password, user.password_hash);
+        
+        if (!isPasswordValid) {
+            console.log('❌ GML Auth: Неверный пароль для:', user.username);
+            return res.status(401).json({
+                Message: 'Неверный логин или пароль'
+            });
+        }
+
+        // Обновляем статус онлайн
+        await userQueries.updateOnlineStatus(user.id, true);
+
+        console.log('✅ GML Auth: Успешная авторизация:', user.username);
+
+        // Успешная авторизация - возвращаем данные согласно спецификации GML
+        return res.status(200).json({
+            Login: user.username,
+            UserUuid: user.uuid,
+            Message: 'Успешная авторизация'
+        });
+
+    } catch (error) {
+        console.error('❌ Ошибка GML авторизации:', error);
+        return res.status(500).json({
+            Message: 'Внутренняя ошибка сервера'
         });
     }
-    
-    const decoded = verifyJWT(token);
-    if (!decoded) {
-        return res.status(401).json({
-            success: false,
-            message: 'Недействительный токен'
+});
+
+// Дополнительный endpoint для проверки статуса пользователя в GML
+app.get('/api/launcher/user/:uuid', async (req, res) => {
+    try {
+        const { uuid } = req.params;
+        
+        const user = await userQueries.findByUuid(uuid);
+        
+        if (!user) {
+            return res.status(404).json({
+                Message: 'Пользователь не найден'
+            });
+        }
+
+        return res.status(200).json({
+            Login: user.username,
+            UserUuid: user.uuid,
+            Status: user.status,
+            IsOnline: user.is_online,
+            LastLogin: user.last_login
+        });
+
+    } catch (error) {
+        console.error('❌ Ошибка получения данных пользователя:', error);
+        return res.status(500).json({
+            Message: 'Внутренняя ошибка сервера'
         });
     }
-    
-    req.user = decoded;
-    next();
-}
+});
 
 app.get('/api/health', (req, res) => {
     res.json({ 
@@ -157,7 +203,9 @@ app.get('/api/status', (req, res) => {
             'Статический контент',
             'API endpoints',
             'Кроссплатформенность',
-            'ИИ-помощник по Minecraft'
+            'ИИ-помощник по Minecraft',
+            'Email/пароль авторизация',
+            'GML Launcher совместимость'
         ],
         supportedVersions: [
             '1.21.6', '1.21.5', '1.21.4', '1.21.3',
@@ -251,173 +299,6 @@ app.post('/api/ai/chat', async (req, res) => {
     }
 });
 
-app.get('/api/auth/discord', (req, res) => {
-    if (!DISCORD_OAUTH_ENABLED) {
-        return res.status(503).json({
-            success: false,
-            message: 'Discord OAuth недоступен в демо-режиме',
-            demo: true
-        });
-    }
-    
-    const state = crypto.randomBytes(32).toString('hex');
-    const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&response_type=code&scope=identify&state=${state}`;
-    
-    // Сохраняем state для проверки
-    res.cookie('oauth_state', state, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 10 * 60 * 1000 // 10 минут
-    });
-    
-    res.redirect(authUrl);
-});
-
-app.get('/api/auth/discord/callback', async (req, res) => {
-    if (!DISCORD_OAUTH_ENABLED) {
-        return res.redirect('/?error=oauth_disabled');
-    }
-    
-    const { code, state } = req.query;
-    const storedState = req.cookies.oauth_state;
-    
-    if (!code || !state || state !== storedState) {
-        return res.redirect('/?error=invalid_state');
-    }
-    
-    try {
-        // Обмен кода на токен
-        const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-                client_id: DISCORD_CLIENT_ID,
-                client_secret: DISCORD_CLIENT_SECRET,
-                grant_type: 'authorization_code',
-                code: code,
-                redirect_uri: DISCORD_REDIRECT_URI
-            })
-        });
-        
-        const tokenData = await tokenResponse.json();
-        
-        if (!tokenData.access_token) {
-            throw new Error('Не удалось получить access token');
-        }
-        
-        const userResponse = await fetch('https://discord.com/api/users/@me', {
-            headers: {
-                'Authorization': `Bearer ${tokenData.access_token}`
-            }
-        });
-        
-        const userData = await userResponse.json();
-        
-        // Создание JWT токена
-        const jwtPayload = {
-            userId: userData.id,
-            username: userData.username,
-            discriminator: userData.discriminator,
-            avatar: userData.avatar,
-            email: userData.email,
-            globalName: userData.global_name,
-            exp: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60) // 30 дней
-        };
-        
-        const jwtToken = generateJWT(jwtPayload);
-        
-        // Сохранение сессии
-        activeSessions.set(userData.id, {
-            token: jwtToken,
-            user: userData,
-            lastActivity: Date.now()
-        });
-        
-        // Установка cookie
-        res.cookie('authToken', jwtToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
-            sameSite: 'lax'
-        });
-        
-        // Очистка state cookie
-        res.clearCookie('oauth_state');
-        
-        // Перенаправление на главную страницу
-        res.redirect('/?auth=success');
-        
-    } catch (error) {
-        console.error('Ошибка Discord OAuth:', error);
-        res.redirect('/?error=auth_failed');
-    }
-});
-
-app.get('/api/auth/me', (req, res) => {
-    if (!DISCORD_OAUTH_ENABLED) {
-        return res.json({
-            success: false,
-            demo: true,
-            message: 'Демо-режим: авторизация отключена'
-        });
-    }
-    
-    // Проверяем авторизацию только если OAuth включен
-    const token = req.cookies.authToken || req.headers.authorization?.replace('Bearer ', '');
-    
-    if (!token) {
-        return res.status(401).json({
-            success: false,
-            message: 'Токен авторизации не найден'
-        });
-    }
-    
-    const decoded = verifyJWT(token);
-    if (!decoded) {
-        return res.status(401).json({
-            success: false,
-            message: 'Недействительный токен'
-        });
-    }
-    
-    res.json({
-        success: true,
-        user: decoded
-    });
-});
-
-// Выход из системы
-app.post('/api/auth/logout', (req, res) => {
-    if (!DISCORD_OAUTH_ENABLED) {
-        return res.json({
-            success: false,
-            demo: true,
-            message: 'Демо-режим: авторизация отключена'
-        });
-    }
-    
-    // Проверяем авторизацию
-    const token = req.cookies.authToken || req.headers.authorization?.replace('Bearer ', '');
-    
-    if (token) {
-        const decoded = verifyJWT(token);
-        if (decoded) {
-            // Удаляем сессию
-            activeSessions.delete(decoded.userId);
-        }
-    }
-    
-    // Очищаем cookie
-    res.clearCookie('authToken');
-    
-    res.json({
-        success: true,
-        message: 'Выход выполнен успешно'
-    });
-});
-    
 // Профили лаунчера
 app.get('/api/launcher/profiles', (req, res) => {
     res.json({
@@ -518,13 +399,29 @@ app.get('*', (req, res) => {
     res.sendFile(join(__dirname, 'public', 'index.html'));
 });
 
-// Запуск сервера
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 DiLauncher сервер запущен на порту ${PORT}`);
-    console.log(`🌐 URL: http://0.0.0.0:${PORT}`);
-    console.log(`⏰ Время запуска: ${new Date().toISOString()}`);
-    console.log(`📊 Node.js версия: ${process.version}`);
-    console.log(`🔧 Окружение: ${process.env.NODE_ENV || 'production'}`);
-});
+// Запуск сервера с инициализацией базы данных
+async function startServer() {
+    try {
+        // Инициализируем базу данных
+        await initDatabase();
+        console.log('✅ База данных инициализирована успешно');
+        
+        // Запускаем сервер
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`🚀 DiLauncher сервер запущен на порту ${PORT}`);
+            console.log(`🌐 URL: http://0.0.0.0:${PORT}`);
+            console.log(`⏰ Время запуска: ${new Date().toISOString()}`);
+            console.log(`📊 Node.js версия: ${process.version}`);
+            console.log(`🔧 Окружение: ${process.env.NODE_ENV || 'production'}`);
+            console.log(`🎮 GML Launcher API: /api/launcher/auth`);
+            console.log(`🔐 Web Auth API: /api/auth/*`);
+        });
+    } catch (error) {
+        console.error('❌ Ошибка запуска сервера:', error);
+        process.exit(1);
+    }
+}
+
+startServer();
 
 export default app; 

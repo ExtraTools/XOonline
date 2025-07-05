@@ -60,14 +60,22 @@
                 <a href="#helper" class="navbar-link navbar-helper" id="aiHelperNavBtn">
                     AI <span class="helper-badge">beta</span>
                 </a>
+
             </div>
             
             <div class="navbar-auth">
                 <div class="auth-buttons">
-                    <button class="btn btn-discord btn-disabled" id="discordLoginBtn" disabled>
-                        <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" alt="Discord" class="btn-icon">
-                        Войти через Discord
-                        <span class="coming-soon-label">Настройка</span>
+                    <button type="button" class="btn btn-profile" id="profileBtn" style="display: none;">
+                        <img src="/icons/gameIcons/PNG/White/2x/userRobot.png" alt="Профиль" class="btn-icon">
+                        Профиль
+                    </button>
+                    <button type="button" class="btn btn-login" id="loginBtn">
+                        <img src="/icons/gameIcons/PNG/White/2x/userRobot.png" alt="Войти" class="btn-icon">
+                        Войти
+                    </button>
+                    <button type="button" class="btn btn-register" id="registerBtn">
+                        <img src="/icons/gameIcons/PNG/White/2x/plus.png" alt="Регистрация" class="btn-icon">
+                        Регистрация
                     </button>
                     <div class="user-menu" id="userMenu" style="display: none;">
                         <div class="user-info">
@@ -75,7 +83,7 @@
                             <span class="user-name" id="userName"></span>
                         </div>
                         <div class="user-dropdown">
-                            <button class="dropdown-item" id="userProfile">Профиль</button>
+                            <button type="button" class="dropdown-item" id="userProfile">Профиль</button>
                             <button class="dropdown-item" id="userSettings">Настройки</button>
                             <button class="dropdown-item" id="userLogout">Выйти</button>
                         </div>
@@ -96,17 +104,71 @@
         <a href="#helper" class="mobile-menu-link mobile-helper" id="aiHelperMobileBtn">
             AI <span class="helper-badge">beta</span>
         </a>
+        <button type="button" class="mobile-menu-link mobile-profile" id="profileMobileBtn" style="display: none;">
+            <img src="/icons/gameIcons/PNG/White/2x/userRobot.png" alt="Профиль" class="mobile-icon">
+            Профиль
+        </button>
         <div class="mobile-auth-buttons">
-            <button class="btn btn-discord btn-disabled" id="discordLoginMobileBtn" disabled>
-                <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" alt="Discord" class="btn-icon">
-                Войти через Discord
-                <span class="coming-soon-label">Настройка</span>
+            <button class="btn btn-login" id="mobileLoginBtn">
+                <img src="/icons/gameIcons/PNG/White/2x/userRobot.png" alt="Войти" class="btn-icon">
+                Войти
+            </button>
+            <button class="btn btn-register" id="mobileRegisterBtn">
+                <img src="/icons/gameIcons/PNG/White/2x/plus.png" alt="Регистрация" class="btn-icon">
+                Регистрация
             </button>
             <div class="mobile-user-info" id="mobileUserInfo" style="display: none;">
                 <img src="" alt="Avatar" class="mobile-user-avatar" id="mobileUserAvatar">
                 <span class="mobile-user-name" id="mobileUserName"></span>
                 <button class="mobile-logout-btn" id="mobileUserLogout">Выйти</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна авторизации -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal="loginModal">&times;</span>
+            <h2>Вход в DiLauncher</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email или никнейм:</label>
+                    <input type="text" id="loginEmail" name="login" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль:</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Войти</button>
+            </form>
+            <p class="modal-footer">
+                Нет аккаунта? <a href="#" id="switchToRegister">Создать аккаунт</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal="registerModal">&times;</span>
+            <h2>Регистрация в DiLauncher</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerUsername">Никнейм:</label>
+                    <input type="text" id="registerUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" id="registerEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Пароль:</label>
+                    <input type="password" id="registerPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Создать аккаунт</button>
+            </form>
+            <p class="modal-footer">
+                Уже есть аккаунт? <a href="#" id="switchToLogin">Войти</a>
+            </p>
         </div>
     </div>
 
@@ -618,6 +680,14 @@
                     </div>
                     
                     <div class="link-group">
+                        <h4>Разработка</h4>
+                        <a href="/api-docs.html">API Документация</a>
+                        <a href="https://gml-launcher.github.io/Gml.Docs/integrations-auth-custom.html" target="_blank">GML Docs</a>
+                        <a href="#">GitHub</a>
+                        <a href="#">Примеры интеграции</a>
+                    </div>
+                    
+                    <div class="link-group">
                         <h4>Поддержка</h4>
                         <a href="#">Документация</a>
                         <a href="#">FAQ</a>
@@ -649,28 +719,6 @@
             </div>
         </div>
     </footer>
-
-    <!-- Модальные окна -->
-    
-    <!-- Модальное окно входа -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Вход в DiLauncher</h2>
-                <button class="modal-close" data-modal="loginModal">&times;</button>
-            </div>
-            <form class="auth-form" id="loginForm">
-                <div class="form-group">
-                    <label for="loginUsername">Введите ваш никнейм</label>
-                    <input type="text" id="loginUsername" name="username" required placeholder="Например, Steve">
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Войти</button>
-                </div>
-                <div class="form-error" id="loginError"></div>
-            </form>
-        </div>
-    </div>
 
     <!-- Модальное окно ИИ-помощника - Modern 2024-2025 Design -->
     <div class="ai-assistant-modal" id="aiAssistantModal">
@@ -728,12 +776,20 @@
                                     <span class="version-badge current">ТЕКУЩАЯ</span>
                                 </div>
                                 <div class="version-content">
-                                    <h4>🔐 Discord OAuth Авторизация</h4>
+                                    <h4>🎮 GML Launcher Авторизация</h4>
                                     <ul>
-                                        <li>Добавлена авторизация через Discord (в разработке)</li>
-                                        <li>Постоянное сохранение сессии через httpOnly cookies</li>
-                                        <li>Безопасное управление JWT токенами</li>
-                                        <li>Система управления пользователями</li>
+                                        <li>Полная поддержка GML Launcher авторизации</li>
+                                        <li>API endpoint: /api/launcher/auth</li>
+                                        <li>Совместимость с кастомной авторизацией</li>
+                                        <li>UUID система для пользователей</li>
+                                    </ul>
+                                    
+                                    <h4>🔐 Система Авторизации</h4>
+                                    <ul>
+                                        <li>Заменена Discord авторизация на email/пароль</li>
+                                        <li>Полноценная регистрация и вход</li>
+                                        <li>Безопасное хеширование паролей</li>
+                                        <li>Система сессий и токенов</li>
                                     </ul>
                                     
                                     <h4>🎨 Дизайн и интерфейс</h4>
@@ -834,6 +890,8 @@
                                 </div>
                             </div>
                         </div>
+
+
                     </div>
                     
                     <button class="carousel-nav carousel-next" id="carouselNext">

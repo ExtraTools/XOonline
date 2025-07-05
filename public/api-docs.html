@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GML Launcher API Documentation</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/fonts.css">
+    <style>
+        .api-docs {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            font-family: 'Benzin', sans-serif;
+        }
+        
+        .api-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .api-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .api-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .endpoint-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .endpoint-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .endpoint-method {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+        
+        .endpoint-url {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-primary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            font-size: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .code-block {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .response-section {
+            margin-top: 2rem;
+        }
+        
+        .response-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .status-code {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-right: 1rem;
+        }
+        
+        .status-200 { background: #10b981; color: white; }
+        .status-401 { background: #f59e0b; color: white; }
+        .status-403 { background: #ef4444; color: white; }
+        .status-404 { background: #6b7280; color: white; }
+        
+        .parameter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        .parameter-table th,
+        .parameter-table td {
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        .parameter-table th {
+            background: var(--bg-primary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .parameter-table td {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+        
+        .required {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+        }
+        
+        .back-link:hover {
+            color: var(--accent-hover);
+        }
+        
+        .implementation-note {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .implementation-note h4 {
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="api-docs">
+        <a href="/" class="back-link">
+            <img src="/icons/gameIcons/PNG/White/2x/arrowLeft.png" alt="Назад" width="16" height="16">
+            Назад на главную
+        </a>
+        
+        <div class="api-header">
+            <h1 class="api-title">🎮 GML Launcher API</h1>
+            <p class="api-description">
+                Документация по API для интеграции с GML Launcher. 
+                Наш сервер поддерживает кастомную авторизацию согласно официальной документации.
+            </p>
+        </div>
+        
+        <div class="endpoint-section">
+            <h2 class="endpoint-title">Авторизация пользователя</h2>
+            <div>
+                <span class="endpoint-method">POST</span>
+                <span class="endpoint-url">/api/launcher/auth</span>
+            </div>
+            
+            <p>Основной endpoint для авторизации пользователей в GML Launcher.</p>
+            
+            <h3>Параметры запроса:</h3>
+            <table class="parameter-table">
+                <thead>
+                    <tr>
+                        <th>Параметр</th>
+                        <th>Тип</th>
+                        <th>Обязательный</th>
+                        <th>Описание</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Login</td>
+                        <td>string</td>
+                        <td class="required">Да</td>
+                        <td>Логин пользователя (email или username)</td>
+                    </tr>
+                    <tr>
+                        <td>Password</td>
+                        <td>string</td>
+                        <td class="required">Да</td>
+                        <td>Пароль пользователя</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Пример запроса:</h3>
+            <div class="code-block">
+curl --location 'https://xoonline-production.up.railway.app/api/launcher/auth' \
+--header 'Content-Type: application/json' \
+--data '{
+    "Login": "user@example.com",
+    "Password": "userpassword"
+}'
+            </div>
+            
+            <div class="response-section">
+                <h3 class="response-title">Возможные ответы:</h3>
+                
+                <div style="margin-bottom: 2rem;">
+                    <span class="status-code status-200">200</span>
+                    <strong>Успешная авторизация</strong>
+                    <div class="code-block">
+{
+    "Login": "username",
+    "UserUuid": "c07a9841-2275-4ba0-8f1c-2e1599a1f22f",
+    "Message": "Успешная авторизация"
+}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <span class="status-code status-401">401</span>
+                    <strong>Неверные данные авторизации</strong>
+                    <div class="code-block">
+{
+    "Message": "Неверный логин или пароль"
+}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <span class="status-code status-404">404</span>
+                    <strong>Пользователь не найден</strong>
+                    <div class="code-block">
+{
+    "Message": "Пользователь не найден"
+}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <span class="status-code status-403">403</span>
+                    <strong>Пользователь заблокирован</strong>
+                    <div class="code-block">
+{
+    "Message": "Пользователь заблокирован. Причина: Нарушение правил сервера"
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="endpoint-section">
+            <h2 class="endpoint-title">Информация о пользователе</h2>
+            <div>
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-url">/api/launcher/user/:uuid</span>
+            </div>
+            
+            <p>Получение информации о пользователе по его UUID.</p>
+            
+            <h3>Параметры URL:</h3>
+            <table class="parameter-table">
+                <thead>
+                    <tr>
+                        <th>Параметр</th>
+                        <th>Тип</th>
+                        <th>Описание</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>uuid</td>
+                        <td>string</td>
+                        <td>UUID пользователя</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Пример запроса:</h3>
+            <div class="code-block">
+curl --location 'https://xoonline-production.up.railway.app/api/launcher/user/c07a9841-2275-4ba0-8f1c-2e1599a1f22f'
+            </div>
+            
+            <div class="response-section">
+                <h3 class="response-title">Ответ:</h3>
+                
+                <div style="margin-bottom: 2rem;">
+                    <span class="status-code status-200">200</span>
+                    <strong>Успешный запрос</strong>
+                    <div class="code-block">
+{
+    "Login": "username",
+    "UserUuid": "c07a9841-2275-4ba0-8f1c-2e1599a1f22f",
+    "Status": "active",
+    "IsOnline": true,
+    "LastLogin": "2025-01-08T10:30:00.000Z"
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="implementation-note">
+            <h4>📋 Примечания по реализации:</h4>
+            <ul>
+                <li>Наш API полностью совместим с <a href="https://gml-launcher.github.io/Gml.Docs/integrations-auth-custom.html" target="_blank">официальной документацией GML</a></li>
+                <li>Обязательно реализовать статус коды 200 и 401 для корректной работы</li>
+                <li>Поля Message и UserUuid генерируются автоматически при успешной авторизации</li>
+                <li>Система поддерживает авторизацию по email или username</li>
+                <li>Все пароли хешируются с использованием bcrypt</li>
+            </ul>
+        </div>
+        
+        <div class="endpoint-section">
+            <h2 class="endpoint-title">Настройка в GML Launcher</h2>
+            <p>Для использования нашей авторизации:</p>
+            <ol>
+                <li>Перейдите в панель управления GML Launcher</li>
+                <li>Выберите: <strong>Интеграции → Аутентификация → Собственная аутентификация</strong></li>
+                <li>Вставьте URL: <code>https://xoonline-production.up.railway.app/api/launcher/auth</code></li>
+                <li>Сохраните настройки</li>
+            </ol>
+            
+            <div class="implementation-note">
+                <h4>🔧 Техническая информация:</h4>
+                <ul>
+                    <li>Сервер: Node.js + Express</li>
+                    <li>База данных: SQLite с UUID поддержкой</li>
+                    <li>Хеширование: bcrypt (rounds: 12)</li>
+                    <li>Хостинг: Railway (автоматические деплои)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

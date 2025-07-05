@@ -367,9 +367,9 @@
     box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
-/* Discord OAuth Styles */
-.btn-discord {
-    background: linear-gradient(135deg, #7289da, #5865f2);
+/* Auth Button Styles */
+.btn-login {
+    background: linear-gradient(135deg, #10b981, #059669);
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -385,10 +385,10 @@
     text-decoration: none;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(114, 137, 218, 0.3);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
-.btn-discord::before {
+.btn-login::before {
     content: '';
     position: absolute;
     top: 0;
@@ -399,70 +399,289 @@
     transition: var(--transition);
 }
 
-.btn-discord:hover {
+.btn-login:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(114, 137, 218, 0.4), 0 0 20px rgba(114, 137, 218, 0.3);
-    background: linear-gradient(135deg, #8ea1e1, #6b7bf2);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4), 0 0 20px rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, #34d399, #10b981);
 }
 
-.btn-discord:hover::before {
+.btn-login:hover::before {
     left: 100%;
 }
 
-.btn-discord .btn-icon {
+.btn-register {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Benzin', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.btn-register::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: var(--transition);
+}
+
+.btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.3);
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+}
+
+.btn-register:hover::before {
+    left: 100%;
+}
+
+.btn-profile {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Benzin', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.btn-profile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: var(--transition);
+}
+
+.btn-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4), 0 0 20px rgba(139, 92, 246, 0.3);
+    background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+}
+
+.btn-profile:hover::before {
+    left: 100%;
+}
+
+.btn-login .btn-icon,
+.btn-register .btn-icon,
+.btn-profile .btn-icon {
     width: 20px;
     height: 20px;
     object-fit: contain;
 }
 
-.btn-discord.btn-disabled {
-    background: linear-gradient(135deg, #4a5568, #2d3748);
-    color: #a0aec0;
-    cursor: not-allowed;
-    opacity: 0.6;
+.btn-primary {
+    background: linear-gradient(135deg, #ffffff, #f0f0f0);
+    color: #1e1e1e;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Benzin', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
     position: relative;
-    overflow: visible;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+    width: 100%;
 }
 
-.btn-discord.btn-disabled:hover {
-    transform: none;
-    box-shadow: 0 4px 15px rgba(74, 85, 104, 0.2);
-    background: linear-gradient(135deg, #4a5568, #2d3748);
-}
-
-.btn-discord.btn-disabled::before {
-    display: none;
-}
-
-.btn-discord .coming-soon-label {
+.btn-primary::before {
+    content: '';
     position: absolute;
-    top: -12px;
-    right: -12px;
-    background: linear-gradient(135deg, #f56565, #e53e3e);
-    color: white;
-    font-size: 0.7rem;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.1);
-    z-index: 10;
-    white-space: nowrap;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(4px);
-    animation: pulse-badge 2s infinite;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+    transition: var(--transition);
 }
 
-@keyframes pulse-badge {
-    0%, 100% {
-        transform: scale(1);
-        box-shadow: 0 2px 8px rgba(245, 101, 101, 0.3);
-    }
-    50% {
-        transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(245, 101, 101, 0.5);
-    }
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, #f8f8f8, #e0e0e0);
+}
+
+.btn-primary:hover::before {
+    left: 100%;
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary:disabled:hover {
+    transform: none;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+    backdrop-filter: blur(4px);
+}
+
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: rgba(17, 17, 17, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: scale(0.8);
+    transition: var(--transition);
+}
+
+.modal.active .modal-content {
+    transform: scale(1);
+}
+
+.modal-content h2 {
+    color: #ffffff;
+    font-family: 'Benzin', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.modal-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.modal-footer a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.modal-footer a:hover {
+    color: var(--primary);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    color: #ffffff;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+    color: #ffffff;
+    font-family: 'Benzin', sans-serif;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
 }
 
 /* User Menu Styles */

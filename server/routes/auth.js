@@ -2,7 +2,11 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
-import { userQueries, sessionQueries } from '../database/database.js';
+import { 
+    userQueries, 
+    sessionQueries,
+    profileQueries
+} from '../database/database.js';
 
 const router = express.Router();
 
@@ -120,6 +124,14 @@ router.post('/register', registerValidation, async (req, res) => {
 
         // Создаем пользователя (пароль будет захеширован автоматически в модели)
         const user = await userQueries.create(username, email, password);
+
+        // Создаем профиль для нового пользователя
+        await profileQueries.createProfile(user.id, {
+            level: 1,
+            rating: 1000,
+            avatar: 'avatars/photo_2025-07-03_02-50-32.jpg',
+            title: 'Новичок XO Online'
+        });
 
         // Создаем JWT токен
         const token = jwt.sign(
@@ -243,6 +255,8 @@ router.post('/login', loginValidation, async (req, res) => {
         // Устанавливаем статус онлайн
         await userQueries.updateOnlineStatus(user.id, true);
 
+
+
         res.json({
             success: true,
             message: 'Вход выполнен успешно',
@@ -275,6 +289,8 @@ router.post('/logout', authenticateToken, async (req, res) => {
         
         // Устанавливаем статус оффлайн
         await userQueries.updateOnlineStatus(req.user.id, false);
+
+
 
         res.json({
             success: true,
