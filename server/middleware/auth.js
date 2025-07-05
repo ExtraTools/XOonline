@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { userQueries } from '../database/database.js';
+import { userQueries, sessionQueries } from '../database/database.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here-make-it-strong';
+const JWT_SECRET = process.env.JWT_SECRET || 'dino-secret-key';
 
 // Middleware для проверки JWT токена
 export const authenticateToken = async (req, res, next) => {
@@ -13,11 +13,17 @@ export const authenticateToken = async (req, res, next) => {
             return res.status(401).json({ error: 'Токен доступа не предоставлен' });
         }
 
-        // Проверяем и декодируем токен
+        // 1. Проверяем сессию в базе данных
+        const session = await sessionQueries.findByToken(token);
+        if (!session) {
+            return res.status(401).json({ error: 'Сессия не найдена или недействительна. Пожалуйста, войдите снова.' });
+        }
+
+        // 2. Верифицируем JWT
         const decoded = jwt.verify(token, JWT_SECRET);
         
-        // Получаем пользователя из базы данных
-        const user = await userQueries.findById(decoded.userId);
+        // 3. Получаем пользователя из базы данных по правильному полю
+        const user = await userQueries.findById(decoded.id);
         if (!user) {
             return res.status(401).json({ error: 'Недействительный токен: пользователь не найден' });
         }

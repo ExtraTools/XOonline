@@ -43,8 +43,10 @@ app.use(helmet({
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' ? 
         ['https://xoonline-production-63d1.up.railway.app'] : 
-        ['http://localhost:3000', 'http://127.0.0.1:3000'],
-    credentials: true
+        ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://0.0.0.0:3000'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 app.use(compression());
 app.use(cookieParser());

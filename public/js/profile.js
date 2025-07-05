@@ -195,60 +195,68 @@ function setupEventListeners() {
     if (updateUsernameBtn) {
         updateUsernameBtn.addEventListener('click', updateUsername);
     }
-
-    // Обработчики для модального окна аватара
-    const changeAvatarBtn = document.querySelector('.change-avatar-btn');
-        const avatarModal = document.getElementById('avatarModal');
-        const closeAvatarModal = document.getElementById('closeAvatarModal');
-    const avatarOptions = document.querySelectorAll('.avatar-option');
-
-        if (changeAvatarBtn) {
-            changeAvatarBtn.addEventListener('click', () => {
-            avatarModal.style.display = 'block';
-            });
-        }
-
-        if (closeAvatarModal) {
-            closeAvatarModal.addEventListener('click', () => {
-            avatarModal.style.display = 'none';
-            });
-        }
-
-    // Закрытие модального окна по клику вне его
-    window.addEventListener('click', (e) => {
-                if (e.target === avatarModal) {
-            avatarModal.style.display = 'none';
-        }
-    });
-
-    // Выбор аватара
-        avatarOptions.forEach(option => {
-            option.addEventListener('click', () => {
-            const avatarUrl = option.dataset.avatar;
-            changeAvatar(avatarUrl);
+    
+    // Обработчик для проверки никнейма в реальном времени
+    const usernameInput = document.getElementById('username');
+    if (usernameInput) {
+        let checkTimeout;
+        usernameInput.addEventListener('input', function() {
+            clearTimeout(checkTimeout);
+            const username = this.value.trim();
+            
+            if (username.length === 0) {
+                hideUsernameStatus();
+                return;
+            }
+            
+            if (username.length < 3) {
+                showUsernameStatus('error', 'Минимум 3 символа');
+                return;
+            }
+            
+            // Проверяем с задержкой для избежания спама запросов
+            checkTimeout = setTimeout(() => {
+                checkUsernameAvailability(username);
+            }, 500);
         });
-    });
-
-    // Загрузка аватара
-        const uploadAvatarBtn = document.getElementById('uploadAvatarBtn');
-        const avatarUpload = document.getElementById('avatarUpload');
-
-    if (uploadAvatarBtn) {
-            uploadAvatarBtn.addEventListener('click', () => {
-                avatarUpload.click();
-            });
-    }
-
-    if (avatarUpload) {
-            avatarUpload.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                uploadAvatar(file);
+        
+        // Скрываем статус при фокусе, если поле пустое
+        usernameInput.addEventListener('focus', function() {
+            if (this.value.trim() === '') {
+                hideUsernameStatus();
             }
         });
     }
 
-    // Кнопка выхода
+
+
+    // Minecraft account buttons
+    const linkMinecraftBtn = document.getElementById('linkMinecraftBtn');
+    if (linkMinecraftBtn) {
+        linkMinecraftBtn.addEventListener('click', linkMinecraftAccount);
+    }
+
+    const unlinkMinecraftBtn = document.getElementById('unlinkMinecraftBtn');
+    if (unlinkMinecraftBtn) {
+        unlinkMinecraftBtn.addEventListener('click', unlinkMinecraftAccount);
+    }
+
+    // Skin management
+    const selectSkinFileBtn = document.getElementById('selectSkinFileBtn');
+    if (selectSkinFileBtn) {
+        selectSkinFileBtn.addEventListener('click', () => {
+            document.getElementById('skinFileInput').click();
+        });
+    }
+
+    const skinFileInput = document.getElementById('skinFileInput');
+    if (skinFileInput) {
+        skinFileInput.addEventListener('change', uploadSkin);
+    }
+
+
+
+    // Button for logging out
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', logout);
@@ -329,8 +337,11 @@ function updateUsername() {
         if (data.success) {
             alert('Никнейм успешно изменён');
             // Обновляем отображение
-            document.getElementById('profileName').textContent = newUsername;
-                } else {
+            const profileUsernameElement = document.getElementById('profileUsername');
+            if (profileUsernameElement) {
+                profileUsernameElement.textContent = newUsername;
+            }
+        } else {
             alert('Ошибка: ' + data.message);
         }
     })
@@ -340,69 +351,7 @@ function updateUsername() {
     });
 }
 
-function changeAvatar(avatarUrl) {
-    const token = localStorage.getItem('auth_token');
-    fetch('/api/profile/change-avatar', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            avatar_url: avatarUrl
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Обновляем отображение аватара
-            const avatar = document.getElementById('profileAvatar');
-            if (avatar) {
-                avatar.src = avatarUrl;
-            }
-            // Закрываем модальное окно
-            document.getElementById('avatarModal').style.display = 'none';
-        } else {
-            alert('Ошибка: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error changing avatar:', error);
-        alert('Ошибка при изменении аватара');
-    });
-}
 
-function uploadAvatar(file) {
-    const formData = new FormData();
-    formData.append('avatar', file);
-
-    const token = localStorage.getItem('auth_token');
-    fetch('/api/profile/upload-avatar', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Обновляем отображение аватара
-            const avatar = document.getElementById('profileAvatar');
-            if (avatar) {
-                avatar.src = data.avatar_url;
-            }
-            // Закрываем модальное окно
-            document.getElementById('avatarModal').style.display = 'none';
-        } else {
-            alert('Ошибка: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error uploading avatar:', error);
-        alert('Ошибка при загрузке аватара');
-    });
-}
 
 function logout() {
     localStorage.removeItem('auth_token');
@@ -499,18 +448,7 @@ function refreshSkin() {
     });
 }
 
-function previewSkin(uuid) {
-    // Открываем модальное окно предпросмотра
-    const modal = document.getElementById('skinPreviewModal');
-    const modalImg = document.getElementById('skinPreviewImage');
-    const modalTitle = document.getElementById('skinPreviewTitle');
-    
-    if (modal && modalImg) {
-        modalImg.src = `https://crafatar.com/renders/body/${uuid}?size=400&overlay`;
-        modalTitle.textContent = 'Предпросмотр скина';
-        modal.style.display = 'block';
-    }
-}
+
 
 function uploadSkin() {
     const fileInput = document.getElementById('skinFileInput');
@@ -556,6 +494,70 @@ function uploadSkin() {
         console.error('Error uploading skin:', error);
         showNotification('Ошибка при загрузке скина', 'error');
     });
+}
+
+// Функции для проверки никнейма
+async function checkUsernameAvailability(username) {
+    const token = localStorage.getItem('auth_token');
+    
+    try {
+        showUsernameStatus('checking', 'Проверяем...');
+        
+        const response = await fetch(`/api/profile/check-username/${encodeURIComponent(username)}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.available) {
+            showUsernameStatus('available', data.message);
+        } else {
+            showUsernameStatus('unavailable', data.message);
+        }
+    } catch (error) {
+        console.error('Error checking username:', error);
+        showUsernameStatus('error', 'Ошибка проверки');
+    }
+}
+
+function showUsernameStatus(type, message) {
+    const statusElement = document.getElementById('usernameStatus');
+    const messageElement = document.getElementById('usernameMessage');
+    const statusText = statusElement.querySelector('.status-text');
+    
+    if (!statusElement || !messageElement) return;
+    
+    // Удаляем все классы типов
+    statusElement.classList.remove('checking', 'available', 'unavailable', 'error');
+    messageElement.classList.remove('available', 'unavailable', 'error');
+    
+    // Добавляем нужный класс
+    statusElement.classList.add(type);
+    messageElement.classList.add(type);
+    
+    // Устанавливаем текст
+    statusText.textContent = type === 'checking' ? '' : '';
+    messageElement.textContent = message;
+    
+    // Показываем элементы
+    statusElement.style.display = 'flex';
+    messageElement.style.display = 'block';
+}
+
+function hideUsernameStatus() {
+    const statusElement = document.getElementById('usernameStatus');
+    const messageElement = document.getElementById('usernameMessage');
+    
+    if (statusElement) {
+        statusElement.style.display = 'none';
+    }
+    if (messageElement) {
+        messageElement.style.display = 'none';
+        messageElement.textContent = '';
+    }
 }
 
 function showNotification(message, type) {

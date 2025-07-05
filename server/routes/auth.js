@@ -7,55 +7,13 @@ import {
     sessionQueries,
     profileQueries
 } from '../database/database.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dino-secret-key';
 const SALT_ROUNDS = 12;
 const TOKEN_EXPIRES_IN = '7d';
-
-export const authenticateToken = async (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
-    if (!token) {
-        return res.status(401).json({ 
-            success: false, 
-            message: 'Токен доступа не предоставлен' 
-        });
-    }
-
-    try {
-        // Проверяем токен в базе данных
-        const session = await sessionQueries.findByToken(token);
-        if (!session) {
-            return res.status(403).json({ 
-                success: false, 
-                message: 'Недействительный токен' 
-            });
-        }
-
-        // Верифицируем JWT
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const user = await userQueries.findById(decoded.userId);
-        
-        if (!user) {
-            return res.status(403).json({ 
-                success: false, 
-                message: 'Пользователь не найден' 
-            });
-        }
-
-        req.user = user;
-        next();
-    } catch (error) {
-        console.error('Ошибка проверки токена:', error);
-        return res.status(403).json({ 
-            success: false, 
-            message: 'Недействительный токен' 
-        });
-    }
-};
 
 // Валидация для регистрации
 const registerValidation = [
@@ -129,13 +87,13 @@ router.post('/register', registerValidation, async (req, res) => {
         await profileQueries.createProfile(user.id, {
             level: 1,
             rating: 1000,
-            avatar: 'avatars/photo_2025-07-03_02-50-32.jpg',
+            avatar: 'avatars/default.svg',
             title: 'Новичок XO Online'
         });
 
         // Создаем JWT токен
         const token = jwt.sign(
-            { userId: user.id, username: user.username },
+            { id: user.id, username: user.username },
             JWT_SECRET,
             { expiresIn: TOKEN_EXPIRES_IN }
         );
@@ -203,46 +161,21 @@ router.post('/login', loginValidation, async (req, res) => {
         }
         
         console.log('🟢 User found:', user.username);
-        console.log('🔑 Password hash from DB:', user.password_hash ? 'exists' : 'missing');
-        console.log('🔍 Hash length:', user.password_hash ? user.password_hash.length : 'null');
-
-        // ВРЕМЕННАЯ ДИАГНОСТИКА - создаем тестовый хеш
-        const testHash = await bcrypt.hash(password, 12);
-        console.log('🧪 Test hash for current password:', testHash);
         
         // Проверяем пароль
-        console.log('🔍 Input password length:', password.length);
-        console.log('🔍 Stored hash length:', user.password_hash ? user.password_hash.length : 'null');
-        
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-        console.log('🔐 Password validation result:', isPasswordValid);
         
-        // ВРЕМЕННАЯ ДИАГНОСТИКА - проверяем прямое сравнение
         if (!isPasswordValid) {
             console.log('❌ Password validation failed for user:', user.username);
-            console.log('❌ Input password:', password);
-            console.log('❌ Hash from DB:', user.password_hash);
-            
-            // ВРЕМЕННОЕ РЕШЕНИЕ: если пароль равен простому тексту
-            if (password === user.password_hash) {
-                console.log('🚨 FOUND ISSUE: Password stored as plain text!');
-                console.log('🔧 Fixing by updating hash...');
-                
-                // Обновляем пароль с правильным хешем
-                const newHash = await bcrypt.hash(password, 12);
-                await userQueries.updatePassword(user.id, newHash);
-                console.log('✅ Password hash updated');
-            } else {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Неверный логин или пароль'
-                });
-            }
+            return res.status(400).json({
+                success: false,
+                message: 'Неверный логин или пароль'
+            });
         }
 
         // Создаем JWT токен
         const token = jwt.sign(
-            { userId: user.id, username: user.username },
+            { id: user.id, username: user.username },
             JWT_SECRET,
             { expiresIn: TOKEN_EXPIRES_IN }
         );
@@ -255,8 +188,6 @@ router.post('/login', loginValidation, async (req, res) => {
         // Устанавливаем статус онлайн
         await userQueries.updateOnlineStatus(user.id, true);
 
-
-
         res.json({
             success: true,
             message: 'Вход выполнен успешно',
@@ -264,7 +195,6 @@ router.post('/login', loginValidation, async (req, res) => {
                 id: user.id,
                 username: user.username,
                 email: user.email,
-
             },
             token
         });
@@ -289,8 +219,6 @@ router.post('/logout', authenticateToken, async (req, res) => {
         
         // Устанавливаем статус оффлайн
         await userQueries.updateOnlineStatus(req.user.id, false);
-
-
 
         res.json({
             success: true,
@@ -356,7 +284,5 @@ router.get('/verify', authenticateToken, (req, res) => {
         }
     });
 });
-
-
 
 export default router; 

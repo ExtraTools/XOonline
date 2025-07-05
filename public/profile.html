@@ -12,270 +12,214 @@
 </head>
 <body>
     <div class="profile-container">
-        <!-- Навигация -->
         <nav class="profile-nav">
-            <div class="nav-left">
-                <a href="index.html" class="back-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                    Назад к лаунчеру
-                </a>
-            </div>
+            <a href="/" class="back-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                Назад к лаунчеру
+            </a>
+            <span class="alpha-tag">Профили: Альфа Тест</span>
             <div class="nav-right">
-                <button class="nav-btn" id="settingsBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                    </svg>
+                <button class="nav-btn" id="settingsBtn" title="Настройки">
+                    <svg width="24" height="24" viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25-1.17-.59-1.69-.98l2.49 1c.23.09.49 0 .61.22l2 3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
                 </button>
-                <button class="nav-btn" id="logoutBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
-                    </svg>
+                <button class="nav-btn" id="logoutBtn" title="Выйти">
+                    <svg width="24" height="24" viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
                 </button>
             </div>
         </nav>
 
-        <!-- Профиль хедер -->
-        <div class="profile-header">
-            <div class="profile-background"></div>
-            <div class="profile-info">
-                <div class="avatar-section">
-                    <div class="avatar-wrapper">
-                        <img src="avatars/default.svg" alt="Аватар игрока" class="profile-avatar" id="profileAvatar">
-                        <div class="avatar-overlay">
-                            <button class="change-avatar-btn" id="changeAvatarBtn">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                                    <circle cx="12" cy="13" r="4"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="status-indicator online"></div>
+        <!-- Новый Header -->
+        <header class="profile-header-new">
+            <div class="avatar-container">
+                <img src="avatars/default.svg" alt="Аватар игрока" class="profile-avatar" id="profileAvatar">
+                <div class="online-indicator"></div>
+            </div>
+            <h1 class="username-new" id="profileUsername">Игрок</h1>
+            <p class="user-title-new" id="profileTitle">Пользователь</p>
+            <div class="stats-container-new">
+                <div class="stat-card-new">
+                    <span class="stat-label-new">Статус</span>
+                    <span class="stat-value-new" id="profileStatus">Оффлайн</span>
                 </div>
-                <div class="profile-details">
-                    <h1 class="username" id="profileUsername">Игрок</h1>
-                    <p class="user-title" id="profileTitle">Пользователь</p>
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Статус</span>
-                            <span class="stat-value" id="profileStatus">Оффлайн</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Версия</span>
-                            <span class="stat-value" id="profileVersion">1.20.4</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Регистрация</span>
-                            <span class="stat-value" id="profileSince">-</span>
-                        </div>
-                    </div>
+                <div class="stat-card-new">
+                    <span class="stat-label-new">Версия</span>
+                    <span class="stat-value-new" id="profileVersion">1.20.4</span>
+                </div>
+                <div class="stat-card-new">
+                    <span class="stat-label-new">Регистрация</span>
+                    <span class="stat-value-new" id="profileSince">-</span>
                 </div>
             </div>
-        </div>
+        </header>
 
         <!-- Основной контент -->
-        <div class="profile-content">
+        <main class="profile-content">
             <!-- Навигация по вкладкам -->
             <div class="tabs-nav">
-                <button class="tab-btn active" data-tab="account">Аккаунт</button>
-                <button class="tab-btn" data-tab="skins">Скины</button>
+                <button class="tab-btn active" data-tab="account">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    Аккаунт
+                </button>
+                <button class="tab-btn" data-tab="skins">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 2c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2H6zm12 18H6V4h12v16zM8 6h8v2H8V6zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+                    Скины
+                </button>
             </div>
 
-            <!-- Вкладка Аккаунт -->
-            <div class="tab-content active" id="account">
-                <div class="account-grid">
-                    <!-- Основная информация -->
-                    <div class="account-info card">
-                        <h3>Информация об аккаунте</h3>
-                        <div class="form-group">
-                            <label for="username">Никнейм</label>
-                            <input type="text" id="username" placeholder="Ваш никнейм">
-                            <button class="btn btn-primary" id="updateUsernameBtn">Изменить</button>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" placeholder="your@email.com" readonly>
-                            <span class="form-hint">Для изменения email обратитесь к администратору</span>
-                        </div>
-                        <div class="form-group">
-                            <label>Дата регистрации</label>
-                            <input type="text" id="registrationDate" readonly>
-                        </div>
-                    </div>
-
-                    <!-- Безопасность -->
-                    <div class="security-settings card">
-                        <h3>Безопасность</h3>
-                        <div class="form-group">
-                            <label for="currentPassword">Текущий пароль</label>
-                            <input type="password" id="currentPassword" placeholder="Введите текущий пароль">
-                        </div>
-                        <div class="form-group">
-                            <label for="newPassword">Новый пароль</label>
-                            <input type="password" id="newPassword" placeholder="Введите новый пароль">
-                        </div>
-                        <div class="form-group">
-                            <label for="confirmPassword">Подтвердите пароль</label>
-                            <input type="password" id="confirmPassword" placeholder="Повторите новый пароль">
-                        </div>
-                        <button class="btn btn-primary" id="changePasswordBtn">Изменить пароль</button>
-                    </div>
-
-                    <!-- Minecraft интеграция -->
-                    <div class="minecraft-integration card">
-                        <h3>Minecraft аккаунт</h3>
-                        
-                        <!-- Секция связанного аккаунта -->
-                        <div class="minecraft-linked" id="minecraftLinked" style="display: none;">
-                            <div class="linked-account-info">
-                                <div class="minecraft-avatar">
-                                    <img id="minecraftSkinPreview" src="" alt="Minecraft скин" style="width: 64px; height: 64px;">
+            <!-- Контент вкладок -->
+            <div class="tabs-content">
+                <!-- Вкладка Аккаунт -->
+                <div class="tab-content active" id="account">
+                    <div class="account-layout">
+                        <!-- Основная колонка -->
+                        <div class="main-column">
+                            <div class="card">
+                                <h3 class="card-header">
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                                    Информация об аккаунте
+                                </h3>
+                                <div class="form-group-new username-check">
+                                    <label for="username">Никнейм</label>
+                                    <input type="text" id="username" placeholder="Ваш никнейм">
+                                    <div class="username-status" id="usernameStatus" style="display: none;">
+                                        <span class="status-icon"></span>
+                                        <span class="status-text"></span>
+                                    </div>
+                                    <div class="username-message" id="usernameMessage"></div>
                                 </div>
-                                <div class="minecraft-details">
-                                    <div class="form-group">
-                                        <label>Никнейм Minecraft</label>
-                                        <span id="minecraftNickname">Не связан</span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>UUID</label>
-                                        <span id="minecraftUuid">-</span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Модель скина</label>
-                                        <span id="minecraftSkinModel">Steve</span>
-                                    </div>
+                                <button class="btn-new" id="updateUsernameBtn">Сохранить никнейм</button>
+                                
+                                <div class="form-group-new">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" placeholder="your@email.com" readonly>
+                                    <span class="form-hint">Для изменения email обратитесь к администратору</span>
+                                </div>
+                                 <div class="form-group-new">
+                                    <label>Дата регистрации</label>
+                                    <input type="text" id="registrationDate" readonly>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- Секция связывания аккаунта -->
-                        <div class="minecraft-link" id="minecraftLink">
-                            <div class="form-group">
-                                <label for="minecraftUsername">Никнейм Minecraft</label>
-                                <input type="text" id="minecraftUsername" placeholder="Введите ваш никнейм в Minecraft">
-                                <span class="form-hint">Убедитесь, что никнейм введен правильно</span>
-                            </div>
-                            <button class="btn btn-primary" onclick="linkMinecraftAccount()">Связать аккаунт</button>
-                        </div>
-                        
-                        <button class="btn btn-danger" id="unlinkMinecraft" onclick="unlinkMinecraftAccount()" style="display: none;">
-                            Отвязать Minecraft аккаунт
-                        </button>
-                    </div>
-
-                    <!-- Настройки приватности -->
-                    <div class="privacy-settings card">
-                        <h3>Приватность</h3>
-                        <div class="setting-item">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="showOnlineStatus" checked>
-                                <span class="checkmark"></span>
-                                Показывать онлайн статус
-                            </label>
-                        </div>
-                        <div class="setting-item">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="allowFriendRequests" checked>
-                                <span class="checkmark"></span>
-                                Разрешить приглашения в друзья
-                            </label>
-                        </div>
-                        <div class="setting-item">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="showProfile">
-                                <span class="checkmark"></span>
-                                Публичный профиль
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Вкладка Скины -->
-            <div class="tab-content" id="skins">
-                <div class="skins-grid">
-                    <div class="skin-category">
-                        <h3>Мои скины</h3>
-                        <div class="minecraft-status" id="minecraftStatusSkins">
-                            <p>Для работы со скинами необходимо связать Minecraft аккаунт во вкладке "Аккаунт"</p>
-                        </div>
-                        <div class="skins-list" id="skinsList">
-                            <!-- Скины будут загружены динамически -->
-                        </div>
-                    </div>
-                    
-                    <div class="skin-category">
-                        <h3>Загрузить скин</h3>
-                        <div class="upload-skin">
-                            <div class="upload-area" onclick="document.getElementById('skinFileInput').click()">
-                                <div class="upload-icon">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                        <polyline points="14,2 14,8 20,8"/>
-                                        <line x1="16" y1="13" x2="8" y2="13"/>
-                                        <line x1="16" y1="17" x2="8" y2="17"/>
-                                        <polyline points="10,9 9,9 8,9"/>
-                                    </svg>
+                            <div class="card">
+                                 <h3 class="card-header">
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                                    Безопасность
+                                </h3>
+                                <div class="form-group-new">
+                                    <label for="currentPassword">Текущий пароль</label>
+                                    <input type="password" id="currentPassword" placeholder="Введите текущий пароль">
                                 </div>
-                                <p>Перетащите файл скина (.png) сюда</p>
-                                <p>или</p>
-                                <button class="btn-primary" type="button">Выберите файл</button>
-                                <input type="file" id="skinFileInput" accept=".png" style="display: none;" onchange="uploadSkin()">
+                                <div class="form-group-new">
+                                    <label for="newPassword">Новый пароль</label>
+                                    <input type="password" id="newPassword" placeholder="Введите новый пароль">
+                                </div>
+                                <div class="form-group-new">
+                                    <label for="confirmPassword">Подтвердите пароль</label>
+                                    <input type="password" id="confirmPassword" placeholder="Повторите новый пароль">
+                                </div>
+                                <button class="btn-new" id="changePasswordBtn">Изменить пароль</button>
                             </div>
-                            <div class="upload-info">
-                                <h4>Требования к файлу скина:</h4>
-                                <ul>
-                                    <li>Формат: PNG</li>
-                                    <li>Размер: 64x64 или 64x32 пикселей</li>
-                                    <li>Максимальный размер файла: 1 МБ</li>
-                                </ul>
+                        </div>
+                        <!-- Боковая колонка -->
+                        <div class="sidebar-column">
+                            <div class="card card-minecraft">
+                                 <h3 class="card-header">
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><path d="M5 21h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2zM7 5h10v10H7V5z"/></svg>
+                                    Minecraft аккаунт
+                                </h3>
+                                <!-- Секция связанного аккаунта -->
+                                <div class="minecraft-linked" id="minecraftLinked" style="display: none;">
+                                    <div class="linked-account-info">
+                                        <div class="minecraft-avatar">
+                                            <img id="minecraftSkinPreview" src="" alt="Minecraft скин">
+                                        </div>
+                                        <div class="minecraft-details">
+                                            <div class="detail-item">
+                                                <label>Никнейм</label>
+                                                <span id="minecraftNickname">Не связан</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <label>Модель скина</label>
+                                                <span id="minecraftSkinModel">Steve</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                     <button class="btn-new btn-danger" id="unlinkMinecraftBtn">
+                                        Отвязать
+                                    </button>
+                                </div>
+                                
+                                <!-- Секция связывания аккаунта -->
+                                <div class="minecraft-link" id="minecraftLink">
+                                    <div class="form-group-new">
+                                        <label for="minecraftUsername">Никнейм Minecraft</label>
+                                        <input type="text" id="minecraftUsername" placeholder="Ваш никнейм в игре">
+                                    </div>
+                                    <button class="btn-new" id="linkMinecraftBtn">Связать аккаунт</button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                 <h3 class="card-header">
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                                    Приватность
+                                </h3>
+                                <div class="setting-item">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="showOnlineStatus" checked>
+                                        <span class="checkmark"></span>
+                                        Показывать онлайн статус
+                                    </label>
+                                </div>
+                                <div class="setting-item">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="allowFriendRequests" checked>
+                                        <span class="checkmark"></span>
+                                        Разрешить приглашения в друзья
+                                    </label>
+                                </div>
+                                <div class="setting-item">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="showProfile">
+                                        <span class="checkmark"></span>
+                                        Публичный профиль
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка Скины -->
+                <div class="tab-content" id="skins">
+                    <div class="skins-grid">
+                        <div class="skin-management">
+                            <h3>Управление скинами</h3>
+                            <div class="skins-list" id="skinsList">
+                                <!-- Скины будут загружены динамически -->
+                            </div>
+                        </div>
+                        <div class="skin-upload-area">
+                            <h3>Загрузить новый скин</h3>
+                            <div class="upload-skin">
+                                <div class="upload-area" id="skinDropArea">
+                                    <div class="upload-icon">
+                                         <svg width="48" height="48" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                                    </div>
+                                    <p>Перетащите .png файл сюда</p>
+                                    <p class="upload-hint">или</p>
+                                    <button class="btn-new" type="button" id="selectSkinFileBtn">Выберите файл</button>
+                                    <input type="file" id="skinFileInput" accept=".png" style="display: none;">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <!-- Модальное окно смены аватара -->
-    <div class="modal" id="avatarModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Выбрать аватар</h3>
-                <button class="close-btn" id="closeAvatarModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="avatar-selection">
-                    <div class="avatar-option" data-avatar="avatars/default.svg">
-                        <img src="avatars/default.svg" alt="Дефолтный аватар">
-                    </div>
-                </div>
-                <div class="upload-section">
-                    <h4>Загрузить свой аватар</h4>
-                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
-                    <button class="upload-btn" id="uploadAvatarBtn">Выбрать файл</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Модальное окно предпросмотра скина -->
-    <div class="modal" id="skinPreviewModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="skinPreviewTitle">Предпросмотр скина</h3>
-                <button class="close-btn" onclick="document.getElementById('skinPreviewModal').style.display='none'">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="skin-preview-container">
-                    <img id="skinPreviewImage" src="" alt="Предпросмотр скина" style="max-width: 100%; height: auto;">
-                </div>
-            </div>
-        </div>
-    </div>
+
+
 
     <script src="js/profile.js"></script>
 </body>

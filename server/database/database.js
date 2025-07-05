@@ -1,5 +1,5 @@
 import sqlite3 from 'sqlite3';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -322,7 +322,7 @@ export const userQueries = {
     findById: (id) => {
         return new Promise((resolve, reject) => {
             db.get(
-                'SELECT id, uuid, username, email, avatar_url, created_at, last_login FROM users WHERE id = ?',
+                'SELECT id, uuid, username, email, avatar_url, password_hash, created_at, last_login FROM users WHERE id = ?',
                 [id],
                 (err, row) => {
                     if (err) reject(err);
@@ -484,6 +484,20 @@ export const userQueries = {
                 (err, row) => {
                     if (err) reject(err);
                     else resolve(row);
+                }
+            );
+        });
+    },
+
+    // Обновление имени пользователя
+    updateUsername: (userId, newUsername) => {
+        return new Promise((resolve, reject) => {
+            db.run(
+                'UPDATE users SET username = ? WHERE id = ?',
+                [newUsername, userId],
+                (err) => {
+                    if (err) reject(err);
+                    else resolve();
                 }
             );
         });

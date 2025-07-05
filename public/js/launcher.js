@@ -521,7 +521,15 @@ class ModernLauncher {
             
         } catch (error) {
             console.error('Ошибка входа:', error);
-            this.showNotification('Ошибка подключения к серверу', 'error');
+            let errorMessage = 'Ошибка подключения к серверу';
+            
+            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                errorMessage = 'Не удалось подключиться к серверу. Проверьте подключение к интернету.';
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            this.showNotification(errorMessage, 'error');
         } finally {
             const submitBtn = loginForm.querySelector('button[type="submit"]');
             this.setLoading(submitBtn, false, 'Войти');
@@ -566,7 +574,15 @@ class ModernLauncher {
             
         } catch (error) {
             console.error('Ошибка регистрации:', error);
-            this.showNotification('Ошибка подключения к серверу', 'error');
+            let errorMessage = 'Ошибка подключения к серверу';
+            
+            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                errorMessage = 'Не удалось подключиться к серверу. Проверьте подключение к интернету.';
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            this.showNotification(errorMessage, 'error');
         } finally {
             const submitBtn = registerForm.querySelector('button[type="submit"]');
             this.setLoading(submitBtn, false, 'Создать аккаунт');
@@ -637,6 +653,11 @@ class ModernLauncher {
                     this.currentUser = data.user;
                     console.log('✅ Пользователь установлен:', this.currentUser);
                     this.updateAuthState(true);
+                    
+                    // Принудительно закрываем модальные окна на случай, если они остались открыты
+                    this.closeModal('loginModal');
+                    this.closeModal('registerModal');
+                    
                     console.log('✅ Пользователь авторизован:', data.user.username);
                     return;
                 }

@@ -75,6 +75,58 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
+// Проверка доступности никнейма
+router.get('/check-username/:username', authenticateToken, async (req, res) => {
+    try {
+        const { username } = req.params;
+        const userId = req.user.id;
+        
+        // Валидация никнейма
+        if (!username || username.length < 3 || username.length > 20) {
+            return res.json({
+                available: false,
+                message: 'Имя пользователя должно быть от 3 до 20 символов'
+            });
+        }
+        
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            return res.json({
+                available: false,
+                message: 'Имя пользователя может содержать только буквы, цифры и подчеркивания'
+            });
+        }
+        
+        // Проверяем, занят ли никнейм другим пользователем
+        const existingUser = await userQueries.findByUsername(username);
+        if (existingUser && existingUser.id !== userId) {
+            return res.json({
+                available: false,
+                message: 'Этот никнейм уже занят'
+            });
+        }
+        
+        // Если это текущий никнейм пользователя
+        if (existingUser && existingUser.id === userId) {
+            return res.json({
+                available: true,
+                message: 'Это ваш текущий никнейм'
+            });
+        }
+        
+        // Никнейм доступен
+        res.json({
+            available: true,
+            message: 'Никнейм доступен'
+        });
+    } catch (error) {
+        console.error('Ошибка проверки никнейма:', error);
+        res.status(500).json({
+            available: false,
+            message: 'Ошибка сервера'
+        });
+    }
+});
+
 // Обновление никнейма
 router.post('/update-username', authenticateToken, [
     body('username')
