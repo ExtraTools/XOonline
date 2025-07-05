@@ -492,6 +492,8 @@ class ModernLauncher {
             password: formData.get('password')
         };
         
+        console.log('🔐 Начинаем процесс входа для:', loginData.login);
+        
         try {
             const submitBtn = loginForm.querySelector('button[type="submit"]');
             this.setLoading(submitBtn, true, 'Вход...');
@@ -505,22 +507,42 @@ class ModernLauncher {
                 credentials: 'include'
             });
             
+            console.log('📊 Статус ответа сервера:', response.status);
+            
             const data = await response.json();
+            console.log('📋 Данные от сервера:', data);
             
             if (response.ok && data.success) {
+                console.log('✅ Успешный вход, получен токен:', data.token ? 'Да' : 'Нет');
+                console.log('✅ Данные пользователя:', data.user);
+                
                 this.showNotification('Добро пожаловать в DiLauncher!', 'success');
                 this.currentUser = data.user;
                 this.token = data.token;
-                localStorage.setItem('auth_token', data.token); // Сохраняем токен в localStorage
+                
+                // Сохраняем токен в localStorage
+                localStorage.setItem('auth_token', data.token);
+                console.log('💾 Токен сохранен в localStorage');
+                
+                // Проверяем, что токен действительно сохранился
+                const savedToken = localStorage.getItem('auth_token');
+                console.log('🔍 Проверка сохраненного токена:', savedToken === data.token ? 'Совпадает' : 'Не совпадает');
+                
                 this.updateAuthState(true);
                 this.closeModal('loginModal');
                 loginForm.reset();
+                
+                // Дополнительная проверка авторизации
+                console.log('🔍 Запускаем дополнительную проверку авторизации...');
+                await this.checkAuthState();
+                
             } else {
+                console.log('❌ Ошибка входа:', data.message);
                 this.showNotification(data.message || 'Ошибка входа', 'error');
             }
             
         } catch (error) {
-            console.error('Ошибка входа:', error);
+            console.error('❌ Ошибка входа:', error);
             let errorMessage = 'Ошибка подключения к серверу';
             
             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
@@ -625,6 +647,7 @@ class ModernLauncher {
         console.log('🔍 Проверка состояния авторизации...');
         console.log('🔍 Текущий токен:', this.token);
         console.log('🔍 Текущий пользователь:', this.currentUser);
+        console.log('🔍 Токен в localStorage:', localStorage.getItem('auth_token'));
         
         // Если токена нет, сразу считаем пользователя неавторизованным
         if (!this.token) {
@@ -661,6 +684,10 @@ class ModernLauncher {
                     console.log('✅ Пользователь авторизован:', data.user.username);
                     return;
                 }
+            } else {
+                // Логируем ошибку для отладки
+                const errorData = await response.json().catch(() => ({}));
+                console.log('❌ Ошибка проверки токена:', errorData);
             }
             
             // Если проверка не прошла, очищаем недействительный токен
@@ -679,6 +706,9 @@ class ModernLauncher {
     }
 
     updateAuthState(isLoggedIn) {
+        console.log('🔄 Обновление состояния авторизации:', isLoggedIn);
+        console.log('🔄 Текущий пользователь:', this.currentUser);
+        
         const loginBtn = document.getElementById('loginBtn');
         const registerBtn = document.getElementById('registerBtn');
         const profileBtn = document.getElementById('profileBtn');
@@ -688,6 +718,12 @@ class ModernLauncher {
         const mobileUserInfo = document.getElementById('mobileUserInfo');
         const profileMobileBtn = document.getElementById('profileMobileBtn');
 
+        
+        if (isLoggedIn && this.currentUser) {
+            console.log('✅ Пользователь авторизован, показываем интерфейс авторизованного пользователя');
+        } else {
+            console.log('❌ Пользователь не авторизован, показываем интерфейс гостя');
+        }
         
         if (isLoggedIn && this.currentUser) {
             // Пользователь вошел в систему
