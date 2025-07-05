@@ -3,33 +3,27 @@ import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-let dbPath;
-let db;
+// Определяем путь к базе данных. Приоритет у переменной окружения.
+const dbPath = process.env.DATABASE_PATH || join(__dirname, '../../data/dinosgames.db');
+const dbDir = dirname(dbPath);
 
-if (process.env.NODE_ENV === 'production') {
-    dbPath = '/tmp/dinosgames.db';
-    console.log('🐘 Использую SQLite файл для production:', dbPath);
-    db = new sqlite3.Database(dbPath, (err) => {
-        if (err) {
-            console.error('❌ Ошибка создания базы в production:', err);
-        } else {
-            console.log('🟢 База данных production готова');
-        }
-    });
-} else {
-    dbPath = join(__dirname, '../../data/dinosgames.db');
-    db = new sqlite3.Database(dbPath, (err) => {
-        if (err) {
-            console.error('❌ Ошибка открытия файла базы:', err);
-        } else {
-            console.log('🟢 База данных файл готова');
-        }
-    });
+// Убедимся, что директория для базы данных существует
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
 }
+
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+        console.error('Ошибка подключения к базе данных SQLite:', err.message);
+    } else {
+        console.log('Подключение к базе данных SQLite установлено по пути:', dbPath);
+    }
+});
 
 // Инициализация таблиц
 export const initDatabase = () => {
@@ -187,12 +181,26 @@ export const initDatabase = () => {
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
                     description TEXT NOT NULL,
-                    icon TEXT DEFAULT '🏆',
-                    category TEXT DEFAULT 'general',
-                    points INTEGER DEFAULT 0,
-                    hidden BOOLEAN DEFAULT 0
+                    icon TEXT,
+                    category TEXT,
+                    points INTEGER DEFAULT 10
                 )
-            `);
+            `, (err) => {
+                if (err) return console.error("Ошибка создания таблицы 'achievements'", err);
+                // Заполняем базовые достижения
+                const achievements = [
+                    ['first_game', 'Первая игра', 'Сыграйте свою первую игру', '🏆', 'beginner', 10],
+                    ['first_win', 'Первая победа', 'Выиграйте свою первую игру', '🎯', 'beginner', 20],
+                    ['win_streak_5', 'Огненная серия', 'Выиграйте 5 игр подряд', '🔥', 'streaks', 50],
+                    ['wins_10', 'Новичок', 'Выиграйте 10 игр', '🎮', 'milestones', 25],
+                    ['wins_50', 'Опытный игрок', 'Выиграйте 50 игр', '🏅', 'milestones', 100],
+                    ['wins_100', 'Мастер XO', 'Выиграйте 100 игр', '👑', 'milestones', 200],
+                    ['high_winrate', 'Эффективный', 'Поддерживайте 70% побед в 20+ играх', '📈', 'skills', 150]
+                ];
+                const stmt = db.prepare("INSERT OR IGNORE INTO achievements (id, name, description, icon, category, points) VALUES (?, ?, ?, ?, ?, ?)");
+                achievements.forEach(ach => stmt.run(ach));
+                stmt.finalize();
+            });
 
             // Таблица пользовательских достижений
             db.run(`
@@ -252,35 +260,6 @@ export const initDatabase = () => {
                     FOREIGN KEY (winner_id) REFERENCES users (id) ON DELETE CASCADE
                 )
             `);
-
-            // Заполняем базовые достижения
-            const achievements = [
-                ['first_game', 'Первая игра', 'Сыграйте свою первую игру', '��', 'beginner', 10],
-                ['first_win', 'Первая победа', 'Выиграйте свою первую игру', '🎯', 'beginner', 20],
-                ['win_streak_5', 'Огненная серия', 'Выиграйте 5 игр подряд', '🔥', 'streaks', 50],
-                ['win_streak_10', 'Неудержимый', 'Выиграйте 10 игр подряд', '⚡', 'streaks', 100],
-                ['wins_10', 'Новичок', 'Выиграйте 10 игр', '🥉', 'wins', 30],
-                ['wins_50', 'Опытный игрок', 'Выиграйте 50 игр', '🥈', 'wins', 75],
-                ['wins_100', 'Мастер XO', 'Выиграйте 100 игр', '🥇', 'wins', 150],
-                ['wins_500', 'Легенда', 'Выиграйте 500 игр', '👑', 'wins', 500],
-                ['high_winrate', 'Эффективный', 'Поддерживайте 70% побед в 20+ играх', '💎', 'special', 100],
-                ['speed_demon', 'Молния', 'Выиграйте игру за 30 секунд', '⚡', 'special', 75],
-                ['marathon', 'Марафонец', 'Сыграйте 8 часов подряд', '🏃', 'time', 200],
-                ['night_owl', 'Сова', 'Сыграйте игру в 3 часа ночи', '🦉', 'special', 25],
-                ['social_butterfly', 'Социальная бабочка', 'Добавьте 10 друзей', '🦋', 'social', 50],
-                ['mentor', 'Наставник', 'Помогите новичку выиграть первую игру', '🎓', 'social', 100]
-            ];
-
-            const achievementStmt = db.prepare(`
-                INSERT OR IGNORE INTO achievements (id, name, description, icon, category, points)
-                VALUES (?, ?, ?, ?, ?, ?)
-            `);
-
-            achievements.forEach(achievement => {
-                achievementStmt.run(achievement);
-            });
-
-            achievementStmt.finalize();
 
             console.log('🟢 База данных инициализирована со всеми таблицами');
             resolve();
