@@ -4,95 +4,112 @@ import { randomUUID } from 'crypto';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs from 'fs';
+import { initPostgresDatabase, postgresUserQueries, closePool } from './postgres.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Определяем путь к базе данных в зависимости от окружения
-let dbPath;
-if (process.env.DATABASE_URL) {
-    // Если есть DATABASE_URL (для внешних баз данных)
-    dbPath = process.env.DATABASE_URL;
-} else if (process.env.NODE_ENV === 'production') {
-    // Для Railway пробуем несколько вариантов
-    const possiblePaths = [
-        './dinosgames.db',           // Текущая рабочая директория
-        '/tmp/dinosgames.db',        // Временная директория
-        ':memory:'                   // В памяти (последний вариант)
-    ];
-    
-    dbPath = ':memory:'; // По умолчанию
-    
-    for (const testPath of possiblePaths) {
-        if (testPath === ':memory:') {
-            dbPath = testPath;
-            console.log('🔧 Используется in-memory база данных для production');
-            break;
-        }
+// Определяем тип базы данных
+const usePostgres = Boolean(process.env.DATABASE_URL);
+console.log(`🔧 Используется база данных: ${usePostgres ? 'PostgreSQL' : 'SQLite'}`);
+
+// Настройка SQLite (только если не используется PostgreSQL)
+let db = null;
+let dbPath = null;
+
+if (!usePostgres) {
+    // Определяем путь к базе данных SQLite
+    if (process.env.NODE_ENV === 'production') {
+        // Для Railway пробуем несколько вариантов
+        const possiblePaths = [
+            './dinosgames.db',           // Текущая рабочая директория
+            '/tmp/dinosgames.db',        // Временная директория
+            ':memory:'                   // В памяти (последний вариант)
+        ];
         
-        try {
-            // Пробуем создать тестовый файл
-            const testDir = dirname(testPath);
-            if (testDir !== '.') {
-                fs.mkdirSync(testDir, { recursive: true });
+        dbPath = ':memory:'; // По умолчанию
+        
+        for (const testPath of possiblePaths) {
+            if (testPath === ':memory:') {
+                dbPath = testPath;
+                console.log('🔧 Используется in-memory база данных для production');
+                break;
             }
             
-            // Пробуем записать тестовый файл
-            fs.writeFileSync(testPath + '.test', 'test');
-            fs.unlinkSync(testPath + '.test');
-            
-            dbPath = testPath;
-            console.log('🔧 Используется файловая база данных:', testPath);
-            break;
-        } catch (error) {
-            console.log(`❌ Не удалось использовать путь ${testPath}:`, error.message);
+            try {
+                // Пробуем создать тестовый файл
+                const testDir = dirname(testPath);
+                if (testDir !== '.') {
+                    fs.mkdirSync(testDir, { recursive: true });
+                }
+                
+                // Пробуем записать тестовый файл
+                fs.writeFileSync(testPath + '.test', 'test');
+                fs.unlinkSync(testPath + '.test');
+                
+                dbPath = testPath;
+                console.log('🔧 Используется файловая база данных:', testPath);
+                break;
+            } catch (error) {
+                console.log(`❌ Не удалось использовать путь ${testPath}:`, error.message);
+            }
         }
-    }
-} else {
-    // Для локальной разработки
-    dbPath = join(__dirname, '../../data/dinosgames.db');
-    const dbDir = dirname(dbPath);
-    
-    // Убедимся, что директория существует
-    if (!fs.existsSync(dbDir)) {
-        fs.mkdirSync(dbDir, { recursive: true });
+    } else {
+        // Для локальной разработки
+        dbPath = join(__dirname, '../../data/dinosgames.db');
+        const dbDir = dirname(dbPath);
+        
+        // Убедимся, что директория существует
+        if (!fs.existsSync(dbDir)) {
+            fs.mkdirSync(dbDir, { recursive: true });
+        }
     }
 }
 
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('❌ Ошибка подключения к базе данных SQLite:', err.message);
-        console.error('❌ Путь к базе данных:', dbPath);
-        
-        // Если это не in-memory база данных, попробуем использовать in-memory
-        if (dbPath !== ':memory:') {
-            console.log('🔄 Попытка использовать базу данных в памяти...');
-            // Создаем новое подключение в памяти
-            const memDb = new sqlite3.Database(':memory:', (memErr) => {
-                if (memErr) {
-                    console.error('❌ Критическая ошибка: не удалось создать базу данных в памяти:', memErr.message);
-                } else {
-                    console.log('✅ Подключение к базе данных в памяти установлено');
-                    console.log('⚠️ ВНИМАНИЕ: Данные будут потеряны при перезапуске сервера');
-                }
-            });
-            return memDb;
-        }
-    } else {
-        console.log('✅ Подключение к базе данных SQLite установлено по пути:', dbPath);
-        
-        if (dbPath === ':memory:') {
-            console.log('⚠️ ВНИМАНИЕ: Используется база данных в памяти!');
-            console.log('⚠️ Данные будут потеряны при перезапуске сервера');
-            console.log('⚠️ Для постоянного хранения данных установите переменную DATABASE_URL');
+// Создание SQLite подключения только если не используется PostgreSQL
+if (!usePostgres) {
+    db = new sqlite3.Database(dbPath, (err) => {
+        if (err) {
+            console.error('❌ Ошибка подключения к базе данных SQLite:', err.message);
+            console.error('❌ Путь к базе данных:', dbPath);
+            
+            // Если это не in-memory база данных, попробуем использовать in-memory
+            if (dbPath !== ':memory:') {
+                console.log('🔄 Попытка использовать базу данных в памяти...');
+                // Создаем новое подключение в памяти
+                const memDb = new sqlite3.Database(':memory:', (memErr) => {
+                    if (memErr) {
+                        console.error('❌ Критическая ошибка: не удалось создать базу данных в памяти:', memErr.message);
+                    } else {
+                        console.log('✅ Подключение к базе данных в памяти установлено');
+                        console.log('⚠️ ВНИМАНИЕ: Данные будут потеряны при перезапуске сервера');
+                    }
+                });
+                return memDb;
+            }
         } else {
-            console.log('💾 База данных сохраняется в файл:', dbPath);
+            console.log('✅ Подключение к базе данных SQLite установлено по пути:', dbPath);
+            
+            if (dbPath === ':memory:') {
+                console.log('⚠️ ВНИМАНИЕ: Используется база данных в памяти!');
+                console.log('⚠️ Данные будут потеряны при перезапуске сервера');
+                console.log('⚠️ Для постоянного хранения данных установите переменную DATABASE_URL');
+            } else {
+                console.log('💾 База данных сохраняется в файл:', dbPath);
+            }
         }
-    }
-});
+    });
+}
 
 // Инициализация таблиц
-export const initDatabase = () => {
+export const initDatabase = async () => {
+    if (usePostgres) {
+        // Используем PostgreSQL
+        await initPostgresDatabase();
+        return;
+    }
+    
+    // Используем SQLite
     return new Promise((resolve, reject) => {
         db.serialize(() => {
             // Таблица пользователей
@@ -333,10 +350,9 @@ export const initDatabase = () => {
     });
 };
 
-// Утилиты для работы с пользователями
-export const userQueries = {
-    // Создание пользователя
-    create: async (username, email, password) => {
+// SQLite утилиты для работы с пользователями
+const createUser = async (userData) => {
+    const { username, email, password } = userData;
         return new Promise(async (resolve, reject) => {
             try {
                 // Хешируем пароль
@@ -362,10 +378,10 @@ export const userQueries = {
                 reject(err);
             }
         });
-    },
+};
 
-    // Поиск пользователя по email
-    findByEmail: (email) => {
+// Поиск пользователя по email
+const findByEmail = (email) => {
         return new Promise((resolve, reject) => {
             console.log('🔍 DB: searching user by email:', email);
             db.get(
@@ -382,10 +398,10 @@ export const userQueries = {
                 }
             );
         });
-    },
+};
 
-    // Поиск пользователя по ID
-    findById: (id) => {
+// Поиск пользователя по ID
+const findById = (id) => {
         return new Promise((resolve, reject) => {
             db.get(
                 'SELECT id, uuid, username, email, avatar_url, password_hash, created_at, last_login FROM users WHERE id = ?',
@@ -396,10 +412,10 @@ export const userQueries = {
                 }
             );
         });
-    },
+};
 
-    // Поиск пользователя по username
-    findByUsername: (username) => {
+// Поиск пользователя по username
+const findByUsername = (username) => {
         return new Promise((resolve, reject) => {
             console.log('🔍 DB: searching user by username:', username);
             db.get(
@@ -416,10 +432,10 @@ export const userQueries = {
                 }
             );
         });
-    },
+};
 
-    // Поиск пользователя по логину (email или username)
-    findByLogin: (login) => {
+// Поиск пользователя по логину (email или username)
+const findByLogin = (login) => {
         return new Promise((resolve, reject) => {
             console.log('🔍 DB: searching user by login:', login);
             db.get(
@@ -436,10 +452,10 @@ export const userQueries = {
                 }
             );
         });
-    },
+};
 
-    // Поиск пользователя по UUID
-    findByUuid: (uuid) => {
+// Поиск пользователя по UUID
+const findByUuid = (uuid) => {
         return new Promise((resolve, reject) => {
             console.log('🔍 DB: searching user by UUID:', uuid);
             db.get(
@@ -456,10 +472,10 @@ export const userQueries = {
                 }
             );
         });
-    },
+};
 
-    // Обновление статуса онлайн
-    updateOnlineStatus: (userId, isOnline) => {
+// Обновление статуса онлайн
+const updateOnlineStatus = (userId, isOnline) => {
         return new Promise((resolve, reject) => {
             const query = isOnline 
                 ? 'UPDATE users SET is_online = 1, last_login = CURRENT_TIMESTAMP WHERE id = ?'
@@ -470,9 +486,9 @@ export const userQueries = {
                 else resolve();
             });
         });
-    },
+};
 
-    getOnlineUsers: () => {
+const getOnlineUsers = () => {
         return new Promise((resolve, reject) => {
             db.all(
                 'SELECT id, uuid, username, avatar_url FROM users WHERE is_online = 1 ORDER BY username',
@@ -483,10 +499,10 @@ export const userQueries = {
                 }
             );
         });
-    },
+};
 
-    // Обновление пароля пользователя
-    updatePassword: (userId, newPasswordHash) => {
+// Обновление пароля пользователя
+const updatePassword = (userId, newPasswordHash) => {
         return new Promise((resolve, reject) => {
             db.run(
                 'UPDATE users SET password_hash = ? WHERE id = ?',
@@ -569,8 +585,8 @@ export const userQueries = {
         });
     },
 
-    // Получение всех пользователей для админ панели
-    getAllUsers: () => {
+// Получение всех пользователей для админ панели
+const getAllUsers = () => {
         return new Promise((resolve, reject) => {
             db.all(
                 'SELECT id, uuid, username, email, password_hash, avatar_url, created_at, last_login, is_online, status FROM users ORDER BY created_at DESC',
@@ -586,10 +602,10 @@ export const userQueries = {
                 }
             );
         });
-    },
+};
 
-    // Сброс всех онлайн статусов (очистка зависших сессий)
-    resetAllOnlineStatus: () => {
+// Сброс всех онлайн статусов (очистка зависших сессий)
+const resetAllOnlineStatus = () => {
         return new Promise((resolve, reject) => {
             db.run(
                 'UPDATE users SET is_online = 0',
@@ -605,10 +621,10 @@ export const userQueries = {
                 }
             );
         });
-    },
+};
 
-    // Очистка устаревших онлайн статусов (старше 30 минут без активности)
-    cleanupStaleOnlineStatus: () => {
+// Очистка устаревших онлайн статусов (старше 30 минут без активности)
+const cleanupStaleOnlineStatus = () => {
         return new Promise((resolve, reject) => {
             // Устанавливаем офлайн для пользователей, у которых последний логин был больше 30 минут назад
             const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
@@ -627,7 +643,6 @@ export const userQueries = {
                 }
             );
         });
-    }
 };
 
 // Утилиты для работы с сессиями
@@ -1142,6 +1157,34 @@ export const friendsQueries = {
                 if (err) reject(err);
                 else resolve();
             });
+        });
+    }
+};
+
+// Унифицированный интерфейс для работы с пользователями
+export const userQueries = usePostgres ? postgresUserQueries : {
+    createUser,
+    findByLogin,
+    findById,
+    findByUuid,
+    updateOnlineStatus,
+    getAllUsers,
+    findByEmail,
+    resetAllOnlineStatus,
+    cleanupStaleOnlineStatus
+};
+
+// Закрытие соединений
+export const closeDatabase = async () => {
+    if (usePostgres) {
+        await closePool();
+    } else if (db) {
+        db.close((err) => {
+            if (err) {
+                console.error('❌ Ошибка закрытия SQLite:', err.message);
+            } else {
+                console.log('🔒 SQLite соединение закрыто');
+            }
         });
     }
 };
