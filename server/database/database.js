@@ -513,77 +513,77 @@ const updatePassword = (userId, newPasswordHash) => {
                 }
             );
         });
-    },
+};
 
-    // Обновление аватара пользователя
-    updateAvatar: (userId, avatarUrl) => {
-        return new Promise((resolve, reject) => {
-            db.run(
-                'UPDATE users SET avatar_url = ? WHERE id = ?',
-                [avatarUrl, userId],
-                (err) => {
-                    if (err) reject(err);
-                    else resolve();
-                }
-            );
-        });
-    },
+// Обновление аватара пользователя
+const updateAvatar = (userId, avatarUrl) => {
+    return new Promise((resolve, reject) => {
+        db.run(
+            'UPDATE users SET avatar_url = ? WHERE id = ?',
+            [avatarUrl, userId],
+            (err) => {
+                if (err) reject(err);
+                else resolve();
+            }
+        );
+    });
+};
 
-    // Обновление данных Minecraft аккаунта
-    updateMinecraftData: (userId, minecraftUuid, minecraftUsername, skinUrl, skinModel) => {
-        return new Promise((resolve, reject) => {
-            db.run(
-                'UPDATE users SET minecraft_uuid = ?, minecraft_username = ?, current_skin_url = ?, skin_model = ? WHERE id = ?',
-                [minecraftUuid, minecraftUsername, skinUrl, skinModel, userId],
-                (err) => {
-                    if (err) reject(err);
-                    else resolve();
-                }
-            );
-        });
-    },
+// Обновление данных Minecraft аккаунта
+const updateMinecraftData = (userId, minecraftUuid, minecraftUsername, skinUrl, skinModel) => {
+    return new Promise((resolve, reject) => {
+        db.run(
+            'UPDATE users SET minecraft_uuid = ?, minecraft_username = ?, current_skin_url = ?, skin_model = ? WHERE id = ?',
+            [minecraftUuid, minecraftUsername, skinUrl, skinModel, userId],
+            (err) => {
+                if (err) reject(err);
+                else resolve();
+            }
+        );
+    });
+};
 
-    // Поиск пользователя по Minecraft UUID
-    findByMinecraftUuid: (minecraftUuid) => {
-        return new Promise((resolve, reject) => {
-            db.get(
-                'SELECT * FROM users WHERE minecraft_uuid = ?',
-                [minecraftUuid],
-                (err, row) => {
-                    if (err) reject(err);
-                    else resolve(row);
-                }
-            );
-        });
-    },
+// Поиск пользователя по Minecraft UUID
+const findByMinecraftUuid = (minecraftUuid) => {
+    return new Promise((resolve, reject) => {
+        db.get(
+            'SELECT * FROM users WHERE minecraft_uuid = ?',
+            [minecraftUuid],
+            (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            }
+        );
+    });
+};
 
-    // Получение полной информации о пользователе с Minecraft данными
-    getFullUserInfo: (userId) => {
-        return new Promise((resolve, reject) => {
-            db.get(
-                'SELECT id, uuid, username, email, avatar_url, minecraft_uuid, minecraft_username, current_skin_url, skin_model, created_at, last_login, is_online, status FROM users WHERE id = ?',
-                [userId],
-                (err, row) => {
-                    if (err) reject(err);
-                    else resolve(row);
-                }
-            );
-        });
-    },
+// Получение полной информации о пользователе с Minecraft данными
+const getFullUserInfo = (userId) => {
+    return new Promise((resolve, reject) => {
+        db.get(
+            'SELECT id, uuid, username, email, avatar_url, minecraft_uuid, minecraft_username, current_skin_url, skin_model, created_at, last_login, is_online, status FROM users WHERE id = ?',
+            [userId],
+            (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            }
+        );
+    });
+};
 
-    // Обновление имени пользователя
-    updateUsername: (userId, newUsername) => {
-        return new Promise((resolve, reject) => {
-            db.run(
-                'UPDATE users SET username = ? WHERE id = ?',
-                [newUsername, userId],
-                (err) => {
-                    if (err) reject(err);
-                    else resolve();
-                }
-            );
-        });
-    },
+// Обновление имени пользователя
+const updateUsername = (userId, newUsername) => {
+    return new Promise((resolve, reject) => {
+        db.run(
+            'UPDATE users SET username = ? WHERE id = ?',
+            [newUsername, userId],
+            (err) => {
+                if (err) reject(err);
+                else resolve();
+            }
+        );
+    });
+};
 
 // Получение всех пользователей для админ панели
 const getAllUsers = () => {
@@ -1167,11 +1167,19 @@ export const userQueries = usePostgres ? postgresUserQueries : {
     findByLogin,
     findById,
     findByUuid,
+    findByEmail,
+    findByUsername,
     updateOnlineStatus,
     getAllUsers,
-    findByEmail,
     resetAllOnlineStatus,
-    cleanupStaleOnlineStatus
+    cleanupStaleOnlineStatus,
+    updatePassword,
+    updateAvatar,
+    updateMinecraftData,
+    findByMinecraftUuid,
+    getFullUserInfo,
+    updateUsername,
+    getOnlineUsers
 };
 
 // Закрытие соединений
