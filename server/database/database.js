@@ -350,34 +350,40 @@ export const initDatabase = async () => {
     });
 };
 
-// SQLite утилиты для работы с пользователями
+// Функция создания пользователя с поддержкой PostgreSQL
 const createUser = async (userData) => {
-    const { username, email, password } = userData;
-        return new Promise(async (resolve, reject) => {
-            try {
-                // Хешируем пароль
-                const passwordHash = await bcrypt.hash(password, 12);
-                // Генерируем UUID
-                const userUuid = randomUUID();
-                
-                const stmt = db.prepare(`
-                    INSERT INTO users (uuid, username, email, password_hash) 
-                    VALUES (?, ?, ?, ?)
-                `);
-                
-                stmt.run([userUuid, username, email, passwordHash], function(err) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve({ id: this.lastID, uuid: userUuid, username, email });
-                    }
-                });
-                
-                stmt.finalize();
-            } catch (err) {
-                reject(err);
-            }
-        });
+    // Если используется PostgreSQL, используем специальную функцию
+    if (usePostgres) {
+        const { createUser: createPostgresUser } = await import('./postgres.js');
+        return createPostgresUser(userData);
+    }
+    
+    // Для SQLite используем существующую реализацию
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Хешируем пароль
+            const passwordHash = await bcrypt.hash(userData.password, 12);
+            // Генерируем UUID
+            const userUuid = randomUUID();
+            
+            const stmt = db.prepare(`
+                INSERT INTO users (uuid, username, email, password_hash) 
+                VALUES (?, ?, ?, ?)
+            `);
+            
+            stmt.run([userUuid, userData.username, userData.email, passwordHash], function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({ id: this.lastID, uuid: userUuid, username: userData.username, email: userData.email });
+                }
+            });
+            
+            stmt.finalize();
+        } catch (err) {
+            reject(err);
+        }
+    });
 };
 
 // Поиск пользователя по email

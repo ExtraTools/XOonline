@@ -302,4 +302,47 @@ export const closePool = async () => {
     console.log('🔒 PostgreSQL пул соединений закрыт');
 };
 
+// Функция создания пользователя в PostgreSQL
+export const createUser = async (userData) => {
+    const { username, email, password } = userData;
+    
+    try {
+        // Хешируем пароль
+        const passwordHash = await bcrypt.hash(password, 12);
+        
+        // Генерируем UUID
+        const userUuid = randomUUID();
+        
+        // Создаем подключение к базе данных
+        const pool = new Pool({
+            connectionString: process.env.DATABASE_URL
+        });
+        
+        const client = await pool.connect();
+        
+        try {
+            const result = await client.query(
+                `INSERT INTO users (uuid, username, email, password_hash) 
+                 VALUES ($1, $2, $3, $4) 
+                 RETURNING id, uuid, username, email`,
+                [userUuid, username, email, passwordHash]
+            );
+            
+            const user = result.rows[0];
+            
+            return {
+                id: user.id,
+                uuid: user.uuid,
+                username: user.username,
+                email: user.email
+            };
+        } finally {
+            client.release();
+        }
+    } catch (error) {
+        console.error('Ошибка создания пользователя в PostgreSQL:', error);
+        throw error;
+    }
+};
+
 export default { initPostgresDatabase, postgresUserQueries, closePool }; 
