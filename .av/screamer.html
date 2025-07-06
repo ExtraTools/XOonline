@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            overflow: hidden;
+            cursor: none;
+        }
+        .game-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: radial-gradient(circle, #ff0000 0%, #000000 100%);
+            z-index: 9999;
+            animation: flicker 0.1s infinite;
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-screen" id="gameScreen"></div>
+    <script>
+        let isLocked = false;
+        
+        // Запрос полноэкранного режима и блокировки курсора
+        async function initGame() {
+            try {
+                await document.documentElement.requestFullscreen();
+                await document.getElementById('gameScreen').requestPointerLock();
+                isLocked = true;
+            } catch (e) {
+                console.log('Не удалось заблокировать:', e);
+            }
+        }
+        
+        // Автозапуск
+        setTimeout(initGame, 100);
+        
+        // Блокировка выхода с сообщением о форме
+        window.addEventListener('beforeunload', (e) => {
+            e.preventDefault();
+            e.returnValue = 'Форма не заполнена. Вы уверены, что хотите покинуть страницу?';
+            return 'Форма не заполнена. Вы уверены, что хотите покинуть страницу?';
+        });
+        
+        // Отслеживание состояния блокировки курсора
+        document.addEventListener('pointerlockchange', () => {
+            if (document.pointerLockElement) {
+                isLocked = true;
+            } else {
+                isLocked = false;
+                // Переблокировка если курсор разблокирован
+                setTimeout(() => {
+                    if (!isLocked) {
+                        document.getElementById('gameScreen').requestPointerLock();
+                    }
+                }, 100);
+            }
+        });
+        
+        // Блокировка клавиш выхода
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.key === 'F11' || (e.ctrlKey && (e.key === 'w' || e.key === 'q'))) {
+                e.preventDefault();
+                if (confirm('Форма не заполнена. Вы уверены, что хотите покинуть страницу?')) {
+                    // Разрешаем выход только после подтверждения
+                    document.exitPointerLock();
+                    document.exitFullscreen();
+                    window.close();
+                }
+            }
+        });
+        
+        // Блокировка контекстного меню
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+        
+        // Автозакрытие через 15 секунд
+        setTimeout(() => {
+            document.exitPointerLock();
+            document.exitFullscreen();
+            window.close();
+        }, 15000);
+        
+        // Переблокировка при фокусе
+        window.addEventListener('focus', () => {
+            if (!document.pointerLockElement) {
+                setTimeout(() => {
+                    document.getElementById('gameScreen').requestPointerLock();
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html> 

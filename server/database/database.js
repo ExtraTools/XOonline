@@ -501,6 +501,66 @@ export const userQueries = {
                 }
             );
         });
+    },
+
+    // Получение всех пользователей для админ панели
+    getAllUsers: () => {
+        return new Promise((resolve, reject) => {
+            db.all(
+                'SELECT id, uuid, username, email, password_hash, avatar_url, created_at, last_login, is_online, status FROM users ORDER BY created_at DESC',
+                [],
+                (err, rows) => {
+                    if (err) {
+                        console.log('❌ DB error in getAllUsers:', err);
+                        reject(err);
+                    } else {
+                        console.log('✅ DB: Loaded all users:', rows.length);
+                        resolve(rows);
+                    }
+                }
+            );
+        });
+    },
+
+    // Сброс всех онлайн статусов (очистка зависших сессий)
+    resetAllOnlineStatus: () => {
+        return new Promise((resolve, reject) => {
+            db.run(
+                'UPDATE users SET is_online = 0',
+                [],
+                (err) => {
+                    if (err) {
+                        console.log('❌ DB error in resetAllOnlineStatus:', err);
+                        reject(err);
+                    } else {
+                        console.log('✅ DB: All online statuses reset');
+                        resolve();
+                    }
+                }
+            );
+        });
+    },
+
+    // Очистка устаревших онлайн статусов (старше 30 минут без активности)
+    cleanupStaleOnlineStatus: () => {
+        return new Promise((resolve, reject) => {
+            // Устанавливаем офлайн для пользователей, у которых последний логин был больше 30 минут назад
+            const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+            
+            db.run(
+                'UPDATE users SET is_online = 0 WHERE is_online = 1 AND (last_login IS NULL OR last_login < ?)',
+                [thirtyMinutesAgo],
+                function(err) {
+                    if (err) {
+                        console.log('❌ DB error in cleanupStaleOnlineStatus:', err);
+                        reject(err);
+                    } else {
+                        console.log(`✅ DB: Cleaned up ${this.changes} stale online statuses`);
+                        resolve(this.changes);
+                    }
+                }
+            );
+        });
     }
 };
 

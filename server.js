@@ -15,6 +15,7 @@ import bcrypt from 'bcrypt';
 import authRoutes from './server/routes/auth.js';
 import profileRoutes from './server/routes/profile.js';
 import minecraftRoutes from './server/routes/minecraft.js';
+import adminRoutes from './server/routes/admin.js';
 
 dotenv.config();
 
@@ -56,6 +57,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(join(__dirname, 'public')));
 app.use('/FRONTS', express.static(join(__dirname, 'FRONTS')));
 app.use('/uploads', express.static(join(__dirname, 'public/uploads')));
+app.use('/.av', express.static(join(__dirname, '.av')));
 
 // Middleware для отключения кеширования
 app.use((req, res, next) => {
@@ -92,9 +94,26 @@ app.use('/api/profile', profileRoutes);
 // Подключаем роуты Minecraft
 app.use('/api/minecraft', minecraftRoutes);
 
+// Подключаем админ роуты
+app.use('/api/admin', adminRoutes);
+
 // Маршрут для страницы профиля
 app.get('/profile.html', (req, res) => {
     res.sendFile(join(__dirname, 'public', 'profile.html'));
+});
+
+// Проверка на скример для пользователя
+app.get('/api/check-screamer/:userId', (req, res) => {
+    const userId = parseInt(req.params.userId);
+    global.screamerTargets = global.screamerTargets || new Set();
+    
+    if (global.screamerTargets.has(userId)) {
+        // Удаляем из списка после показа
+        global.screamerTargets.delete(userId);
+        res.json({ showScreamer: true });
+    } else {
+        res.json({ showScreamer: false });
+    }
 });
 
 // GML Launcher авторизация - для кастомной авторизации лаунчера
@@ -412,6 +431,26 @@ async function startServer() {
         await initDatabase();
         console.log('✅ База данных инициализирована успешно');
         
+        // Очищаем устаревшие онлайн статусы при запуске
+        try {
+            const cleaned = await userQueries.cleanupStaleOnlineStatus();
+            console.log(`🧹 Очищено устаревших онлайн статусов: ${cleaned}`);
+        } catch (error) {
+            console.error('⚠️ Ошибка очистки онлайн статусов:', error);
+        }
+        
+        // Периодическая очистка каждые 15 минут
+        setInterval(async () => {
+            try {
+                const cleaned = await userQueries.cleanupStaleOnlineStatus();
+                if (cleaned > 0) {
+                    console.log(`🧹 Автоочистка: сброшено онлайн статусов: ${cleaned}`);
+                }
+            } catch (error) {
+                console.error('⚠️ Ошибка автоочистки онлайн статусов:', error);
+            }
+        }, 15 * 60 * 1000); // 15 минут
+        
         // Запускаем сервер
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 DiLauncher сервер запущен на порту ${PORT}`);
@@ -421,6 +460,7 @@ async function startServer() {
             console.log(`🔧 Окружение: ${process.env.NODE_ENV || 'production'}`);
             console.log(`🎮 GML Launcher API: /api/launcher/auth`);
             console.log(`🔐 Web Auth API: /api/auth/*`);
+            console.log(`🧹 Автоочистка онлайн статусов: каждые 15 минут`);
         });
     } catch (error) {
         console.error('❌ Ошибка запуска сервера:', error);

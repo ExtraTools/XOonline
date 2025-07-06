@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Admin Panel - XO Online</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="icon" href="../public/logo.png" type="image/png">
+</head>
+<body>
+    <!-- Форма авторизации -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>🔐 Доступ к админ панели</h1>
+                <p>Введите пароль для продолжения</p>
+            </div>
+            <form class="auth-form" onsubmit="checkPassword(event)">
+                <div class="input-group">
+                    <input type="password" id="adminPassword" placeholder="Пароль" required autocomplete="off">
+                    <button type="submit" class="btn btn-primary">Войти</button>
+                </div>
+                <div class="auth-error" id="authError" style="display: none;">
+                    Неверный пароль!
+                </div>
+            </form>
+            <div class="auth-footer">
+                <p>⚠️ Несанкционированный доступ запрещен</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент админ панели -->
+    <div class="admin-container" id="adminContainer" style="display: none;">
+        <header class="admin-header">
+            <div class="header-content">
+                <h1>🛡️ Admin Panel</h1>
+                <div class="admin-info">
+                    <span class="admin-badge">XO Online Administrator</span>
+                    <span class="timestamp" id="currentTime"></span>
+                    <button class="btn btn-secondary logout-btn" onclick="logout()">🚪 Выйти</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="admin-section">
+                <h2>👥 Управление пользователями</h2>
+                <div class="users-controls">
+                    <button class="btn btn-primary" onclick="loadUsers()">🔄 Обновить список</button>
+                    <button class="btn btn-warning" onclick="resetOnlineStatuses()">⚡ Сбросить онлайн статусы</button>
+                    <div class="search-box">
+                        <input type="text" id="searchUser" placeholder="Поиск пользователя..." onkeyup="searchUsers()">
+                    </div>
+                </div>
+                
+                <div class="users-table-container">
+                    <table class="users-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>UUID</th>
+                                <th>Имя пользователя</th>
+                                <th>Email</th>
+                                <th>Пароль (hash)</th>
+                                <th>Статус</th>
+                                <th>Онлайн</th>
+                                <th>Последний вход</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Здесь будут загружены пользователи -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="loading" id="loadingSpinner" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Загрузка данных...</p>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h2>💀 Скример-панель</h2>
+                <div class="screamer-controls">
+                    <div class="screamer-form">
+                        <input type="text" id="targetUser" placeholder="Email или имя пользователя">
+                        <button class="btn btn-danger" onclick="sendScreamer()">🎃 Отправить скример</button>
+                    </div>
+                    <div class="screamer-info">
+                        <p>⚠️ Скример будет отправлен на полный экран с блокировкой выхода</p>
+                        <p>🔥 Используйте только для тестирования или веселья!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h2>📊 Статистика</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Всего пользователей</h3>
+                        <p class="stat-number" id="totalUsers">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Онлайн сейчас</h3>
+                        <p class="stat-number" id="onlineUsers">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Заблокированных</h3>
+                        <p class="stat-number" id="bannedUsers">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Регистраций сегодня</h3>
+                        <p class="stat-number" id="todayRegistrations">0</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Модальное окно подтверждения скримера -->
+        <div class="modal" id="confirmModal" style="display: none;">
+            <div class="modal-content">
+                <h3>Подтверждение отправки скримера</h3>
+                <p>Вы уверены, что хотите отправить скример пользователю <strong id="confirmTargetUser"></strong>?</p>
+                <div class="modal-actions">
+                    <button class="btn btn-danger" onclick="confirmScreamer()">Да, отправить!</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html> 

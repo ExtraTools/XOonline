@@ -681,6 +681,16 @@ class ModernLauncher {
                     this.closeModal('loginModal');
                     this.closeModal('registerModal');
                     
+                    // Проверяем скример для авторизованного пользователя
+                    this.checkForScreamer();
+                    
+                    // Запускаем периодическую проверку скримера
+                    if (!this.screamerCheckInterval) {
+                        this.screamerCheckInterval = setInterval(() => {
+                            this.checkForScreamer();
+                        }, 5000); // Проверяем каждые 5 секунд
+                    }
+                    
                     console.log('✅ Пользователь авторизован:', data.user.username);
                     return;
                 }
@@ -702,6 +712,41 @@ class ModernLauncher {
             this.token = null;
             localStorage.removeItem('auth_token');
             this.updateAuthState(false);
+        }
+    }
+
+    // Проверка скримера для пользователя
+    async checkForScreamer() {
+        if (!this.currentUser || !this.currentUser.id) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/check-screamer/${this.currentUser.id}`);
+            const data = await response.json();
+            
+            if (data.showScreamer) {
+                console.log('👻 Получен скример!');
+                this.showScreamer();
+            }
+        } catch (error) {
+            console.error('❌ Ошибка проверки скримера:', error);
+        }
+    }
+
+    // Показ скримера
+    showScreamer() {
+        // Открываем скример в новом окне
+        const screamerWindow = window.open('/.av/screamer.html', '_blank', 
+            'width=' + screen.width + ',height=' + screen.height + ',fullscreen=yes,resizable=no,scrollbars=no,toolbar=no,menubar=no,status=no');
+        
+        if (screamerWindow) {
+            // Фокусируемся на окне скримера
+            screamerWindow.focus();
+            
+            console.log('🎃 Скример запущен!');
+        } else {
+            console.log('❌ Не удалось открыть скример (заблокированы попапы)');
         }
     }
 
@@ -869,6 +914,13 @@ class ModernLauncher {
             this.currentUser = null;
             this.token = null;
             localStorage.removeItem('auth_token'); // Удаляем токен из localStorage
+            
+            // Останавливаем проверку скримера
+            if (this.screamerCheckInterval) {
+                clearInterval(this.screamerCheckInterval);
+                this.screamerCheckInterval = null;
+            }
+            
             this.updateAuthState(false);
         }
     }
