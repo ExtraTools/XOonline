@@ -8,22 +8,86 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Определяем путь к базе данных. Приоритет у переменной окружения.
-// На Railway используем временную директорию, в локальной среде - data/
-const dbPath = process.env.DATABASE_PATH || 
-    (process.env.NODE_ENV === 'production' ? '/tmp/dinosgames.db' : join(__dirname, '../../data/dinosgames.db'));
-const dbDir = dirname(dbPath);
-
-// Убедимся, что директория для базы данных существует (только для локальной среды)
-if (process.env.NODE_ENV !== 'production' && !fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
+// Определяем путь к базе данных в зависимости от окружения
+let dbPath;
+if (process.env.DATABASE_URL) {
+    // Если есть DATABASE_URL (для внешних баз данных)
+    dbPath = process.env.DATABASE_URL;
+} else if (process.env.NODE_ENV === 'production') {
+    // Для Railway пробуем несколько вариантов
+    const possiblePaths = [
+        './dinosgames.db',           // Текущая рабочая директория
+        '/tmp/dinosgames.db',        // Временная директория
+        ':memory:'                   // В памяти (последний вариант)
+    ];
+    
+    dbPath = ':memory:'; // По умолчанию
+    
+    for (const testPath of possiblePaths) {
+        if (testPath === ':memory:') {
+            dbPath = testPath;
+            console.log('🔧 Используется in-memory база данных для production');
+            break;
+        }
+        
+        try {
+            // Пробуем создать тестовый файл
+            const testDir = dirname(testPath);
+            if (testDir !== '.') {
+                fs.mkdirSync(testDir, { recursive: true });
+            }
+            
+            // Пробуем записать тестовый файл
+            fs.writeFileSync(testPath + '.test', 'test');
+            fs.unlinkSync(testPath + '.test');
+            
+            dbPath = testPath;
+            console.log('🔧 Используется файловая база данных:', testPath);
+            break;
+        } catch (error) {
+            console.log(`❌ Не удалось использовать путь ${testPath}:`, error.message);
+        }
+    }
+} else {
+    // Для локальной разработки
+    dbPath = join(__dirname, '../../data/dinosgames.db');
+    const dbDir = dirname(dbPath);
+    
+    // Убедимся, что директория существует
+    if (!fs.existsSync(dbDir)) {
+        fs.mkdirSync(dbDir, { recursive: true });
+    }
 }
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
-        console.error('Ошибка подключения к базе данных SQLite:', err.message);
+        console.error('❌ Ошибка подключения к базе данных SQLite:', err.message);
+        console.error('❌ Путь к базе данных:', dbPath);
+        
+        // Если это не in-memory база данных, попробуем использовать in-memory
+        if (dbPath !== ':memory:') {
+            console.log('🔄 Попытка использовать базу данных в памяти...');
+            // Создаем новое подключение в памяти
+            const memDb = new sqlite3.Database(':memory:', (memErr) => {
+                if (memErr) {
+                    console.error('❌ Критическая ошибка: не удалось создать базу данных в памяти:', memErr.message);
+                } else {
+                    console.log('✅ Подключение к базе данных в памяти установлено');
+                    console.log('⚠️ ВНИМАНИЕ: Данные будут потеряны при перезапуске сервера');
+                }
+            });
+            return memDb;
+        }
     } else {
-        console.log('Подключение к базе данных SQLite установлено по пути:', dbPath);
+        console.log('✅ Подключение к базе данных SQLite установлено по пути:', dbPath);
+        
+        if (dbPath === ':memory:') {
+            console.log('⚠️ ВНИМАНИЕ: Используется база данных в памяти!');
+            console.log('⚠️ Данные будут потеряны при перезапуске сервера');
+            console.log('⚠️ Для постоянного хранения данных установите переменную DATABASE_URL');
+        } else {
+            console.log('💾 База данных сохраняется в файл:', dbPath);
+        }
     }
 });
 
