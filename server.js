@@ -426,33 +426,57 @@ app.get('*', (req, res) => {
 
 // Запуск сервера с инициализацией базы данных
 async function startServer() {
-    try {
-        // Инициализируем базу данных
-        await initDatabase();
-        console.log('✅ База данных инициализирована успешно');
-        
-        // Очищаем устаревшие онлайн статусы при запуске
+    const maxRetries = 3;
+    let retryCount = 0;
+    let databaseInitialized = false;
+    
+    // Попытки инициализации базы данных
+    while (retryCount < maxRetries && !databaseInitialized) {
         try {
-            const cleaned = await userQueries.cleanupStaleOnlineStatus();
-            console.log(`🧹 Очищено устаревших онлайн статусов: ${cleaned}`);
-        } catch (error) {
-            console.error('⚠️ Ошибка очистки онлайн статусов:', error);
-        }
-        
-        // Периодическая очистка каждые 15 минут
-        setInterval(async () => {
+            console.log(`🔄 Инициализация базы данных... (попытка ${retryCount + 1}/${maxRetries})`);
+            await initDatabase();
+            console.log('✅ База данных инициализирована успешно');
+            databaseInitialized = true;
+            
+            // Очищаем устаревшие онлайн статусы при запуске
             try {
                 const cleaned = await userQueries.cleanupStaleOnlineStatus();
-                if (cleaned > 0) {
-                    console.log(`🧹 Автоочистка: сброшено онлайн статусов: ${cleaned}`);
-                }
+                console.log(`🧹 Очищено устаревших онлайн статусов: ${cleaned}`);
             } catch (error) {
-                console.error('⚠️ Ошибка автоочистки онлайн статусов:', error);
+                console.error('⚠️ Ошибка очистки онлайн статусов:', error);
             }
-        }, 15 * 60 * 1000); // 15 минут
-        
-        // Запускаем сервер
-        app.listen(PORT, '0.0.0.0', () => {
+            
+            // Периодическая очистка каждые 15 минут
+            setInterval(async () => {
+                try {
+                    const cleaned = await userQueries.cleanupStaleOnlineStatus();
+                    if (cleaned > 0) {
+                        console.log(`🧹 Автоочистка: сброшено онлайн статусов: ${cleaned}`);
+                    }
+                } catch (error) {
+                    console.error('⚠️ Ошибка автоочистки онлайн статусов:', error);
+                }
+            }, 15 * 60 * 1000); // 15 минут
+            
+        } catch (error) {
+            console.error(`❌ Ошибка инициализации базы данных (попытка ${retryCount + 1}):`, error);
+            retryCount++;
+            
+            if (retryCount < maxRetries) {
+                console.log(`⏳ Повторная попытка через 2 секунды...`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+    }
+    
+    if (!databaseInitialized) {
+        console.log('⚠️ Не удалось инициализировать базу данных, но сервер будет запущен');
+        console.log('⚠️ Функции работы с базой данных будут недоступны');
+    }
+    
+    // Запускаем сервер в любом случае
+    try {
+        const server = app.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 DiLauncher сервер запущен на порту ${PORT}`);
             console.log(`🌐 URL: http://0.0.0.0:${PORT}`);
             console.log(`⏰ Время запуска: ${new Date().toISOString()}`);
@@ -460,10 +484,34 @@ async function startServer() {
             console.log(`🔧 Окружение: ${process.env.NODE_ENV || 'production'}`);
             console.log(`🎮 GML Launcher API: /api/launcher/auth`);
             console.log(`🔐 Web Auth API: /api/auth/*`);
-            console.log(`🧹 Автоочистка онлайн статусов: каждые 15 минут`);
+            console.log(`💾 База данных: ${databaseInitialized ? 'Работает' : 'Недоступна'}`);
+            
+            if (databaseInitialized) {
+                console.log(`🧹 Автоочистка онлайн статусов: каждые 15 минут`);
+            }
         });
+        
+        // Обработка ошибок сервера
+        server.on('error', (error) => {
+            if (error.code === 'EADDRINUSE') {
+                console.error(`❌ Порт ${PORT} уже занят`);
+                process.exit(1);
+            } else {
+                console.error('❌ Ошибка сервера:', error);
+            }
+        });
+        
+        // Graceful shutdown
+        process.on('SIGTERM', () => {
+            console.log('🛑 Получен сигнал SIGTERM, завершаем сервер...');
+            server.close(() => {
+                console.log('✅ Сервер завершен');
+                process.exit(0);
+            });
+        });
+        
     } catch (error) {
-        console.error('❌ Ошибка запуска сервера:', error);
+        console.error('❌ Критическая ошибка запуска сервера:', error);
         process.exit(1);
     }
 }

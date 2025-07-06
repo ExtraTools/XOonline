@@ -9,11 +9,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Определяем путь к базе данных. Приоритет у переменной окружения.
-const dbPath = process.env.DATABASE_PATH || join(__dirname, '../../data/dinosgames.db');
+// На Railway используем временную директорию, в локальной среде - data/
+const dbPath = process.env.DATABASE_PATH || 
+    (process.env.NODE_ENV === 'production' ? '/tmp/dinosgames.db' : join(__dirname, '../../data/dinosgames.db'));
 const dbDir = dirname(dbPath);
 
-// Убедимся, что директория для базы данных существует
-if (!fs.existsSync(dbDir)) {
+// Убедимся, что директория для базы данных существует (только для локальной среды)
+if (process.env.NODE_ENV !== 'production' && !fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
 }
 
